@@ -17,11 +17,12 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Must
 
+* [ ] ...
+
 ## Should
 
 * [ ] Print feature to use template on real binding
 * [ ] Gallery feature for examples
-* [ ] Indicate the currently used file name
 
 ## Could
 
@@ -31,6 +32,7 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Done
 
+* [x] Indicate the currently used file name
 * [x] Mark orientation of signatures
 * [x] Visualize rulers
 * [x] Remove "stations" (actually they are pretty much useless)
@@ -41,8 +43,8 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Pending
 
-* [ ] When finishing typing into the meta data fields the JSON data doesn't get updated properly
+* [ ] ...
 
 ## Done
 
-* [ ] ...
+* [x] When finishing typing into the meta data fields the JSON data doesn't get updated properly

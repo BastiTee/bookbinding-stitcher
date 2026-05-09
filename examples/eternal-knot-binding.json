@@ -61,10 +61,22 @@
       "y": 60
     }
   ],
+  "signatureLocations": {
+    "orientation": "vertical",
+    "positions": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70
+    ]
+  },
   "metadata": {
-    "title": "Eternal Knot Binding | AIWO ART",
+    "title": "Eternal Knot Binding | AI WO ART",
     "author": "Basti Tee",
-    "description": "Video: https://www.youtube.com/watch?v=vvaN3JY07L8"
+    "description": "A beautiful, but delicate long stitch binding for 7 signatures. Original Video: https://www.youtube.com/watch?v=vvaN3JY07L8"
   },
   "threads": [
     {

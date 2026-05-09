@@ -40,11 +40,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   let currentMode: Mode = "design";
   let currentFileHandle: FileSystemFileHandle | null = null;
+  let currentFileName: string | null = null;
 
   // ============================================================
   // Metadata panel
   // ============================================================
-  const { getMetadata, setMetadata } = buildMetadataPanel(sidebar);
+  const { getMetadata, setMetadata } = buildMetadataPanel(sidebar, refresh);
 
   // ============================================================
   // Mode switcher
@@ -123,11 +124,8 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   sidebar.appendChild(persistentPanel);
 
   persistentPanel.appendChild(sectionTitle("Load / Save"));
-  const exportTextarea = document.createElement("textarea");
-  exportTextarea.className = "export-textarea";
-  exportTextarea.rows = 10;
-  exportTextarea.spellcheck = false;
-  persistentPanel.appendChild(exportTextarea);
+
+  let exportJson = "";
 
   const exportBtnRow = el("div", "export-btn-row");
 
@@ -144,7 +142,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const saveAsBtn = button("Save as...", async () => {
     const title = getMetadata().title?.trim() || "pattern";
     const suggestedName = title + ".json";
-    const text = exportTextarea.value;
+    const text = exportJson;
 
     if (typeof (window as any).showSaveFilePicker === "function") {
       try {
@@ -156,6 +154,8 @@ export function buildUI(container: HTMLElement, model: GridModel) {
         await writable.write(text);
         await writable.close();
         currentFileHandle = handle;
+        currentFileName = handle.name;
+        updateFileNameDisplay();
         setSaveEnabled(true);
         const orig = saveAsBtn.textContent;
         saveAsBtn.textContent = "Saved!";
@@ -181,7 +181,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       saveAsBtn.click();
       return;
     }
-    const text = exportTextarea.value;
+    const text = exportJson;
     try {
       const writable = await currentFileHandle.createWritable();
       await writable.write(text);
@@ -248,7 +248,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     const file = fileInput.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => applyImport(reader.result as string);
+    reader.onload = () => {
+      applyImport(reader.result as string);
+      currentFileName = file.name;
+      currentFileHandle = null;
+      setSaveEnabled(false);
+      updateFileNameDisplay();
+    };
     reader.onerror = () => { importError.textContent = "Failed to read file."; };
     reader.readAsText(file);
     fileInput.value = "";
@@ -261,7 +267,14 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   exportBtnRow.appendChild(saveAsBtn);
   exportBtnRow.appendChild(importBtn);
   persistentPanel.appendChild(exportBtnRow);
+
+  const fileNameDisplay = el("div", "current-file-name");
+  persistentPanel.appendChild(fileNameDisplay);
   persistentPanel.appendChild(importError);
+
+  function updateFileNameDisplay() {
+    fileNameDisplay.textContent = currentFileName ?? "";
+  }
 
   // ============================================================
   // Mode switching logic
@@ -474,7 +487,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       switchToDesign();
     }
 
-    // Export textarea — combined grid + threads
+    // Build export JSON — combined grid + threads
     const sewingState = sewingModel.getState();
     const meta = getMetadata();
     const exportObj: Record<string, unknown> = { ...state };
@@ -504,7 +517,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
         anchorLoops: (t.anchorLoops ?? []).map(al => ({ hole: al.hole, side: al.side, afterEdge: al.afterEdge })),
       };
     });
-    exportTextarea.value = JSON.stringify(exportObj, null, 2);
+    exportJson = JSON.stringify(exportObj, null, 2);
 
     // SVG render (clears innerHTML, so ghost layer must be re-added)
     renderGrid(svg, state, highlight);
@@ -560,7 +573,7 @@ interface Metadata {
   description?: string;
 }
 
-function buildMetadataPanel(sidebar: HTMLElement): {
+function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   getMetadata: () => Metadata;
   setMetadata: (m: Metadata) => void;
 } {
@@ -573,6 +586,7 @@ function buildMetadataPanel(sidebar: HTMLElement): {
   titleInput.maxLength = 50;
   titleInput.placeholder = "Title";
   titleInput.className = "metadata-input";
+  titleInput.addEventListener("input", onChange);
   panel.appendChild(titleInput);
 
   const authorInput = document.createElement("input");
@@ -580,6 +594,7 @@ function buildMetadataPanel(sidebar: HTMLElement): {
   authorInput.maxLength = 50;
   authorInput.placeholder = "Author";
   authorInput.className = "metadata-input";
+  authorInput.addEventListener("input", onChange);
   panel.appendChild(authorInput);
 
   const descTextarea = document.createElement("textarea");
@@ -595,6 +610,7 @@ function buildMetadataPanel(sidebar: HTMLElement): {
 
   descTextarea.addEventListener("input", () => {
     charCount.textContent = `${descTextarea.value.length} / 500`;
+    onChange();
   });
 
   const clearBtn = document.createElement("button");
@@ -605,6 +621,7 @@ function buildMetadataPanel(sidebar: HTMLElement): {
     authorInput.value = "";
     descTextarea.value = "";
     charCount.textContent = "0 / 500";
+    onChange();
   });
   panel.appendChild(clearBtn);
 
