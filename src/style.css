@@ -452,18 +452,6 @@ button.active {
   margin-top: 2px;
 }
 
-.metadata-clear-btn {
-  width: 100%;
-  margin-top: 6px;
-  color: #c33;
-  border-color: #c33;
-  background: #fff8f8;
-}
-
-.metadata-clear-btn:hover {
-  background: #fee;
-}
-
 /* Playback panel */
 .playback-panel {
   /* no extra margin needed; mode panels share the sidebar flow */

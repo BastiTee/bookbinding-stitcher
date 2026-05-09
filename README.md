@@ -47,4 +47,5 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Done
 
+* [x] Consolidate buttons to delete the current design
 * [x] When finishing typing into the meta data fields the JSON data doesn't get updated properly

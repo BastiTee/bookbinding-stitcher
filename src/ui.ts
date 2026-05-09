@@ -46,7 +46,9 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // ============================================================
   // Metadata panel
   // ============================================================
-  const { getMetadata, setMetadata } = buildMetadataPanel(sidebar, refresh);
+  const { getMetadata, setMetadata } = buildMetadataPanel(sidebar, refresh, () => {
+    model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
+  });
 
   // ============================================================
   // Mode switcher
@@ -104,13 +106,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   const interactionError = el("div", "error-msg");
   designPanel.appendChild(interactionError);
-
-  // --- Reset ---
-  const resetBtn = button("Reset", () => {
-    model.loadState({ spine: model.getState().spine, holes: [] });
-  });
-  resetBtn.classList.add("reset-btn");
-  designPanel.appendChild(resetBtn);
 
   // ============================================================
   // Sewing panel
@@ -587,7 +582,7 @@ interface Metadata {
   description?: string;
 }
 
-function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
+function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset: () => void): {
   getMetadata: () => Metadata;
   setMetadata: (m: Metadata) => void;
 } {
@@ -627,17 +622,18 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
     onChange();
   });
 
-  const clearBtn = document.createElement("button");
-  clearBtn.textContent = "Clear";
-  clearBtn.className = "metadata-clear-btn";
-  clearBtn.addEventListener("click", () => {
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "Reset";
+  resetBtn.className = "reset-btn";
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
     titleInput.value = "";
     authorInput.value = "";
     descTextarea.value = "";
     charCount.textContent = "0 / 500";
-    onChange();
+    onReset();
   });
-  panel.appendChild(clearBtn);
+  panel.appendChild(resetBtn);
 
   sidebar.appendChild(panel);
 

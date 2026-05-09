@@ -89,15 +89,6 @@ export function buildSewingPanel(
   panel.appendChild(cancelBtn);
   panel.appendChild(threadError);
 
-  // --- Reset (sewing only) ---
-  const resetBtn = button("Reset Threads", () => {
-    sewingModel.reset();
-    clearPreview();
-    updateThreadButtons();
-  });
-  resetBtn.classList.add("reset-btn");
-  panel.appendChild(resetBtn);
-
   // --- Undo / Redo ---
   const undoRedoRow = el("div", "undo-redo-row");
   const undoBtn = button("↩ Undo", () => {
