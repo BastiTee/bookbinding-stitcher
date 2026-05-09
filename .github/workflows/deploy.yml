@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
-  workflow_dispatch: # manually disabled auto-deploy
-
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  
 permissions:
   contents: read
   pages: write
