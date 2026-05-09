@@ -1,0 +1,91 @@
+{
+  "spine": {
+    "width": 40,
+    "height": 20
+  },
+  "stations": [
+    {
+      "x": 10,
+      "holes": [
+        10
+      ]
+    },
+    {
+      "x": 20,
+      "holes": [
+        10
+      ]
+    },
+    {
+      "x": 30,
+      "holes": [
+        10
+      ]
+    }
+  ],
+  "metadata": {
+    "title": "Simple Chain Stitch"
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "point": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "point": {
+          "x": 30,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 10
+          },
+          "to": {
+            "x": 20,
+            "y": 10
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "chainedVia": {
+            "x": 20,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 3
+        }
+      ],
+      "anchorLoops": []
+    }
+  ]
+}

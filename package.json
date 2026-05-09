@@ -1,0 +1,18 @@
+{
+  "name": "bookbinding-stitcher",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "ps -ef | grep \"bookbinding-stitcher/node_modules/.bin/vite\" | grep -v \"grep\" | awk '{print $2}' | xargs kill -9 2>/dev/null && vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "commit": "git add . && git commit -m \"Update code\" |true && git push -u origin HEAD"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.0",
+    "vite": "~6.1.0",
+    "vitest": "^4.1.5"
+  }
+}

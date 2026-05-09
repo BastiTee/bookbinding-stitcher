@@ -1,0 +1,82 @@
+{
+  "spine": {
+    "width": 60,
+    "height": 30
+  },
+  "stations": [
+    {
+      "x": 10,
+      "holes": [
+        10
+      ]
+    },
+    {
+      "x": 30,
+      "holes": [
+        10,
+        20
+      ]
+    },
+    {
+      "x": 50,
+      "holes": [
+        10
+      ]
+    }
+  ],
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "point": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "point": {
+          "x": 50,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 1
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "index": 2
+        }
+      ],
+      "anchorLoops": [
+        {
+          "point": {
+            "x": 30,
+            "y": 10
+          },
+          "side": "negative",
+          "afterEdge": 1
+        }
+      ]
+    }
+  ]
+}

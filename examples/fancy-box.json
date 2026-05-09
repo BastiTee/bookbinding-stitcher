@@ -1,0 +1,415 @@
+{
+  "spine": {
+    "width": 80,
+    "height": 100
+  },
+  "stations": [
+    {
+      "x": 10,
+      "holes": [
+        40,
+        60
+      ]
+    },
+    {
+      "x": 20,
+      "holes": [
+        30,
+        70
+      ]
+    },
+    {
+      "x": 30,
+      "holes": [
+        20,
+        80
+      ]
+    },
+    {
+      "x": 40,
+      "holes": [
+        10,
+        90
+      ]
+    },
+    {
+      "x": 50,
+      "holes": [
+        20,
+        80
+      ]
+    },
+    {
+      "x": 60,
+      "holes": [
+        30,
+        70
+      ]
+    },
+    {
+      "x": 70,
+      "holes": [
+        40,
+        60
+      ]
+    }
+  ],
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "point": {
+          "x": 40,
+          "y": 10
+        }
+      },
+      "threadEnd": {
+        "type": "knot",
+        "side": "positive",
+        "point": {
+          "x": 40,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 40,
+            "y": 10
+          },
+          "to": {
+            "x": 50,
+            "y": 20
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 80
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 50,
+            "y": 80
+          },
+          "to": {
+            "x": 10,
+            "y": 40
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 40
+          },
+          "to": {
+            "x": 10,
+            "y": 60
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 60
+          },
+          "to": {
+            "x": 20,
+            "y": 70
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 70
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 60,
+            "y": 70
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 60,
+            "y": 70
+          },
+          "to": {
+            "x": 60,
+            "y": 30
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 60,
+            "y": 30
+          },
+          "to": {
+            "x": 70,
+            "y": 40
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 70,
+            "y": 40
+          },
+          "to": {
+            "x": 70,
+            "y": 60
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 70,
+            "y": 60
+          },
+          "to": {
+            "x": 30,
+            "y": 20
+          },
+          "index": 11
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 20
+          },
+          "to": {
+            "x": 30,
+            "y": 80
+          },
+          "index": 12
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 80
+          },
+          "to": {
+            "x": 40,
+            "y": 90
+          },
+          "index": 13
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 90
+          },
+          "to": {
+            "x": 40,
+            "y": 10
+          },
+          "index": 14
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 40,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 20
+          },
+          "index": 15
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 20
+          },
+          "to": {
+            "x": 30,
+            "y": 80
+          },
+          "index": 16
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 80
+          },
+          "to": {
+            "x": 70,
+            "y": 40
+          },
+          "index": 17
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 70,
+            "y": 40
+          },
+          "to": {
+            "x": 70,
+            "y": 60
+          },
+          "index": 18
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 70,
+            "y": 60
+          },
+          "to": {
+            "x": 60,
+            "y": 70
+          },
+          "index": 19
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 60,
+            "y": 70
+          },
+          "to": {
+            "x": 60,
+            "y": 30
+          },
+          "index": 20
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 60,
+            "y": 30
+          },
+          "to": {
+            "x": 20,
+            "y": 70
+          },
+          "index": 21
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 70
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 22
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 10,
+            "y": 40
+          },
+          "index": 23
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 40
+          },
+          "to": {
+            "x": 10,
+            "y": 60
+          },
+          "index": 24
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 60
+          },
+          "to": {
+            "x": 50,
+            "y": 20
+          },
+          "index": 25
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 80
+          },
+          "index": 26
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 50,
+            "y": 80
+          },
+          "to": {
+            "x": 40,
+            "y": 90
+          },
+          "index": 27
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 90
+          },
+          "to": {
+            "x": 40,
+            "y": 10
+          },
+          "index": 28
+        }
+      ],
+      "anchorLoops": []
+    }
+  ]
+}

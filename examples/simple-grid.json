@@ -1,0 +1,33 @@
+{
+  "spine": {
+    "width": 60,
+    "height": 30
+  },
+  "stations": [
+    {
+      "x": 10,
+      "holes": [
+        10,
+        20
+      ]
+    },
+    {
+      "x": 30,
+      "holes": [
+        10,
+        20
+      ]
+    },
+    {
+      "x": 50,
+      "holes": [
+        10,
+        20
+      ]
+    }
+  ],
+  "metadata": {
+    "title": "Simply Grid"
+  },
+  "threads": []
+}

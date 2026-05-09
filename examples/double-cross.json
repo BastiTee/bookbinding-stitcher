@@ -1,0 +1,353 @@
+{
+  "spine": {
+    "width": 50,
+    "height": 60
+  },
+  "stations": [
+    {
+      "x": 10,
+      "holes": [
+        10,
+        30,
+        50
+      ]
+    },
+    {
+      "x": 20,
+      "holes": [
+        10,
+        30,
+        50
+      ]
+    },
+    {
+      "x": 30,
+      "holes": [
+        10,
+        30,
+        50
+      ]
+    },
+    {
+      "x": 40,
+      "holes": [
+        10,
+        30,
+        50
+      ]
+    }
+  ],
+  "metadata": {
+    "title": "Double Cross"
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "point": {
+          "x": 10,
+          "y": 30
+        }
+      },
+      "threadEnd": {
+        "type": "knot",
+        "side": "positive",
+        "point": {
+          "x": 10,
+          "y": 30
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 20,
+            "y": 10
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 10
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 30
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 30
+          },
+          "to": {
+            "x": 40,
+            "y": 10
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 10
+          },
+          "to": {
+            "x": 40,
+            "y": 30
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 40,
+            "y": 30
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 30
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 30
+          },
+          "to": {
+            "x": 20,
+            "y": 10
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 10
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 10,
+            "y": 10
+          },
+          "index": 11
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 10
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 12
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 20,
+            "y": 50
+          },
+          "index": 13
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 50
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 14
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 30,
+            "y": 50
+          },
+          "index": 15
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 50
+          },
+          "to": {
+            "x": 30,
+            "y": 30
+          },
+          "index": 16
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 30
+          },
+          "to": {
+            "x": 40,
+            "y": 50
+          },
+          "index": 17
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 50
+          },
+          "to": {
+            "x": 40,
+            "y": 30
+          },
+          "index": 18
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 40,
+            "y": 30
+          },
+          "to": {
+            "x": 30,
+            "y": 50
+          },
+          "index": 19
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 50
+          },
+          "to": {
+            "x": 30,
+            "y": 30
+          },
+          "index": 20
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 30
+          },
+          "to": {
+            "x": 20,
+            "y": 50
+          },
+          "index": 21
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 50
+          },
+          "to": {
+            "x": 20,
+            "y": 30
+          },
+          "index": 22
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 30
+          },
+          "to": {
+            "x": 10,
+            "y": 50
+          },
+          "index": 23
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 50
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 24
+        }
+      ],
+      "anchorLoops": []
+    }
+  ]
+}
