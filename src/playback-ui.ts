@@ -3,6 +3,7 @@ import type { SewingModel } from "./sewing-model";
 import type { SewingState, Thread, Edge } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { computeScaleSizes } from "./render";
+import { el, sectionTitle } from "./dom-utils";
 
 export function buildPlaybackPanel(
   sidebar: HTMLElement,
@@ -114,18 +115,6 @@ function sliceState(state: Readonly<SewingState>, count: number): SewingState {
 }
 
 // --- Helpers ---
-function el(tag: string, className?: string): HTMLDivElement {
-  const e = document.createElement(tag) as HTMLDivElement;
-  if (className) e.className = className;
-  return e;
-}
-
-function sectionTitle(text: string): HTMLElement {
-  const h = document.createElement("h3");
-  h.className = "section-title";
-  h.textContent = text;
-  return h;
-}
 
 function btn(text: string, onClick: () => void): HTMLButtonElement {
   const b = document.createElement("button");

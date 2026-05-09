@@ -3,6 +3,7 @@ import { SewingModel, canEndWithKnot, getCurrentPoint, getEligibleChainHoles, ge
 import { renderSewing, type PreviewEdge } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { screenToSvg, resolveTarget } from "./interaction";
+import { el, sectionTitle } from "./dom-utils";
 
 export function buildSewingPanel(
   sidebar: HTMLElement,
@@ -355,18 +356,6 @@ export function buildSewingPanel(
 }
 
 // --- Helpers ---
-function el(tag: string, className?: string): HTMLDivElement {
-  const e = document.createElement(tag) as HTMLDivElement;
-  if (className) e.className = className;
-  return e;
-}
-
-function sectionTitle(text: string): HTMLElement {
-  const h = document.createElement("h3");
-  h.className = "section-title";
-  h.textContent = text;
-  return h;
-}
 
 function button(text: string, onClick: () => void): HTMLButtonElement {
   const btn = document.createElement("button");

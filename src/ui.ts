@@ -8,6 +8,7 @@ import {
 import { SewingModel } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { buildSewingPanel } from "./sewing-ui";
+import { el, sectionTitle } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -122,7 +123,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const persistentPanel = el("div", "persistent-panel");
   sidebar.appendChild(persistentPanel);
 
-  persistentPanel.appendChild(sectionTitle("Export / Import"));
+  persistentPanel.appendChild(sectionTitle("Load / Save"));
   const exportTextarea = document.createElement("textarea");
   exportTextarea.className = "export-textarea";
   exportTextarea.rows = 10;
@@ -510,19 +511,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
 // --- Helpers ---
 
-function el(tag: string, className?: string): HTMLDivElement {
-  const e = document.createElement(tag) as HTMLDivElement;
-  if (className) e.className = className;
-  return e;
-}
-
-function sectionTitle(text: string): HTMLElement {
-  const h = document.createElement("h3");
-  h.className = "section-title";
-  h.textContent = text;
-  return h;
-}
-
 function numberInput(placeholder: string): {
   wrapper: HTMLDivElement;
   input: HTMLInputElement;
@@ -559,7 +547,7 @@ function buildMetadataPanel(sidebar: HTMLElement): {
 } {
   const panel = el("div", "metadata-panel");
 
-  panel.appendChild(sectionTitle("Pattern Info"));
+  panel.appendChild(sectionTitle("Stitch Pattern"));
 
   const titleInput = document.createElement("input");
   titleInput.type = "text";

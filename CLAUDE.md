@@ -16,6 +16,7 @@ Notation: `[load][start]-[end]`, e.g., `p0,0-1,1 n1,1-1,0 p1,0-0,1 n0,1-0,0`
 - `npm run dev` — start local dev server
 - `npm run build` — typecheck with tsc then build with Vite
 - `npm run preview` — preview production build locally
+- `npm test` — run tests with Vitest (tests live in `src/__tests__/`)
 
 ## Tech Stack
 
