@@ -1,13 +1,13 @@
-import type { SewingState, Load, Point, ChainStitch } from "./sewing-model";
-import { getCurrentPoint } from "./sewing-model";
+import type { SewingState, Load, Hole, ChainStitch } from "./sewing-model";
+import { getCurrentHole } from "./sewing-model";
 import type { Spine } from "./model";
 import type { ScaleSizes } from "./render";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export interface PreviewEdge {
-  from: Point;
-  to: Point;
+  from: Hole;
+  to: Hole;
   load: Load;
 }
 
@@ -26,7 +26,7 @@ function normalize(dx: number, dy: number): { x: number; y: number } {
 }
 
 // Canonical key for an undirected endpoint pair
-function pairKey(a: Point, b: Point): string {
+function pairKey(a: Hole, b: Hole): string {
   if (a.x < b.x || (a.x === b.x && a.y <= b.y)) {
     return `${a.x},${a.y}|${b.x},${b.y}`;
   }
@@ -34,28 +34,28 @@ function pairKey(a: Point, b: Point): string {
 }
 
 type EdgeEntry = {
-  from: Point; to: Point; load: Load; preview: boolean;
+  from: Hole; to: Hole; load: Load; preview: boolean;
   index?: number;
 };
 
-type ChainEntry = { from: Point; to: Point; end: Point; load: Load };
+type ChainEntry = { from: Hole; to: Hole; end: Hole; load: Load };
 
 /** Computes chain stitch entries for a thread by walking the interleaved edge/chain sequence. */
 function getChainStitchEntries(
-  startPoint: Point,
-  edges: readonly { load: Load; from: Point; to: Point }[],
+  startHole: Hole,
+  edges: readonly { load: Load; from: Hole; to: Hole }[],
   chainStitches: readonly ChainStitch[],
 ): ChainEntry[] {
   if (chainStitches.length === 0) return [];
   const result: ChainEntry[] = [];
-  let pos: Point = startPoint;
+  let pos: Hole = startHole;
   let edgeIdx = 0;
   let csIdx = 0;
   while (edgeIdx < edges.length || csIdx < chainStitches.length) {
     const nextCS = csIdx < chainStitches.length ? chainStitches[csIdx] : null;
     if (nextCS && nextCS.afterEdge <= edgeIdx) {
       const end = edgeIdx < edges.length ? { ...edges[edgeIdx].to } : { ...pos };
-      result.push({ from: { ...pos }, to: { ...nextCS.point }, end, load: nextCS.side });
+      result.push({ from: { ...pos }, to: { ...nextCS.hole }, end, load: nextCS.side });
       pos = end;
       edgeIdx++; // consume the associated return edge
       csIdx++;
@@ -75,8 +75,8 @@ export function renderSewing(
   sizes: ScaleSizes,
   spine: Spine,
   previewEdge?: PreviewEdge | null,
-  options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Point[] },
-  chainEligibleHoles?: Point[],
+  options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Hole[] },
+  chainEligibleHoles?: Hole[],
 ): void {
   const spineOnly = options?.spineOnly ?? false;
 
@@ -115,12 +115,12 @@ export function renderSewing(
   // --- Collect chain stitches separately (custom path, not subject to slot offsets) ---
   const allChainStitches: ChainEntry[] = [];
   for (const thread of sewingState.threads) {
-    for (const cs of getChainStitchEntries(thread.startPoint, thread.edges, thread.chainStitches ?? [])) {
+    for (const cs of getChainStitchEntries(thread.startHole, thread.edges, thread.chainStitches ?? [])) {
       allChainStitches.push(cs);
     }
   }
   if (active) {
-    for (const cs of getChainStitchEntries(active.startPoint!, active.edges, active.chainStitches ?? [])) {
+    for (const cs of getChainStitchEntries(active.startHole!, active.edges, active.chainStitches ?? [])) {
       allChainStitches.push(cs);
     }
   }
@@ -138,7 +138,7 @@ export function renderSewing(
     ...(active?.anchorLoops ?? []),
   ];
   for (const loop of allLoops) {
-    if (!spineOnly || loop.side === "positive") drawAnchorLoop(layer, loop.point, loop.side, sizes);
+    if (!spineOnly || loop.side === "positive") drawAnchorLoop(layer, loop.hole, loop.side, sizes);
   }
 
   // --- Draw eligible chain hole halos ---
@@ -198,16 +198,16 @@ export function renderSewing(
     if (thread.edges.length > 0) {
       const firstEdge = thread.edges[0];
       const dir = normalize(
-        firstEdge.to.x - thread.startPoint.x,
-        firstEdge.to.y - thread.startPoint.y,
+        firstEdge.to.x - thread.startHole.x,
+        firstEdge.to.y - thread.startHole.y,
       );
       // Perpendicular nudge: rotate dir 90° left so start and end don't overlap
       const perpStart = { x: -dir.y, y: dir.x };
       const startTip = {
-        x: thread.startPoint.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
-        y: thread.startPoint.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
+        x: thread.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
+        y: thread.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
       };
-      drawTailLine(layer, thread.startPoint, startTip, thread.startSide);
+      drawTailLine(layer, thread.startHole, startTip, thread.startSide);
       drawStartMarker(layer, startTip, thread.startSide, sizes);
 
       if (thread.completed) {
@@ -227,31 +227,31 @@ export function renderSewing(
         }
       }
     } else {
-      drawStartMarker(layer, thread.startPoint, thread.startSide, sizes);
+      drawStartMarker(layer, thread.startHole, thread.startSide, sizes);
     }
   }
 
   // --- Markers for active thread ---
-  if (active && active.startPoint) {
+  if (active && active.startHole) {
     if (active.edges.length > 0) {
       const firstEdge = active.edges[0];
       const dir = normalize(
-        firstEdge.to.x - active.startPoint.x,
-        firstEdge.to.y - active.startPoint.y,
+        firstEdge.to.x - active.startHole.x,
+        firstEdge.to.y - active.startHole.y,
       );
       const perpStart = { x: -dir.y, y: dir.x };
       const startTip = {
-        x: active.startPoint.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
-        y: active.startPoint.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
+        x: active.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
+        y: active.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
       };
-      drawTailLine(layer, active.startPoint, startTip, active.startSide);
+      drawTailLine(layer, active.startHole, startTip, active.startSide);
       drawStartMarker(layer, startTip, active.startSide, sizes);
     } else {
-      drawStartMarker(layer, active.startPoint, active.startSide, sizes);
+      drawStartMarker(layer, active.startHole, active.startSide, sizes);
     }
 
     // Current endpoint indicator — always exactly on the hole
-    const currentPoint = getCurrentPoint(active);
+    const currentPoint = getCurrentHole(active);
     if (currentPoint) {
       const circle = document.createElementNS(SVG_NS, "circle");
       circle.setAttribute("cx", String(currentPoint.x));
@@ -281,8 +281,8 @@ function drawEdgeLabel(layer: SVGGElement, midX: number, midY: number, index: nu
 
 function drawEdgeLine(
   layer: SVGGElement,
-  from: Point,
-  to: Point,
+  from: Hole,
+  to: Hole,
   load: Load,
   preview: boolean,
   slotIndex: number,
@@ -337,7 +337,7 @@ function drawEdgeLine(
   }
 }
 
-function drawTailLine(layer: SVGGElement, from: Point, to: Point, load: Load) {
+function drawTailLine(layer: SVGGElement, from: Hole, to: Hole, load: Load) {
   const line = document.createElementNS(SVG_NS, "line");
   line.setAttribute("x1", String(from.x));
   line.setAttribute("y1", String(from.y));
@@ -347,7 +347,7 @@ function drawTailLine(layer: SVGGElement, from: Point, to: Point, load: Load) {
   layer.appendChild(line);
 }
 
-function drawStartMarker(layer: SVGGElement, point: Point, side: Load, sizes: ScaleSizes) {
+function drawStartMarker(layer: SVGGElement, point: Hole, side: Load, sizes: ScaleSizes) {
   const r = sizes.dotRadius * 1.8;
   const x = point.x;
   const y = point.y;
@@ -359,7 +359,7 @@ function drawStartMarker(layer: SVGGElement, point: Point, side: Load, sizes: Sc
   layer.appendChild(poly);
 }
 
-function drawEndMarker(layer: SVGGElement, point: Point, load: Load, sizes: ScaleSizes) {
+function drawEndMarker(layer: SVGGElement, point: Hole, load: Load, sizes: ScaleSizes) {
   const r = sizes.dotRadius * 1.6;
   const x = point.x;
   const y = point.y;
@@ -370,7 +370,7 @@ function drawEndMarker(layer: SVGGElement, point: Point, load: Load, sizes: Scal
   layer.appendChild(poly);
 }
 
-function drawKnotMarker(layer: SVGGElement, point: Point, sizes: ScaleSizes) {
+function drawKnotMarker(layer: SVGGElement, point: Hole, sizes: ScaleSizes) {
   const r = sizes.dotRadius * 1.8;
   const x = point.x;
   const y = point.y;
@@ -400,7 +400,7 @@ function drawKnotMarker(layer: SVGGElement, point: Point, sizes: ScaleSizes) {
   layer.appendChild(line2);
 }
 
-function drawAnchorLoop(layer: SVGGElement, point: Point, side: Load, sizes: ScaleSizes) {
+function drawAnchorLoop(layer: SVGGElement, point: Hole, side: Load, sizes: ScaleSizes) {
   const w = sizes.dotRadius * 1.4;
   const h = sizes.dotRadius * 3;
   const x = point.x;
@@ -424,7 +424,7 @@ function drawAnchorLoop(layer: SVGGElement, point: Point, side: Load, sizes: Sca
  * around the far side of the chain hole (`via + d*loopR`), forming a closed loop with no straight
  * handles. G1 continuity at the round cap; cusp (anti-parallel tangents) at the pointed tip.
  */
-function drawChainStitchPath(layer: SVGGElement, from: Point, via: Point, end: Point, load: Load, sizes: ScaleSizes) {
+function drawChainStitchPath(layer: SVGGElement, from: Hole, via: Hole, end: Hole, load: Load, sizes: ScaleSizes) {
   const dx = via.x - from.x;
   const dy = via.y - from.y;
   const len = Math.sqrt(dx * dx + dy * dy);

@@ -35,8 +35,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   // Local UI state
   const highlight: HighlightState = {
-    selectedStationX: null,
-    selectedHoleY: null,
+    selectedHole: null,
   };
 
   let currentMode: Mode = "design";
@@ -97,8 +96,8 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   designPanel.appendChild(sectionTitle("Controls"));
   const controlsList = el("dl", "controls-list");
   controlsList.innerHTML =
-    "<dt>Click</dt><dd>Add station / hole</dd>" +
-    "<dt>Shift+Click</dt><dd>Delete station / hole</dd>";
+    "<dt>Click</dt><dd>Add hole</dd>" +
+    "<dt>Shift+Click</dt><dd>Delete hole</dd>";
   designPanel.appendChild(controlsList);
 
   const interactionError = el("div", "error-msg");
@@ -106,7 +105,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   // --- Reset ---
   const resetBtn = button("Reset", () => {
-    model.loadState({ spine: model.getState().spine, stations: [] });
+    model.loadState({ spine: model.getState().spine, holes: [] });
   });
   resetBtn.classList.add("reset-btn");
   designPanel.appendChild(resetBtn);
@@ -206,7 +205,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       setMetadata(parsed.metadata ?? {});
       if (Array.isArray(parsed.threads) && parsed.threads.length > 0) {
         sewingModel.loadThreads(parsed.threads.map((t: {
-          threadStart: { side: unknown; point: unknown };
+          threadStart: { side: unknown; hole: unknown };
           threadEnd?: { type?: unknown };
           edges: Array<Record<string, unknown>>;
           anchorLoops?: unknown[];
@@ -214,19 +213,24 @@ export function buildUI(container: HTMLElement, model: GridModel) {
           const chainStitches: Array<Record<string, unknown>> = [];
           const normalizedEdges = (t.edges ?? []).map((e, i) => {
             if (e.chainedVia != null) {
-              chainStitches.push({ point: e.chainedVia, side: e.load, afterEdge: i });
+              chainStitches.push({ hole: e.chainedVia, side: e.load, afterEdge: i });
               const { chainedVia, ...rest } = e;
               return { ...rest, from: chainedVia };
             }
             return e;
           });
+          const anchorLoops = (t.anchorLoops ?? []).map((al: any) => ({
+            hole: al.hole,
+            side: al.side,
+            afterEdge: al.afterEdge,
+          }));
           return {
             startSide: t.threadStart?.side,
-            startPoint: t.threadStart?.point,
+            startHole: t.threadStart?.hole,
             edges: normalizedEdges,
             completed: true,
             endType: t.threadEnd?.type === "knot" ? "knot" : "loose",
-            anchorLoops: t.anchorLoops ?? [],
+            anchorLoops,
             chainStitches,
           };
         }));
@@ -312,18 +316,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     if (ghostLayer) ghostLayer.innerHTML = "";
   }
 
-  function showStationGhost(x: number, height: number) {
-    clearGhost();
-    if (!ghostLayer) return;
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", String(x));
-    line.setAttribute("y1", "0");
-    line.setAttribute("x2", String(x));
-    line.setAttribute("y2", String(height));
-    line.classList.add("ghost-station-line");
-    ghostLayer.appendChild(line);
-  }
-
   function showHoleGhost(x: number, y: number, radius: number) {
     clearGhost();
     if (!ghostLayer) return;
@@ -370,16 +362,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
     switch (target.kind) {
       case "spine":
-        showStationGhost(target.snappedX, state.spine.height);
+        showHoleGhost(target.snappedX, target.snappedY, dotRadius);
         showCursorTooltip(target.snappedX, target.snappedY, label, state.spine);
-        break;
-      case "station":
-        showHoleGhost(target.stationX!, target.snappedY, dotRadius);
-        showCursorTooltip(target.stationX!, target.snappedY, label, state.spine);
         break;
       case "hole":
         clearGhost();
-        showCursorTooltip(target.stationX!, target.holeY!, label, state.spine);
+        showCursorTooltip(target.holeX!, target.holeY!, label, state.spine);
         break;
       case "outside":
         clearGhost();
@@ -404,22 +392,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
     try {
       if (e.shiftKey) {
-        switch (target.kind) {
-          case "hole":
-            model.removeHole(target.stationX!, target.holeY!);
-            break;
-          case "station":
-            model.removeStation(target.stationX!);
-            break;
+        if (target.kind === "hole") {
+          model.removeHole(target.holeX!, target.holeY!);
         }
       } else {
-        switch (target.kind) {
-          case "spine":
-            model.addStation(target.snappedX);
-            break;
-          case "station":
-            model.addHole(target.stationX!, target.snappedY);
-            break;
+        if (target.kind === "spine") {
+          model.addHole(target.snappedX, target.snappedY);
         }
       }
     } catch (err) {
@@ -444,11 +422,10 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
     // Validate highlight still exists
     if (
-      highlight.selectedStationX !== null &&
-      !state.stations.some((s) => s.x === highlight.selectedStationX)
+      highlight.selectedHole !== null &&
+      !state.holes.some((h) => h.x === highlight.selectedHole!.x && h.y === highlight.selectedHole!.y)
     ) {
-      highlight.selectedStationX = null;
-      highlight.selectedHoleY = null;
+      highlight.selectedHole = null;
     }
 
     // Enable/disable playback button based on whether there are completed threads with edges
@@ -472,20 +449,20 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       const exportEdges = t.edges.map((edge, i) => {
         if (csIdx < sortedCS.length && sortedCS[csIdx].afterEdge === i) {
           const cs = sortedCS[csIdx++];
-          const prevTo = i > 0 ? t.edges[i - 1].to : t.startPoint;
-          return { ...edge, from: prevTo, chainedVia: cs.point };
+          const prevTo = i > 0 ? t.edges[i - 1].to : t.startHole;
+          return { ...edge, from: prevTo, chainedVia: cs.hole };
         }
         return edge;
       });
       return {
-        threadStart: { side: t.startSide, point: t.startPoint },
+        threadStart: { side: t.startSide, hole: t.startHole },
         threadEnd: {
           type: t.endType ?? "loose",
           side: lastLoad === "positive" ? "negative" : "positive",
-          point: lastEdge ? lastEdge.to : t.startPoint,
+          hole: lastEdge ? lastEdge.to : t.startHole,
         },
         edges: exportEdges,
-        anchorLoops: t.anchorLoops ?? [],
+        anchorLoops: (t.anchorLoops ?? []).map(al => ({ hole: al.hole, side: al.side, afterEdge: al.afterEdge })),
       };
     });
     exportTextarea.value = JSON.stringify(exportObj, null, 2);

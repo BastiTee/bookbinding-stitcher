@@ -6,8 +6,8 @@ export interface SvgCoord {
 }
 
 export interface InteractionTarget {
-  kind: "spine" | "station" | "hole" | "outside";
-  stationX?: number;
+  kind: "spine" | "hole" | "outside";
+  holeX?: number;
   holeY?: number;
   snappedX: number;
   snappedY: number;
@@ -43,7 +43,7 @@ export function resolveTarget(
   coord: SvgCoord,
   state: Readonly<GridState>,
 ): InteractionTarget {
-  const { spine, stations } = state;
+  const { spine, holes } = state;
   const threshold = getProximityMm(svg, 10);
 
   const sx = snapToGrid(coord.x, 0, spine.width);
@@ -59,42 +59,29 @@ export function resolveTarget(
     return { kind: "outside", snappedX: sx, snappedY: sy };
   }
 
-  // Find nearest station within threshold
-  let nearestStation: number | undefined;
+  // Find nearest hole within threshold (Euclidean distance)
+  let nearestHole: { x: number; y: number } | undefined;
   let nearestDist = Infinity;
-  for (const st of stations) {
-    const dist = Math.abs(coord.x - st.x);
+  for (const h of holes) {
+    const dx = coord.x - h.x;
+    const dy = coord.y - h.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < nearestDist) {
       nearestDist = dist;
-      nearestStation = st.x;
+      nearestHole = h;
     }
   }
 
-  if (nearestStation !== undefined && nearestDist <= threshold) {
-    // Near a station — check if also near an existing hole
-    const station = stations.find((s) => s.x === nearestStation);
-    if (station) {
-      for (const hy of station.holes) {
-        if (Math.abs(coord.y - hy) <= threshold) {
-          return {
-            kind: "hole",
-            stationX: nearestStation,
-            holeY: hy,
-            snappedX: nearestStation,
-            snappedY: hy,
-          };
-        }
-      }
-    }
-    // Near station but not near a hole — target is "add hole here"
+  if (nearestHole !== undefined && nearestDist <= threshold) {
     return {
-      kind: "station",
-      stationX: nearestStation,
-      snappedX: nearestStation,
-      snappedY: sy,
+      kind: "hole",
+      holeX: nearestHole.x,
+      holeY: nearestHole.y,
+      snappedX: nearestHole.x,
+      snappedY: nearestHole.y,
     };
   }
 
-  // Not near any station — target is "add station here"
+  // Not near any hole — target is "add hole here"
   return { kind: "spine", snappedX: sx, snappedY: sy };
 }

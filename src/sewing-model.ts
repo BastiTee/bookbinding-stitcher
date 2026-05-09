@@ -1,32 +1,32 @@
 export type Load = "positive" | "negative";
 
-export interface Point {
+export interface Hole {
   x: number;
   y: number;
 }
 
 export interface Edge {
   load: Load;
-  from: Point;
-  to: Point;
+  from: Hole;
+  to: Hole;
   index?: number;
 }
 
 export interface AnchorLoop {
-  point: Point;
+  hole: Hole;
   side: Load;
   afterEdge?: number; // edge count at time of creation; used for playback ordering
 }
 
 export interface ChainStitch {
-  point: Point;      // the hole being chained around
+  hole: Hole;        // the hole being chained around
   side: Load;        // == nextLoad at time of creation
   afterEdge: number; // active.edges.length at time of creation; used for playback ordering
 }
 
 export interface Thread {
   startSide: Load;
-  startPoint: Point;
+  startHole: Hole;
   edges: Edge[];
   completed: boolean;
   endType?: "loose" | "knot";
@@ -36,7 +36,7 @@ export interface Thread {
 
 export interface ActiveThread {
   startSide: Load;
-  startPoint: Point | null;
+  startHole: Hole | null;
   edges: Edge[];
   nextLoad: Load;
   anchorLoops: AnchorLoop[];
@@ -48,16 +48,16 @@ export interface SewingState {
   activeThread: ActiveThread | null;
 }
 
-export function getCurrentPoint(active: {
-  startPoint: Point | null;
-  edges: { to: Point }[];
-  chainStitches?: { point: Point; afterEdge: number }[];
-}): Point | null {
-  if (!active.startPoint) return null;
+export function getCurrentHole(active: {
+  startHole: Hole | null;
+  edges: { to: Hole }[];
+  chainStitches?: { hole: Hole; afterEdge: number }[];
+}): Hole | null {
+  if (!active.startHole) return null;
   const css = active.chainStitches ?? [];
   const lastCS = css.length > 0 ? css[css.length - 1] : null;
-  if (lastCS && lastCS.afterEdge === active.edges.length) return lastCS.point;
-  if (active.edges.length === 0) return active.startPoint;
+  if (lastCS && lastCS.afterEdge === active.edges.length) return lastCS.hole;
+  if (active.edges.length === 0) return active.startHole;
   return active.edges[active.edges.length - 1].to;
 }
 
@@ -69,20 +69,20 @@ export function canEndWithKnot(
   active: ActiveThread,
   threads: readonly Thread[],
 ): boolean {
-  if (!active.startPoint || active.edges.length === 0) return false;
-  const currentPoint = getCurrentPoint(active)!;
+  if (!active.startHole || active.edges.length === 0) return false;
+  const currentHole = getCurrentHole(active)!;
   const currentLoad = active.nextLoad;
-  function ptEq(a: Point, b: Point) { return a.x === b.x && a.y === b.y; }
+  function holeEq(a: Hole, b: Hole) { return a.x === b.x && a.y === b.y; }
 
-  // Own start point
-  if (ptEq(currentPoint, active.startPoint) && currentLoad === active.startSide) return true;
+  // Own start hole
+  if (holeEq(currentHole, active.startHole) && currentLoad === active.startSide) return true;
 
-  // All completed threads: start point + every edge endpoint with matching load
+  // All completed threads: start hole + every edge endpoint with matching load
   for (const thread of threads) {
-    if (ptEq(currentPoint, thread.startPoint) && currentLoad === thread.startSide) return true;
+    if (holeEq(currentHole, thread.startHole) && currentLoad === thread.startSide) return true;
     for (const edge of thread.edges) {
       if (edge.load === currentLoad &&
-          (ptEq(currentPoint, edge.from) || ptEq(currentPoint, edge.to))) return true;
+          (holeEq(currentHole, edge.from) || holeEq(currentHole, edge.to))) return true;
     }
   }
 
@@ -90,7 +90,7 @@ export function canEndWithKnot(
   for (let i = 0; i < active.edges.length - 1; i++) {
     const edge = active.edges[i];
     if (edge.load === currentLoad &&
-        (ptEq(currentPoint, edge.from) || ptEq(currentPoint, edge.to))) return true;
+        (holeEq(currentHole, edge.from) || holeEq(currentHole, edge.to))) return true;
   }
 
   return false;
@@ -105,20 +105,20 @@ export function canEndWithKnot(
 export function getEligibleChainHoles(
   active: ActiveThread,
   threads: readonly Thread[],
-): Point[] {
-  if (!active.startPoint) return [];
+): Hole[] {
+  if (!active.startHole) return [];
 
-  const currentPos = getCurrentPoint(active);
+  const currentPos = getCurrentHole(active);
   const load = active.nextLoad;
   const seen = new Set<string>();
-  const result: Point[] = [];
+  const result: Hole[] = [];
 
-  function add(p: Point) {
-    if (currentPos && p.x === currentPos.x && p.y === currentPos.y) return;
-    const key = `${p.x},${p.y}`;
+  function add(h: Hole) {
+    if (currentPos && h.x === currentPos.x && h.y === currentPos.y) return;
+    const key = `${h.x},${h.y}`;
     if (seen.has(key)) return;
     seen.add(key);
-    result.push(p);
+    result.push(h);
   }
 
   for (const thread of threads) {
@@ -129,7 +129,7 @@ export function getEligibleChainHoles(
       }
     }
     for (const cs of thread.chainStitches ?? []) {
-      if (cs.side === load) add(cs.point);
+      if (cs.side === load) add(cs.hole);
     }
   }
 
@@ -141,40 +141,40 @@ export function getEligibleChainHoles(
     }
   }
   for (const cs of active.chainStitches) {
-    if (cs.side === load) add(cs.point);
+    if (cs.side === load) add(cs.hole);
   }
 
   return result;
 }
 
 /**
- * Returns anchor loop points eligible as chain stitch targets from the current active thread position.
+ * Returns anchor loop holes eligible as chain stitch targets from the current active thread position.
  * A loop is eligible if its side matches nextLoad and it is not at the current thread position.
  */
-export function getEligibleAnchorLoopChainPoints(
+export function getEligibleAnchorLoopHoles(
   active: ActiveThread,
   threads: readonly Thread[],
-): Point[] {
-  if (!active.startPoint) return [];
-  const currentPos = getCurrentPoint(active);
+): Hole[] {
+  if (!active.startHole) return [];
+  const currentPos = getCurrentHole(active);
   const load = active.nextLoad;
   const seen = new Set<string>();
-  const result: Point[] = [];
+  const result: Hole[] = [];
 
-  function add(p: Point) {
-    if (currentPos && p.x === currentPos.x && p.y === currentPos.y) return;
-    const key = `${p.x},${p.y}`;
+  function add(h: Hole) {
+    if (currentPos && h.x === currentPos.x && h.y === currentPos.y) return;
+    const key = `${h.x},${h.y}`;
     if (seen.has(key)) return;
     seen.add(key);
-    result.push({ ...p });
+    result.push({ ...h });
   }
 
   for (const al of active.anchorLoops) {
-    if (al.side === load) add(al.point);
+    if (al.side === load) add(al.hole);
   }
   for (const thread of threads) {
     for (const al of thread.anchorLoops) {
-      if (al.side === load) add(al.point);
+      if (al.side === load) add(al.hole);
     }
   }
   return result;
@@ -244,7 +244,7 @@ export class SewingModel {
       ...this.state,
       activeThread: {
         startSide,
-        startPoint: null,
+        startHole: null,
         edges: [],
         nextLoad: toggleLoad(startSide),
         anchorLoops: [],
@@ -254,24 +254,24 @@ export class SewingModel {
     this.notify();
   }
 
-  setThreadStartPoint(p: Point) {
+  setThreadStartPoint(h: Hole) {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
     if (active.edges.length > 0) throw new Error("Thread already has edges; cannot change start point");
     this.saveHistory();
     this.state = {
       ...this.state,
-      activeThread: { ...active, startPoint: { ...p } },
+      activeThread: { ...active, startHole: { ...h } },
     };
     this.notify();
   }
 
-  addEdge(to: Point) {
+  addEdge(to: Hole) {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
-    if (!active.startPoint) throw new Error("Thread start point not set yet");
+    if (!active.startHole) throw new Error("Thread start point not set yet");
 
-    const from: Point = { ...getCurrentPoint(active)! };
+    const from: Hole = { ...getCurrentHole(active)! };
 
     const newEdge: Edge = {
       load: active.nextLoad,
@@ -297,12 +297,12 @@ export class SewingModel {
   endThread() {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
-    if (!active.startPoint) throw new Error("Thread has no start point");
+    if (!active.startHole) throw new Error("Thread has no start point");
     if (active.edges.length < 1) throw new Error("Thread must have at least one edge");
 
     const completed: Thread = {
       startSide: active.startSide,
-      startPoint: active.startPoint,
+      startHole: active.startHole,
       edges: active.edges,
       completed: true,
       anchorLoops: active.anchorLoops,
@@ -320,14 +320,14 @@ export class SewingModel {
   endThreadWithKnot() {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
-    if (!active.startPoint) throw new Error("Thread has no start point");
+    if (!active.startHole) throw new Error("Thread has no start point");
     if (active.edges.length < 1) throw new Error("Thread must have at least one edge");
     if (!canEndWithKnot(active, this.state.threads))
       throw new Error("Cannot end with knot: no matching thread pass at current position");
 
     const completed: Thread = {
       startSide: active.startSide,
-      startPoint: active.startPoint,
+      startHole: active.startHole,
       edges: active.edges,
       completed: true,
       endType: "knot",
@@ -364,14 +364,14 @@ export class SewingModel {
   addAnchorLoop() {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
-    if (!active.startPoint) throw new Error("Thread start point not set");
+    if (!active.startHole) throw new Error("Thread start point not set");
 
-    const currentPoint: Point = { ...getCurrentPoint(active)! };
+    const currentHole: Hole = { ...getCurrentHole(active)! };
 
     // The loop is made on the side you dip into (= nextLoad).
     // After dipping and returning, nextLoad flips back so the next edge continues on the same side.
     const loop: AnchorLoop = {
-      point: currentPoint,
+      hole: currentHole,
       side: active.nextLoad,
       afterEdge: active.edges.length,
     };
@@ -386,12 +386,12 @@ export class SewingModel {
     this.notify();
   }
 
-  addChainStitch(to: Point) {
+  addChainStitch(to: Hole) {
     const active = this.state.activeThread;
-    if (!active || !active.startPoint) throw new Error("No active thread with start point");
+    if (!active || !active.startHole) throw new Error("No active thread with start point");
 
     const cs: ChainStitch = {
-      point: { ...to },
+      hole: { ...to },
       side: active.nextLoad,
       afterEdge: active.edges.length,
     };
@@ -435,7 +435,7 @@ export class SewingModel {
 
     const active: ActiveThread = {
       startSide: thread.startSide,
-      startPoint: thread.startPoint,
+      startHole: thread.startHole,
       edges: thread.edges,
       nextLoad,
       anchorLoops: thread.anchorLoops ?? [],
@@ -469,8 +469,8 @@ export class SewingModel {
       if (t.startSide !== "positive" && t.startSide !== "negative") {
         throw new Error(`Invalid startSide: ${t.startSide}`);
       }
-      if (typeof t.startPoint?.x !== "number" || typeof t.startPoint?.y !== "number") {
-        throw new Error("Thread startPoint must have numeric x and y");
+      if (typeof t.startHole?.x !== "number" || typeof t.startHole?.y !== "number") {
+        throw new Error("Thread startHole must have numeric x and y");
       }
       if (!Array.isArray(t.edges)) {
         throw new Error("Thread edges must be an array");
@@ -488,8 +488,8 @@ export class SewingModel {
         if (cs.side !== "positive" && cs.side !== "negative") {
           throw new Error(`Invalid chain stitch side: ${cs.side}`);
         }
-        if (typeof cs.point?.x !== "number" || typeof cs.point?.y !== "number") {
-          throw new Error("Chain stitch point must have numeric x and y");
+        if (typeof cs.hole?.x !== "number" || typeof cs.hole?.y !== "number") {
+          throw new Error("Chain stitch hole must have numeric x and y");
         }
         if (typeof cs.afterEdge !== "number" || cs.afterEdge < 0) {
           throw new Error("Chain stitch afterEdge must be a non-negative number");

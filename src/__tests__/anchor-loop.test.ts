@@ -35,7 +35,7 @@ describe("getEligibleLoops — side matching", () => {
       .filter(l => l.side === activeState.nextLoad);
 
     expect(eligible).toHaveLength(1);
-    expect(eligible[0].point).toEqual({ x: 40, y: 40 });
+    expect(eligible[0].hole).toEqual({ x: 40, y: 40 });
   });
 
   it("returns NO loops when nextLoad does not match loop side", () => {
@@ -105,11 +105,11 @@ describe("active thread's own loops are eligible targets", () => {
     expect(active.nextLoad).toBe("negative");
     expect(active.anchorLoops).toHaveLength(1);
     expect(active.anchorLoops[0].side).toBe("negative");
-    expect(active.anchorLoops[0].point).toEqual({ x: 30, y: 20 });
+    expect(active.anchorLoops[0].hole).toEqual({ x: 30, y: 20 });
 
     const eligible = active.anchorLoops.filter(l => l.side === active.nextLoad);
     expect(eligible).toHaveLength(1);
-    expect(eligible[0].point).toEqual({ x: 30, y: 20 });
+    expect(eligible[0].hole).toEqual({ x: 30, y: 20 });
   });
 
   it("loop is NOT eligible when nextLoad does not match its side", () => {

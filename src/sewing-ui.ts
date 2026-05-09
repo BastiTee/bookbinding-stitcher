@@ -1,5 +1,5 @@
 import type { GridModel } from "./model";
-import { SewingModel, canEndWithKnot, getCurrentPoint, getEligibleChainHoles, getEligibleAnchorLoopChainPoints, type Load, type Point } from "./sewing-model";
+import { SewingModel, canEndWithKnot, getCurrentHole, getEligibleChainHoles, getEligibleAnchorLoopHoles, type Load, type Hole } from "./sewing-model";
 import { renderSewing, type PreviewEdge } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { screenToSvg, resolveTarget } from "./interaction";
@@ -131,8 +131,8 @@ export function buildSewingPanel(
 
   // --- State for preview ---
   let previewEdge: PreviewEdge | null = null;
-  let chainEligibleHoles: Point[] = [];
-  let anchorLoopEligiblePoints: Point[] = [];
+  let chainEligibleHoles: Hole[] = [];
+  let anchorLoopEligiblePoints: Hole[] = [];
 
   function clearPreview() {
     previewEdge = null;
@@ -145,7 +145,7 @@ export function buildSewingPanel(
     const active = state.activeThread;
     const hasActive = active !== null;
     const hasEdges = hasActive && active.edges.length > 0;
-    const hasStartPoint = hasActive && active.startPoint !== null;
+    const hasStartPoint = hasActive && active.startHole !== null;
 
     startBtn.classList.toggle("hidden", hasActive);
     radioGroup.classList.toggle("hidden", hasActive);
@@ -203,7 +203,7 @@ export function buildSewingPanel(
   function onMouseMove(e: MouseEvent) {
     const state = sewingModel.getState();
     const active = state.activeThread;
-    if (!active || !active.startPoint) {
+    if (!active || !active.startHole) {
       clearPreview();
       return;
     }
@@ -211,14 +211,14 @@ export function buildSewingPanel(
     const coord = screenToSvg(svg, e);
     const gridState = gridModel.getState();
     const sizes = computeScaleSizes(gridState.spine);
-    const from = getCurrentPoint(active)!;
+    const from = getCurrentHole(active)!;
 
     chainEligibleHoles = getEligibleChainHoles(active, state.threads);
-    anchorLoopEligiblePoints = getEligibleAnchorLoopChainPoints(active, state.threads);
+    anchorLoopEligiblePoints = getEligibleAnchorLoopHoles(active, state.threads);
 
     const target = resolveTarget(svg, coord, gridState);
-    if (target.kind === "hole" && target.stationX !== undefined && target.holeY !== undefined) {
-      const to: Point = { x: target.stationX, y: target.holeY };
+    if (target.kind === "hole" && target.holeX !== undefined && target.holeY !== undefined) {
+      const to: Hole = { x: target.holeX, y: target.holeY };
       if (to.x !== from.x || to.y !== from.y) {
         previewEdge = { from, to, load: active.nextLoad };
       } else {
@@ -247,7 +247,7 @@ export function buildSewingPanel(
     // Alt+click creates anchor loop at the current thread position, regardless of where the user clicked.
     // Must be checked before resolveTarget so alt+clicking anywhere on the SVG works.
     if (e.altKey) {
-      if (active?.startPoint) {
+      if (active?.startHole) {
         try {
           sewingModel.addAnchorLoop();
           updateThreadButtons();
@@ -262,14 +262,14 @@ export function buildSewingPanel(
     const coord = screenToSvg(svg, e);
     const gridState = gridModel.getState();
     const target = resolveTarget(svg, coord, gridState);
-    if (target.kind !== "hole" || target.stationX === undefined || target.holeY === undefined) return;
-    const p: Point = { x: target.stationX, y: target.holeY };
+    if (target.kind !== "hole" || target.holeX === undefined || target.holeY === undefined) return;
+    const p: Hole = { x: target.holeX, y: target.holeY };
 
     try {
       if (e.shiftKey) {
         if (active) {
           // Delete last chain stitch or edge if shift+clicking the current endpoint
-          const currentPoint = getCurrentPoint(active);
+          const currentPoint = getCurrentHole(active);
           if (currentPoint && p.x === currentPoint.x && p.y === currentPoint.y) {
             const css = active.chainStitches;
             const lastCS = css.length > 0 ? css[css.length - 1] : null;
@@ -286,7 +286,7 @@ export function buildSewingPanel(
           const threads = state.threads;
           for (let i = threads.length - 1; i >= 0; i--) {
             const t = threads[i];
-            const lastPt = t.edges.length > 0 ? t.edges[t.edges.length - 1].to : t.startPoint;
+            const lastPt = t.edges.length > 0 ? t.edges[t.edges.length - 1].to : t.startHole;
             if (lastPt.x === p.x && lastPt.y === p.y) {
               sewingModel.uncompleteThread(i);
               updateThreadButtons();
@@ -300,11 +300,11 @@ export function buildSewingPanel(
 
       // Ctrl/Cmd+Click: chain stitch at an eligible hole or anchor loop
       if ((e.ctrlKey || e.metaKey) && !e.altKey) {
-        if (!active?.startPoint) return;
-        const from = getCurrentPoint(active);
+        if (!active?.startHole) return;
+        const from = getCurrentHole(active);
         if (!from || (p.x === from.x && p.y === from.y)) return;
         const eligible = getEligibleChainHoles(active, state.threads);
-        const eligibleAnchorLoops = getEligibleAnchorLoopChainPoints(active, state.threads);
+        const eligibleAnchorLoops = getEligibleAnchorLoopHoles(active, state.threads);
         const isEligible =
           eligible.some(ep => ep.x === p.x && ep.y === p.y) ||
           eligibleAnchorLoops.some(ep => ep.x === p.x && ep.y === p.y);
@@ -320,10 +320,10 @@ export function buildSewingPanel(
 
       if (!active) return;
 
-      if (!active.startPoint) {
+      if (!active.startHole) {
         sewingModel.setThreadStartPoint(p);
       } else {
-        const from = getCurrentPoint(active);
+        const from = getCurrentHole(active);
         if (from && (p.x === from.x && p.y === from.y)) return;
         sewingModel.addEdge(p);
       }

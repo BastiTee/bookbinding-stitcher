@@ -101,7 +101,7 @@ function sliceState(state: Readonly<SewingState>, count: number): SewingState {
     const slicedEdges: Edge[] = thread.edges.slice(0, take);
     threads.push({
       startSide: thread.startSide,
-      startPoint: thread.startPoint,
+      startHole: thread.startHole,
       edges: slicedEdges,
       completed: take === thread.edges.length,
       endType: take === thread.edges.length ? thread.endType : undefined,

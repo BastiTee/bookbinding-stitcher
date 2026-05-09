@@ -5,8 +5,7 @@ const PADDING = 20; // mm padding around spine in viewBox
 const GRID_STEP = 10; // mm between major grid lines
 
 export interface HighlightState {
-  selectedStationX: number | null;
-  selectedHoleY: number | null;
+  selectedHole: { x: number; y: number } | null;
 }
 
 export interface ScaleSizes {
@@ -28,7 +27,7 @@ export function renderGrid(
   state: Readonly<GridState>,
   highlight: HighlightState,
 ) {
-  const { spine, stations } = state;
+  const { spine, holes } = state;
 
   // Set viewBox with padding
   const vbX = -PADDING;
@@ -71,36 +70,30 @@ export function renderGrid(
 
   const { dotRadius } = computeScaleSizes(spine);
 
-  // Layer 3: Station guide lines
-  for (const st of stations) {
+  // Layer 3: Column guide lines — one per unique X value present in holes
+  const columnXs = [...new Set(holes.map(h => h.x))].sort((a, b) => a - b);
+  for (const x of columnXs) {
     const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", String(st.x));
+    line.setAttribute("x1", String(x));
     line.setAttribute("y1", "0");
-    line.setAttribute("x2", String(st.x));
+    line.setAttribute("x2", String(x));
     line.setAttribute("y2", String(spine.height));
-    line.setAttribute("data-station-x", String(st.x));
     line.classList.add("station-line");
-    if (st.x === highlight.selectedStationX) {
-      line.classList.add("selected");
-    }
     svg.appendChild(line);
+  }
 
-    // Layer 4: Hole dots
-    for (const y of st.holes) {
-      const circle = document.createElementNS(SVG_NS, "circle");
-      circle.setAttribute("cx", String(st.x));
-      circle.setAttribute("cy", String(y));
-      circle.setAttribute("r", String(dotRadius));
-      circle.setAttribute("data-hole-x", String(st.x));
-      circle.setAttribute("data-hole-y", String(y));
-      circle.classList.add("hole-dot");
-      if (
-        st.x === highlight.selectedStationX &&
-        y === highlight.selectedHoleY
-      ) {
-        circle.classList.add("selected");
-      }
-      svg.appendChild(circle);
+  // Layer 4: Hole dots
+  for (const h of holes) {
+    const circle = document.createElementNS(SVG_NS, "circle");
+    circle.setAttribute("cx", String(h.x));
+    circle.setAttribute("cy", String(h.y));
+    circle.setAttribute("r", String(dotRadius));
+    circle.setAttribute("data-hole-x", String(h.x));
+    circle.setAttribute("data-hole-y", String(h.y));
+    circle.classList.add("hole-dot");
+    if (highlight.selectedHole?.x === h.x && highlight.selectedHole?.y === h.y) {
+      circle.classList.add("selected");
     }
+    svg.appendChild(circle);
   }
 }

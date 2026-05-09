@@ -3,48 +3,34 @@
     "width": 150,
     "height": 40
   },
-  "stations": [
+  "holes": [
     {
       "x": 10,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 30,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 50,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 70,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 90,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 110,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 130,
-      "holes": [
-        20
-      ]
+      "y": 20
     }
   ],
   "metadata": {
@@ -56,7 +42,7 @@
     {
       "threadStart": {
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 10,
           "y": 20
         }
@@ -64,7 +50,7 @@
       "threadEnd": {
         "type": "loose",
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 130,
           "y": 20
         }

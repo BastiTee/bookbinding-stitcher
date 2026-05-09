@@ -3,14 +3,14 @@ export interface Spine {
   height: number; // mm, positive integer
 }
 
-export interface Station {
-  x: number;      // mm position along spine width
-  holes: number[]; // sorted Y positions in mm
+export interface Hole {
+  x: number; // mm position along spine width
+  y: number; // mm position along spine height
 }
 
 export interface GridState {
   spine: Spine;
-  stations: Station[]; // sorted by x
+  holes: Hole[]; // sorted by x then y
 }
 
 type Listener = () => void;
@@ -22,7 +22,7 @@ export class GridModel {
   constructor(spine: Spine) {
     assertPositiveInt(spine.width, "Spine width");
     assertPositiveInt(spine.height, "Spine height");
-    this.state = { spine: { ...spine }, stations: [] };
+    this.state = { spine: { ...spine }, holes: [] };
   }
 
   getState(): Readonly<GridState> {
@@ -43,77 +43,39 @@ export class GridModel {
   setSpine(width: number, height: number) {
     assertPositiveInt(width, "Spine width");
     assertPositiveInt(height, "Spine height");
-    // Reject if existing stations/holes would be out of bounds
-    for (const st of this.state.stations) {
-      if (st.x > width) {
-        throw new Error(`Station at x=${st.x} would exceed new width ${width}`);
+    for (const h of this.state.holes) {
+      if (h.x > width) {
+        throw new Error(`Hole at x=${h.x} would exceed new width ${width}`);
       }
-      for (const y of st.holes) {
-        if (y > height) {
-          throw new Error(`Hole at y=${y} in station x=${st.x} would exceed new height ${height}`);
-        }
+      if (h.y > height) {
+        throw new Error(`Hole at x=${h.x},y=${h.y} would exceed new height ${height}`);
       }
     }
     this.state.spine = { width, height };
     this.notify();
   }
 
-  addStation(x: number) {
-    assertNonNegativeInt(x, "Station X");
-    if (x > this.state.spine.width) {
-      throw new Error(`Station x=${x} exceeds spine width ${this.state.spine.width}`);
-    }
-    if (this.state.stations.some((s) => s.x === x)) {
-      throw new Error(`Station at x=${x} already exists`);
-    }
-    this.state.stations.push({ x, holes: [] });
-    this.state.stations.sort((a, b) => a.x - b.x);
-    this.notify();
-  }
-
-  removeStation(x: number) {
-    const idx = this.state.stations.findIndex((s) => s.x === x);
-    if (idx === -1) throw new Error(`No station at x=${x}`);
-    this.state.stations.splice(idx, 1);
-    this.notify();
-  }
-
-  updateStationX(oldX: number, newX: number) {
-    assertNonNegativeInt(newX, "Station X");
-    if (newX > this.state.spine.width) {
-      throw new Error(`Station x=${newX} exceeds spine width ${this.state.spine.width}`);
-    }
-    const station = this.state.stations.find((s) => s.x === oldX);
-    if (!station) throw new Error(`No station at x=${oldX}`);
-    if (oldX !== newX && this.state.stations.some((s) => s.x === newX)) {
-      throw new Error(`Station at x=${newX} already exists`);
-    }
-    station.x = newX;
-    this.state.stations.sort((a, b) => a.x - b.x);
-    this.notify();
-  }
-
-  addHole(stationX: number, y: number) {
+  addHole(x: number, y: number) {
+    assertNonNegativeInt(x, "Hole X");
     assertNonNegativeInt(y, "Hole Y");
+    if (x > this.state.spine.width) {
+      throw new Error(`Hole x=${x} exceeds spine width ${this.state.spine.width}`);
+    }
     if (y > this.state.spine.height) {
       throw new Error(`Hole y=${y} exceeds spine height ${this.state.spine.height}`);
     }
-    const station = this.state.stations.find((s) => s.x === stationX);
-    if (!station) throw new Error(`No station at x=${stationX}`);
-    if (station.holes.includes(y)) {
-      throw new Error(`Hole at y=${y} already exists in station x=${stationX}`);
+    if (this.state.holes.some((h) => h.x === x && h.y === y)) {
+      throw new Error(`Hole at x=${x},y=${y} already exists`);
     }
-    station.holes.push(y);
-    station.holes.sort((a, b) => a - b);
+    this.state.holes.push({ x, y });
+    this.state.holes.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
     this.notify();
   }
 
-  removeHole(stationX: number, y: number) {
-    const station = this.state.stations.find((s) => s.x === stationX);
-    if (!station) throw new Error(`No station at x=${stationX}`);
-    const idx = station.holes.indexOf(y);
-    if (idx === -1) throw new Error(`No hole at y=${y} in station x=${stationX}`);
-    station.holes.splice(idx, 1);
+  removeHole(x: number, y: number) {
+    const idx = this.state.holes.findIndex((h) => h.x === x && h.y === y);
+    if (idx === -1) throw new Error(`No hole at x=${x},y=${y}`);
+    this.state.holes.splice(idx, 1);
     this.notify();
   }
 
@@ -122,53 +84,37 @@ export class GridModel {
       throw new Error("Invalid state: expected an object with a \"spine\" property");
     }
 
-    const { spine, stations } = newState;
+    const { spine, holes } = newState;
 
     assertPositiveInt(spine.width, "Spine width");
     assertPositiveInt(spine.height, "Spine height");
 
-    if (!Array.isArray(stations)) {
-      throw new Error("Invalid state: \"stations\" must be an array");
+    if (!Array.isArray(holes)) {
+      throw new Error("Invalid state: \"holes\" must be an array");
     }
 
-    const seenX = new Set<number>();
-    const validatedStations: Station[] = [];
+    const seen = new Set<string>();
+    const validatedHoles: Hole[] = [];
 
-    for (const st of stations) {
-      assertNonNegativeInt(st.x, "Station X");
-      if (st.x > spine.width) {
-        throw new Error(`Station x=${st.x} exceeds spine width ${spine.width}`);
+    for (const h of holes) {
+      assertNonNegativeInt(h.x, "Hole X");
+      assertNonNegativeInt(h.y, "Hole Y");
+      if (h.x > spine.width) {
+        throw new Error(`Hole x=${h.x} exceeds spine width ${spine.width}`);
       }
-      if (seenX.has(st.x)) {
-        throw new Error(`Duplicate station at x=${st.x}`);
+      if (h.y > spine.height) {
+        throw new Error(`Hole y=${h.y} exceeds spine height ${spine.height}`);
       }
-      seenX.add(st.x);
-
-      if (!Array.isArray(st.holes)) {
-        throw new Error(`Station x=${st.x}: "holes" must be an array`);
+      const key = `${h.x},${h.y}`;
+      if (seen.has(key)) {
+        throw new Error(`Duplicate hole at x=${h.x},y=${h.y}`);
       }
-
-      const seenY = new Set<number>();
-      const validatedHoles: number[] = [];
-
-      for (const y of st.holes) {
-        assertNonNegativeInt(y, `Hole Y in station x=${st.x}`);
-        if (y > spine.height) {
-          throw new Error(`Hole y=${y} in station x=${st.x} exceeds spine height ${spine.height}`);
-        }
-        if (seenY.has(y)) {
-          throw new Error(`Duplicate hole y=${y} in station x=${st.x}`);
-        }
-        seenY.add(y);
-        validatedHoles.push(y);
-      }
-
-      validatedHoles.sort((a, b) => a - b);
-      validatedStations.push({ x: st.x, holes: validatedHoles });
+      seen.add(key);
+      validatedHoles.push({ x: h.x, y: h.y });
     }
 
-    validatedStations.sort((a, b) => a.x - b.x);
-    this.state = { spine: { width: spine.width, height: spine.height }, stations: validatedStations };
+    validatedHoles.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
+    this.state = { spine: { width: spine.width, height: spine.height }, holes: validatedHoles };
     this.notify();
   }
 }

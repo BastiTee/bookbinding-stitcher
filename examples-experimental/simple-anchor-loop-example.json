@@ -3,32 +3,29 @@
     "width": 60,
     "height": 30
   },
-  "stations": [
+  "holes": [
     {
       "x": 10,
-      "holes": [
-        10
-      ]
+      "y": 10
     },
     {
       "x": 30,
-      "holes": [
-        10,
-        20
-      ]
+      "y": 10
+    },
+    {
+      "x": 30,
+      "y": 20
     },
     {
       "x": 50,
-      "holes": [
-        10
-      ]
+      "y": 10
     }
   ],
   "threads": [
     {
       "threadStart": {
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 10,
           "y": 10
         }
@@ -36,7 +33,7 @@
       "threadEnd": {
         "type": "loose",
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 50,
           "y": 10
         }
@@ -69,12 +66,12 @@
       ],
       "anchorLoops": [
         {
-          "point": {
+          "side": "negative",
+          "afterEdge": 1,
+          "hole": {
             "x": 30,
             "y": 10
-          },
-          "side": "negative",
-          "afterEdge": 1
+          }
         }
       ]
     }

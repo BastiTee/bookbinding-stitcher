@@ -3,57 +3,70 @@
     "width": 150,
     "height": 40
   },
-  "stations": [
+  "holes": [
     {
       "x": 10,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 30,
-      "holes": [
-        20
-      ]
+      "y": 20
     },
     {
       "x": 50,
-      "holes": [
-        10,
-        20,
-        30
-      ]
+      "y": 10
+    },
+    {
+      "x": 50,
+      "y": 20
+    },
+    {
+      "x": 50,
+      "y": 30
     },
     {
       "x": 70,
-      "holes": [
-        10,
-        20,
-        30
-      ]
+      "y": 10
+    },
+    {
+      "x": 70,
+      "y": 20
+    },
+    {
+      "x": 70,
+      "y": 30
     },
     {
       "x": 90,
-      "holes": [
-        10,
-        20,
-        30
-      ]
+      "y": 10
+    },
+    {
+      "x": 90,
+      "y": 20
+    },
+    {
+      "x": 90,
+      "y": 30
     },
     {
       "x": 110,
-      "holes": [
-        10,
-        20,
-        30
-      ]
+      "y": 10
+    },
+    {
+      "x": 110,
+      "y": 20
+    },
+    {
+      "x": 110,
+      "y": 30
     },
     {
       "x": 130,
-      "holes": [
-        10,
-        30
-      ]
+      "y": 10
+    },
+    {
+      "x": 130,
+      "y": 30
     }
   ],
   "metadata": {
@@ -65,7 +78,7 @@
     {
       "threadStart": {
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 10,
           "y": 20
         }
@@ -73,7 +86,7 @@
       "threadEnd": {
         "type": "loose",
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 110,
           "y": 20
         }
@@ -209,7 +222,7 @@
     {
       "threadStart": {
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 50,
           "y": 10
         }
@@ -217,7 +230,7 @@
       "threadEnd": {
         "type": "loose",
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 130,
           "y": 10
         }
@@ -357,7 +370,7 @@
     {
       "threadStart": {
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 50,
           "y": 30
         }
@@ -365,7 +378,7 @@
       "threadEnd": {
         "type": "loose",
         "side": "negative",
-        "point": {
+        "hole": {
           "x": 130,
           "y": 30
         }
