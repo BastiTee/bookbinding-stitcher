@@ -53,9 +53,18 @@
       "y": 30
     }
   ],
+  "signatureLocations": {
+    "orientation": "horizontal",
+    "positions": [
+      10,
+      20,
+      30
+    ]
+  },
   "metadata": {
     "title": "Straight Long Stitches",
-    "author": "Basti Tee"
+    "author": "Basti Tee",
+    "description": "A system for straight stitches on the spine side. The pattern ends on the inside, therefore can be extended further."
   },
   "threads": [
     {

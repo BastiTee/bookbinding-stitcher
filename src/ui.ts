@@ -10,6 +10,7 @@ import { renderSewing } from "./sewing-render";
 import { buildSewingPanel } from "./sewing-ui";
 import { el, sectionTitle } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
+import { openGallery } from "./gallery-ui";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -127,7 +128,8 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   let exportJson = "";
 
-  const exportBtnRow = el("div", "export-btn-row");
+  const saveBtnRow = el("div", "export-btn-row");
+  const importBtnRow = el("div", "export-btn-row");
 
   let saveBtn: HTMLButtonElement;
 
@@ -263,10 +265,22 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   const importBtn = button("Import from file", () => fileInput.click());
 
-  exportBtnRow.appendChild(saveBtn);
-  exportBtnRow.appendChild(saveAsBtn);
-  exportBtnRow.appendChild(importBtn);
-  persistentPanel.appendChild(exportBtnRow);
+  const galleryBtn = button("Import from gallery", () => {
+    openGallery((json) => {
+      currentFileHandle = null;
+      currentFileName = null;
+      setSaveEnabled(false);
+      updateFileNameDisplay();
+      applyImport(json);
+    });
+  });
+
+  saveBtnRow.appendChild(saveBtn);
+  saveBtnRow.appendChild(saveAsBtn);
+  importBtnRow.appendChild(importBtn);
+  importBtnRow.appendChild(galleryBtn);
+  persistentPanel.appendChild(saveBtnRow);
+  persistentPanel.appendChild(importBtnRow);
 
   const fileNameDisplay = el("div", "current-file-name");
   persistentPanel.appendChild(fileNameDisplay);

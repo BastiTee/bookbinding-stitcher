@@ -53,9 +53,19 @@
       "y": 50
     }
   ],
+  "signatureLocations": {
+    "orientation": "vertical",
+    "positions": [
+      10,
+      20,
+      30,
+      40
+    ]
+  },
   "metadata": {
-    "title": "Double Cross",
-    "author": "Basti Tee"
+    "title": "Double Long Cross Stitch",
+    "author": "Basti Tee",
+    "description": "An extension of the Long Cross Stitch with two combined crosses."
   },
   "threads": [
     {

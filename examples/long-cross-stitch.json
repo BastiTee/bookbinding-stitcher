@@ -45,9 +45,20 @@
       "y": 30
     }
   ],
+  "signatureLocations": {
+    "orientation": "vertical",
+    "positions": [
+      10,
+      20,
+      30,
+      40,
+      50
+    ]
+  },
   "metadata": {
-    "title": "Single Cross",
-    "author": "Basti Tee"
+    "title": "Long Cross Stitch | Alison Russel",
+    "author": "Basti Tee",
+    "description": "A nice looking criss-cross stitch for arbitrary signatures. First found this in this tutorial: https://www.youtube.com/watch?v=NYfOI7wBcvc"
   },
   "threads": [
     {

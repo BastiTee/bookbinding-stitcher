@@ -1,42 +1,48 @@
 {
   "spine": {
-    "width": 150,
-    "height": 40
+    "width": 140,
+    "height": 20
   },
   "holes": [
     {
       "x": 10,
-      "y": 20
+      "y": 10
     },
     {
       "x": 30,
-      "y": 20
+      "y": 10
     },
     {
       "x": 50,
-      "y": 20
+      "y": 10
     },
     {
       "x": 70,
-      "y": 20
+      "y": 10
     },
     {
       "x": 90,
-      "y": 20
+      "y": 10
     },
     {
       "x": 110,
-      "y": 20
+      "y": 10
     },
     {
       "x": 130,
-      "y": 20
+      "y": 10
     }
   ],
+  "signatureLocations": {
+    "orientation": "horizontal",
+    "positions": [
+      10
+    ]
+  },
   "metadata": {
     "title": "Single Signature Chain Stitch",
     "author": "Basti Tee",
-    "description": "Video: https://www.youtube.com/watch?v=kVnhNKZIKh8"
+    "description": "This binding is really nice for single-signature pamphlets. A good tutorial can be found at https://www.youtube.com/watch?v=kVnhNKZIKh8"
   },
   "threads": [
     {
@@ -44,7 +50,7 @@
         "side": "negative",
         "hole": {
           "x": 10,
-          "y": 20
+          "y": 10
         }
       },
       "threadEnd": {
@@ -52,7 +58,7 @@
         "side": "negative",
         "hole": {
           "x": 130,
-          "y": 20
+          "y": 10
         }
       },
       "edges": [
@@ -60,11 +66,11 @@
           "load": "positive",
           "from": {
             "x": 10,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 30,
-            "y": 20
+            "y": 10
           },
           "index": 1
         },
@@ -72,11 +78,11 @@
           "load": "negative",
           "from": {
             "x": 30,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 50,
-            "y": 20
+            "y": 10
           },
           "index": 2
         },
@@ -84,27 +90,27 @@
           "load": "positive",
           "from": {
             "x": 50,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 50,
-            "y": 20
+            "y": 10
           },
           "index": 3,
           "chainedVia": {
             "x": 30,
-            "y": 20
+            "y": 10
           }
         },
         {
           "load": "negative",
           "from": {
             "x": 50,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 70,
-            "y": 20
+            "y": 10
           },
           "index": 4
         },
@@ -112,27 +118,27 @@
           "load": "positive",
           "from": {
             "x": 70,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 70,
-            "y": 20
+            "y": 10
           },
           "index": 5,
           "chainedVia": {
             "x": 50,
-            "y": 20
+            "y": 10
           }
         },
         {
           "load": "negative",
           "from": {
             "x": 70,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 90,
-            "y": 20
+            "y": 10
           },
           "index": 6
         },
@@ -140,27 +146,27 @@
           "load": "positive",
           "from": {
             "x": 90,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 90,
-            "y": 20
+            "y": 10
           },
           "index": 7,
           "chainedVia": {
             "x": 70,
-            "y": 20
+            "y": 10
           }
         },
         {
           "load": "negative",
           "from": {
             "x": 90,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 110,
-            "y": 20
+            "y": 10
           },
           "index": 8
         },
@@ -168,27 +174,27 @@
           "load": "positive",
           "from": {
             "x": 110,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 110,
-            "y": 20
+            "y": 10
           },
           "index": 9,
           "chainedVia": {
             "x": 90,
-            "y": 20
+            "y": 10
           }
         },
         {
           "load": "negative",
           "from": {
             "x": 110,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 130,
-            "y": 20
+            "y": 10
           },
           "index": 10
         },
@@ -196,16 +202,16 @@
           "load": "positive",
           "from": {
             "x": 130,
-            "y": 20
+            "y": 10
           },
           "to": {
             "x": 130,
-            "y": 20
+            "y": 10
           },
           "index": 11,
           "chainedVia": {
             "x": 110,
-            "y": 20
+            "y": 10
           }
         }
       ],

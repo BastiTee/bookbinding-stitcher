@@ -22,7 +22,6 @@ Examples for import can be found in the [respective folder](examples/).
 ## Should
 
 * [ ] Print feature to use template on real binding
-* [ ] Gallery feature for examples
 
 ## Could
 
@@ -32,6 +31,7 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Done
 
+* [x] Gallery feature for examples
 * [x] Indicate the currently used file name
 * [x] Mark orientation of signatures
 * [x] Visualize rulers
