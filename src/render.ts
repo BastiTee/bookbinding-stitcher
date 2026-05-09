@@ -1,7 +1,7 @@
 import type { GridState, Spine } from "./model";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const PADDING = 20; // mm padding around spine in viewBox
+export const PADDING = 20; // mm padding around spine in viewBox
 const GRID_STEP = 10; // mm between major grid lines
 
 export interface HighlightState {
@@ -70,7 +70,10 @@ export function renderGrid(
 
   const { dotRadius } = computeScaleSizes(spine);
 
-  // Layer 3: Column guide lines — one per unique X value present in holes
+  // Layer 3: Rulers
+  renderRulers(svg, spine);
+
+  // Layer 4: Column guide lines — one per unique X value present in holes
   const columnXs = [...new Set(holes.map(h => h.x))].sort((a, b) => a - b);
   for (const x of columnXs) {
     const line = document.createElementNS(SVG_NS, "line");
@@ -82,7 +85,7 @@ export function renderGrid(
     svg.appendChild(line);
   }
 
-  // Layer 4: Hole dots
+  // Layer 5: Hole dots
   for (const h of holes) {
     const circle = document.createElementNS(SVG_NS, "circle");
     circle.setAttribute("cx", String(h.x));
@@ -96,4 +99,70 @@ export function renderGrid(
     }
     svg.appendChild(circle);
   }
+}
+
+function renderRulers(svg: SVGSVGElement, spine: Readonly<Spine>) {
+  const layer = document.createElementNS(SVG_NS, "g");
+  layer.classList.add("ruler-layer");
+
+  // Top ruler: baseline at y=0, ticks go upward into padding
+  const topBaseline = document.createElementNS(SVG_NS, "line");
+  topBaseline.setAttribute("x1", "0");
+  topBaseline.setAttribute("y1", "0");
+  topBaseline.setAttribute("x2", String(spine.width));
+  topBaseline.setAttribute("y2", "0");
+  topBaseline.classList.add("ruler-baseline");
+  layer.appendChild(topBaseline);
+
+  for (let x = 0; x <= spine.width; x++) {
+    const isCm = x % 10 === 0;
+    const tick = document.createElementNS(SVG_NS, "line");
+    tick.setAttribute("x1", String(x));
+    tick.setAttribute("x2", String(x));
+    tick.setAttribute("y1", "0");
+    tick.setAttribute("y2", isCm ? "-5" : "-2");
+    tick.classList.add(isCm ? "ruler-tick-major" : "ruler-tick-minor");
+    layer.appendChild(tick);
+    if (isCm && x > 0) {
+      const label = document.createElementNS(SVG_NS, "text");
+      label.setAttribute("x", String(x));
+      label.setAttribute("y", "-7");
+      label.setAttribute("text-anchor", "middle");
+      label.classList.add("ruler-label");
+      label.textContent = String(x);
+      layer.appendChild(label);
+    }
+  }
+
+  // Left ruler: baseline at x=0, ticks go leftward into padding
+  const leftBaseline = document.createElementNS(SVG_NS, "line");
+  leftBaseline.setAttribute("x1", "0");
+  leftBaseline.setAttribute("y1", "0");
+  leftBaseline.setAttribute("x2", "0");
+  leftBaseline.setAttribute("y2", String(spine.height));
+  leftBaseline.classList.add("ruler-baseline");
+  layer.appendChild(leftBaseline);
+
+  for (let y = 0; y <= spine.height; y++) {
+    const isCm = y % 10 === 0;
+    const tick = document.createElementNS(SVG_NS, "line");
+    tick.setAttribute("x1", "0");
+    tick.setAttribute("x2", isCm ? "-5" : "-2");
+    tick.setAttribute("y1", String(y));
+    tick.setAttribute("y2", String(y));
+    tick.classList.add(isCm ? "ruler-tick-major" : "ruler-tick-minor");
+    layer.appendChild(tick);
+    if (isCm && y > 0) {
+      const label = document.createElementNS(SVG_NS, "text");
+      label.setAttribute("x", "-7");
+      label.setAttribute("y", String(y));
+      label.setAttribute("text-anchor", "end");
+      label.setAttribute("dominant-baseline", "middle");
+      label.classList.add("ruler-label");
+      label.textContent = String(y);
+      layer.appendChild(label);
+    }
+  }
+
+  svg.appendChild(layer);
 }

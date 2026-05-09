@@ -1,5 +1,5 @@
 import { GridModel } from "./model";
-import { renderGrid, computeScaleSizes, type HighlightState } from "./render";
+import { renderGrid, computeScaleSizes, PADDING, type HighlightState } from "./render";
 import {
   screenToSvg,
   resolveTarget,
@@ -352,6 +352,25 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     ghostLayer.appendChild(textEl);
   }
 
+  function showCrosshair(x: number, y: number, spine: { width: number; height: number }) {
+    if (!ghostLayer) return;
+    const vLine = document.createElementNS(SVG_NS, "line");
+    vLine.setAttribute("x1", String(x));
+    vLine.setAttribute("x2", String(x));
+    vLine.setAttribute("y1", String(-PADDING));
+    vLine.setAttribute("y2", String(spine.height));
+    vLine.classList.add("ruler-crosshair");
+    ghostLayer.appendChild(vLine);
+
+    const hLine = document.createElementNS(SVG_NS, "line");
+    hLine.setAttribute("y1", String(y));
+    hLine.setAttribute("y2", String(y));
+    hLine.setAttribute("x1", String(-PADDING));
+    hLine.setAttribute("x2", String(spine.width));
+    hLine.classList.add("ruler-crosshair");
+    ghostLayer.appendChild(hLine);
+  }
+
   // ============================================================
   // SVG interaction handlers (design mode only)
   // ============================================================
@@ -364,10 +383,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       case "spine":
         showHoleGhost(target.snappedX, target.snappedY, dotRadius);
         showCursorTooltip(target.snappedX, target.snappedY, label, state.spine);
+        showCrosshair(target.snappedX, target.snappedY, state.spine);
         break;
       case "hole":
         clearGhost();
         showCursorTooltip(target.holeX!, target.holeY!, label, state.spine);
+        showCrosshair(target.holeX!, target.holeY!, state.spine);
         break;
       case "outside":
         clearGhost();

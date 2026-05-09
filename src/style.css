@@ -516,3 +516,22 @@ button.active {
   margin-bottom: 4px;
   min-height: 16px;
 }
+
+/* Rulers */
+.ruler-layer { pointer-events: none; }
+.ruler-baseline { stroke: #aaa; stroke-width: 0.3; }
+.ruler-tick-minor { stroke: #bbb; stroke-width: 0.2; }
+.ruler-tick-major { stroke: #888; stroke-width: 0.3; }
+.ruler-label {
+  fill: #666;
+  font-family: system-ui, sans-serif;
+  font-size: 2.5px;
+  pointer-events: none;
+}
+.ruler-crosshair {
+  stroke: #4a90d9;
+  stroke-width: 0.3;
+  stroke-dasharray: 3 2;
+  pointer-events: none;
+  opacity: 0.55;
+}
