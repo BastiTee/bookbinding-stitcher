@@ -40,9 +40,12 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 - `src/render.ts` — `renderGrid(svg, state, highlight)` — **clears `svg.innerHTML` on every call**
 - `src/sewing-render.ts` — `renderSewing(svg, sewingState, sizes, spine, previewEdge?, options?)` — removes and re-appends `<g class="sewing-layer">` each call
 - `src/interaction.ts` — `screenToSvg`, `resolveTarget`, `snapToGrid`; proximity threshold is 10px converted to mm via CTM
+- `src/dom-utils.ts` — shared DOM helpers: `el(tag, className?)`, `sectionTitle(text)`, `createModal(title, closeAriaLabel, extraClass?)` — **always use these instead of raw `document.createElement`**
 - `src/ui.ts` — wires everything; owns the `refresh()` cycle; manages ghost layer
 - `src/sewing-ui.ts` — `buildSewingPanel(...)` — returns `{ panel, activate, deactivate }`
 - `src/playback-ui.ts` — `buildPlaybackPanel(...)` — returns `{ activate, deactivate }`
+- `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/*.json', { eager: true })` at module level (computed once, works identically in dev and dist)
+- `src/help-ui.ts` — `openHelp(currentMode)` — keyboard/mouse controls modal; highlights the active mode section
 
 **Critical rendering constraint:** `renderGrid` wipes `svg.innerHTML`, so the ghost layer and sewing layer must be re-appended after every grid render. The `refresh()` function in `ui.ts` always calls `ensureGhostLayer()` and `renderSewing()` after `renderGrid()`.
 
@@ -113,3 +116,28 @@ The textarea in the sidebar always contains the live JSON export. The schema is:
 6. `sewingModel.uncompleteThread(i)` — re-opens a completed thread for editing
 
 Undo/redo operates on `SewingModel` only; grid changes are not undoable.
+
+## UI Conventions
+
+**Reset:** A single "Reset" button lives at the bottom of the metadata panel. It shows a `confirm()` dialog before calling `model.loadState({ spine: { width: 150, height: 40 }, holes: [] })`. The model subscriber cascade automatically fires `sewingModel.reset()` and `refresh()` — no extra calls needed.
+
+**Modal dialogs:** All overlay modals use `createModal(title, closeAriaLabel, extraClass?)` from `src/dom-utils.ts`. It wires Escape, backdrop-click, and close-button dismissal, and returns `{ modal, close }`. Append content to `modal`; call `close()` from selection handlers when needed. Always guard against double-open at the top of the open function:
+```ts
+if (document.querySelector(".gallery-backdrop")) return;
+```
+
+**DOM helpers:** Use `el(tag, className?)` from `src/dom-utils.ts` for all element creation. Do not write bare `document.createElement` + `.className` pairs.
+
+**Help button:** A floating "?" button (`.help-btn`) is absolutely positioned in the top-right of `.svg-panel` (which has `position: relative` in CSS). It calls `openHelp(currentMode)` from `src/help-ui.ts`. When adding new keyboard shortcuts, document them in `src/help-ui.ts`'s `SECTIONS` constant.
+
+**Static bundled data:** Use `import.meta.glob('/path/*.json', { eager: true })` at **module level** (not inside a function) so the result is computed once. This works identically in `npm run dev` and the production dist — no manual variable changes needed.
+```ts
+// ✓ correct — computed once at module load
+const rawModules = import.meta.glob('/examples/*.json', { eager: true });
+const ENTRIES = Object.entries(rawModules).sort(...).map(...);
+
+// ✗ wrong — recomputes on every call even though source data never changes
+export function openGallery() {
+  const entries = buildEntries();
+}
+```
