@@ -235,13 +235,6 @@ button.active {
   white-space: nowrap;
 }
 
-/* Controls reference list */
-.controls-list { font-size: 12px; margin-top: 4px; }
-.controls-list dt { font-weight: 600; font-size: 11px; color: #555; display: inline; }
-.controls-list dt::after { content: " — "; font-weight: normal; }
-.controls-list dd { display: inline; margin: 0; color: #666; }
-.controls-list dd::after { content: "\A"; white-space: pre; }
-
 /* Mode switcher */
 .mode-switcher {
   display: flex;
@@ -627,6 +620,113 @@ button.active {
 .gallery-card-desc--empty {
   color: #bbb;
   font-style: italic;
+}
+
+/* Help button (floating, top-right of canvas area) */
+.help-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  background: #fff;
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.help-btn:hover {
+  background: #4a90d9;
+  border-color: #4a90d9;
+  color: #fff;
+}
+
+/* Help modal */
+.help-modal {
+  max-width: 520px;
+}
+
+.help-content {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-section {
+  border: 1px solid #e8e8e8;
+  border-radius: 5px;
+  padding: 12px 14px;
+}
+
+.help-section--active {
+  border-color: #4a90d9;
+  background: #f5f9ff;
+}
+
+.help-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.help-section-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #4a90d9;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.help-shortcut-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.help-shortcut-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.help-key {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 11px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 110px;
+  color: #333;
+}
+
+.help-shortcut-desc {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
 }
 
 /* Signature lines */

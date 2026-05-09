@@ -103,18 +103,6 @@ export function buildSewingPanel(
   undoRedoRow.appendChild(redoBtn);
   panel.appendChild(undoRedoRow);
 
-  // --- Controls section ---
-  panel.appendChild(sectionTitle("Controls"));
-  const controlsList = el("dl", "controls-list");
-  controlsList.innerHTML =
-    "<dt>Click</dt><dd>Set start / draw edge</dd>" +
-    "<dt>Alt+Click</dt><dd>Add anchor loop at current point</dd>" +
-    "<dt>Shift+Click</dt><dd>Delete last edge or chain stitch</dd>" +
-    "<dt>Ctrl/Cmd+Click</dt><dd>Chain stitch at eligible hole (orange ring)</dd>" +
-    "<dt>Ctrl+Z</dt><dd>Undo</dd>" +
-    "<dt>Ctrl+Shift+Z</dt><dd>Redo</dd>";
-  panel.appendChild(controlsList);
-
   const nextEdgeLabel = el("div", "next-edge-label");
   panel.appendChild(nextEdgeLabel);
 

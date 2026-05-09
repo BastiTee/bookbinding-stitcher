@@ -11,6 +11,7 @@ import { buildSewingPanel } from "./sewing-ui";
 import { el, sectionTitle } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
 import { openGallery } from "./gallery-ui";
+import { openHelp } from "./help-ui";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -95,14 +96,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   designPanel.appendChild(spineHeightInput.wrapper);
   designPanel.appendChild(spineBtn);
   designPanel.appendChild(spineError);
-
-  // --- Controls reference ---
-  designPanel.appendChild(sectionTitle("Controls"));
-  const controlsList = el("dl", "controls-list");
-  controlsList.innerHTML =
-    "<dt>Click</dt><dd>Add hole</dd>" +
-    "<dt>Shift+Click</dt><dd>Delete hole</dd>";
-  designPanel.appendChild(controlsList);
 
   const interactionError = el("div", "error-msg");
   designPanel.appendChild(interactionError);
@@ -322,6 +315,15 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   btnDesign.addEventListener("click", switchToDesign);
   btnSewing.addEventListener("click", switchToSewing);
   btnPlayback.addEventListener("click", switchToPlayback);
+
+  // Help button (top-right of canvas)
+  svgPanel.style.position = "relative";
+  const helpBtn = document.createElement("button");
+  helpBtn.className = "help-btn";
+  helpBtn.textContent = "?";
+  helpBtn.setAttribute("aria-label", "Keyboard & mouse controls");
+  helpBtn.addEventListener("click", () => openHelp(currentMode));
+  svgPanel.appendChild(helpBtn);
 
   // ============================================================
   // Ghost layer management
