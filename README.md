@@ -17,8 +17,6 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Must
 
-* [ ] Remove "stations" (actually they are pretty much useless)
-
 ## Should
 
 * [ ] Print feature to use template on real binding
@@ -33,6 +31,8 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Done
 
+* [x] Visualize rulers
+* [x] Remove "stations" (actually they are pretty much useless)
 * [x] Import from file
 * [x] Multi-threat support
 
@@ -40,7 +40,7 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Pending
 
-* [ ] When finishing typing into the meta data fields, the JSON data doesn't get updated properly
+* [ ] When finishing typing into the meta data fields the JSON data doesn't get updated properly
 
 ## Done
 

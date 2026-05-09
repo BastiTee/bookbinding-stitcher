@@ -137,18 +137,6 @@ button.active {
   stroke-width: 0.5;
 }
 
-.station-line {
-  stroke: #999;
-  stroke-width: 0.3;
-  stroke-dasharray: 2 2;
-}
-
-.station-line.selected {
-  stroke: #4a90d9;
-  stroke-width: 0.6;
-  stroke-dasharray: none;
-}
-
 .hole-dot {
   fill: #444;
   cursor: pointer;
@@ -178,13 +166,6 @@ button.active {
 /* Ghost layer for hover previews */
 .ghost-layer {
   pointer-events: none;
-}
-
-.ghost-station-line {
-  stroke: #4a90d9;
-  stroke-width: 0.5;
-  opacity: 0.4;
-  stroke-dasharray: 2 2;
 }
 
 .ghost-hole-dot {

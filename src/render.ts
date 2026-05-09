@@ -73,19 +73,7 @@ export function renderGrid(
   // Layer 3: Rulers
   renderRulers(svg, spine);
 
-  // Layer 4: Column guide lines — one per unique X value present in holes
-  const columnXs = [...new Set(holes.map(h => h.x))].sort((a, b) => a - b);
-  for (const x of columnXs) {
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", String(x));
-    line.setAttribute("y1", "0");
-    line.setAttribute("x2", String(x));
-    line.setAttribute("y2", String(spine.height));
-    line.classList.add("station-line");
-    svg.appendChild(line);
-  }
-
-  // Layer 5: Hole dots
+  // Layer 4: Hole dots
   for (const h of holes) {
     const circle = document.createElementNS(SVG_NS, "circle");
     circle.setAttribute("cx", String(h.x));
