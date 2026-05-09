@@ -47,6 +47,11 @@
       ]
     }
   ],
+  "metadata": {
+    "title": "Single Signature Chain Stitch",
+    "author": "Basti Tee",
+    "description": "Video: https://www.youtube.com/watch?v=kVnhNKZIKh8"
+  },
   "threads": [
     {
       "threadStart": {
@@ -95,15 +100,15 @@
             "x": 50,
             "y": 20
           },
-          "chainedVia": {
-            "x": 30,
-            "y": 20
-          },
           "to": {
             "x": 50,
             "y": 20
           },
-          "index": 3
+          "index": 3,
+          "chainedVia": {
+            "x": 30,
+            "y": 20
+          }
         },
         {
           "load": "negative",
@@ -123,15 +128,15 @@
             "x": 70,
             "y": 20
           },
-          "chainedVia": {
-            "x": 50,
-            "y": 20
-          },
           "to": {
             "x": 70,
             "y": 20
           },
-          "index": 5
+          "index": 5,
+          "chainedVia": {
+            "x": 50,
+            "y": 20
+          }
         },
         {
           "load": "negative",
@@ -151,15 +156,15 @@
             "x": 90,
             "y": 20
           },
-          "chainedVia": {
-            "x": 70,
-            "y": 20
-          },
           "to": {
             "x": 90,
             "y": 20
           },
-          "index": 7
+          "index": 7,
+          "chainedVia": {
+            "x": 70,
+            "y": 20
+          }
         },
         {
           "load": "negative",
@@ -179,15 +184,15 @@
             "x": 110,
             "y": 20
           },
-          "chainedVia": {
-            "x": 90,
-            "y": 20
-          },
           "to": {
             "x": 110,
             "y": 20
           },
-          "index": 9
+          "index": 9,
+          "chainedVia": {
+            "x": 90,
+            "y": 20
+          }
         },
         {
           "load": "negative",
@@ -207,15 +212,15 @@
             "x": 130,
             "y": 20
           },
-          "chainedVia": {
-            "x": 110,
-            "y": 20
-          },
           "to": {
             "x": 130,
             "y": 20
           },
-          "index": 11
+          "index": 11,
+          "chainedVia": {
+            "x": 110,
+            "y": 20
+          }
         }
       ],
       "anchorLoops": []

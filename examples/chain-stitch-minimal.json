@@ -24,7 +24,9 @@
     }
   ],
   "metadata": {
-    "title": "Minimal Example Chain Stitch"
+    "title": "Minimal chain stitch example",
+    "author": "Basti Tee",
+    "description": "An example how a chain stitch is implemented. You start from the inside at the leftmost station, then go into the middle hole and on the inside to the right hole. From there you chain-stitch around the thread at the middle hole back into the right hole and then end the thread on the inside."
   },
   "threads": [
     {
@@ -74,15 +76,15 @@
             "x": 50,
             "y": 10
           },
-          "chainedVia": {
-            "x": 30,
-            "y": 10
-          },
           "to": {
             "x": 50,
             "y": 10
           },
-          "index": 3
+          "index": 3,
+          "chainedVia": {
+            "x": 30,
+            "y": 10
+          }
         }
       ],
       "anchorLoops": []
