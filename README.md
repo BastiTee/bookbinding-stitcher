@@ -20,7 +20,6 @@ Examples for import can be found in the [respective folder](examples/).
 ## Should
 
 * [ ] Print feature to use template on real binding
-* [ ] Mark orientation of signatures
 * [ ] Gallery feature for examples
 * [ ] Indicate the currently used file name
 
@@ -32,6 +31,7 @@ Examples for import can be found in the [respective folder](examples/).
 
 ## Done
 
+* [x] Mark orientation of signatures
 * [x] Visualize rulers
 * [x] Remove "stations" (actually they are pretty much useless)
 * [x] Import from file

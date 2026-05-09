@@ -407,6 +407,24 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   svg.addEventListener("click", (e) => {
     if (currentMode !== "design") return;
     interactionError.textContent = "";
+
+    // Signature margin buttons
+    const clicked = e.target as SVGElement;
+    if (clicked.classList.contains("sig-button")) {
+      const pos = parseInt(clicked.getAttribute("data-sig-pos") ?? "", 10);
+      const axis = clicked.getAttribute("data-sig-axis") as "right" | "bottom";
+      if (!isNaN(pos) && axis) {
+        const orientation = axis === "right" ? "horizontal" : "vertical";
+        try {
+          if (e.shiftKey) model.removeSignature(pos);
+          else             model.addSignature(orientation, pos);
+        } catch (err) {
+          interactionError.textContent = (err as Error).message;
+        }
+        return;
+      }
+    }
+
     const coord = screenToSvg(svg, e);
     const state = model.getState();
     const target = resolveTarget(svg, coord, state);
@@ -501,6 +519,9 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   model.subscribe(() => {
     sewingModel.reset();
   });
+
+  // Signature changes only need a render refresh, not a sewing reset
+  model.subscribeSignatures(refresh);
 
   sewingModel.subscribe(refresh);
 

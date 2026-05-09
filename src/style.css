@@ -516,3 +516,31 @@ button.active {
   pointer-events: none;
   opacity: 0.55;
 }
+
+/* Signature lines */
+.sig-line {
+  stroke: #ccc;
+  stroke-width: 0.5;
+  pointer-events: none;
+}
+
+/* Signature margin buttons */
+.sig-button {
+  fill: #ccc;
+  stroke: none;
+  cursor: pointer;
+}
+.sig-button:hover {
+  fill: #888;
+}
+.sig-button--active {
+  fill: #888;
+}
+.sig-button--active:hover {
+  fill: #555;
+}
+.sig-button--locked {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}

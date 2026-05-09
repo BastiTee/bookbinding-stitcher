@@ -17,6 +17,12 @@
       "y": 10
     }
   ],
+  "signatureLocations": {
+    "orientation": "horizontal",
+    "positions": [
+      10
+    ]
+  },
   "metadata": {
     "title": "Minimal chain stitch example",
     "author": "Basti Tee",

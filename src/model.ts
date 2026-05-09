@@ -8,9 +8,15 @@ export interface Hole {
   y: number; // mm position along spine height
 }
 
+export interface GridSignatures {
+  orientation: "horizontal" | "vertical";
+  positions: number[]; // sorted unique ints; Y values if horizontal, X if vertical
+}
+
 export interface GridState {
   spine: Spine;
   holes: Hole[]; // sorted by x then y
+  signatureLocations?: GridSignatures;
 }
 
 type Listener = () => void;
@@ -18,11 +24,12 @@ type Listener = () => void;
 export class GridModel {
   private state: GridState;
   private listeners: Listener[] = [];
+  private sigListeners: Listener[] = [];
 
   constructor(spine: Spine) {
     assertPositiveInt(spine.width, "Spine width");
     assertPositiveInt(spine.height, "Spine height");
-    this.state = { spine: { ...spine }, holes: [] };
+    this.state = { spine: { ...spine }, holes: [], signatureLocations: undefined };
   }
 
   getState(): Readonly<GridState> {
@@ -36,8 +43,19 @@ export class GridModel {
     };
   }
 
+  subscribeSignatures(fn: Listener): () => void {
+    this.sigListeners.push(fn);
+    return () => {
+      this.sigListeners = this.sigListeners.filter((l) => l !== fn);
+    };
+  }
+
   private notify() {
     for (const fn of this.listeners) fn();
+  }
+
+  private notifySignatures() {
+    for (const fn of this.sigListeners) fn();
   }
 
   setSpine(width: number, height: number) {
@@ -52,7 +70,41 @@ export class GridModel {
       }
     }
     this.state.spine = { width, height };
+    if (this.state.signatureLocations) {
+      const bound = this.state.signatureLocations.orientation === "horizontal" ? height : width;
+      const filtered = this.state.signatureLocations.positions.filter(p => p >= 0 && p <= bound);
+      if (filtered.length !== this.state.signatureLocations.positions.length) {
+        this.state.signatureLocations = filtered.length > 0
+          ? { orientation: this.state.signatureLocations.orientation, positions: filtered }
+          : undefined;
+        this.notifySignatures();
+      }
+    }
     this.notify();
+  }
+
+  addSignature(orientation: "horizontal" | "vertical", position: number): void {
+    assertNonNegativeInt(position, "Signature position");
+    const bound = orientation === "horizontal" ? this.state.spine.height : this.state.spine.width;
+    if (position > bound) {
+      throw new Error(`Signature position ${position} must be at most ${bound}`);
+    }
+    if (this.state.signatureLocations && this.state.signatureLocations.orientation !== orientation) {
+      throw new Error("Cannot mix horizontal and vertical signatures");
+    }
+    if (this.state.signatureLocations?.positions.includes(position)) return;
+    const positions = [...(this.state.signatureLocations?.positions ?? []), position].sort((a, b) => a - b);
+    this.state.signatureLocations = { orientation, positions };
+    this.notifySignatures();
+  }
+
+  removeSignature(position: number): void {
+    if (!this.state.signatureLocations) return;
+    const positions = this.state.signatureLocations.positions.filter(p => p !== position);
+    this.state.signatureLocations = positions.length > 0
+      ? { orientation: this.state.signatureLocations.orientation, positions }
+      : undefined;
+    this.notifySignatures();
   }
 
   addHole(x: number, y: number) {
@@ -114,7 +166,23 @@ export class GridModel {
     }
 
     validatedHoles.sort((a, b) => a.x !== b.x ? a.x - b.x : a.y - b.y);
-    this.state = { spine: { width: spine.width, height: spine.height }, holes: validatedHoles };
+
+    let signatureLocations: GridSignatures | undefined;
+    const rawSig = (newState as unknown as Record<string, unknown>).signatureLocations;
+    if (rawSig && typeof rawSig === "object") {
+      const s = rawSig as Record<string, unknown>;
+      if ((s.orientation === "horizontal" || s.orientation === "vertical") && Array.isArray(s.positions)) {
+        const bound = s.orientation === "horizontal" ? spine.height : spine.width;
+        const positions = (s.positions as unknown[])
+          .filter((p): p is number => typeof p === "number" && Number.isInteger(p) && p >= 0 && p <= bound)
+          .sort((a, b) => a - b);
+        if (positions.length > 0) {
+          signatureLocations = { orientation: s.orientation, positions };
+        }
+      }
+    }
+
+    this.state = { spine: { width: spine.width, height: spine.height }, holes: validatedHoles, signatureLocations };
     this.notify();
   }
 }

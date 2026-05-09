@@ -149,6 +149,17 @@
       "y": 60
     }
   ],
+  "signatureLocations": {
+    "orientation": "horizontal",
+    "positions": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60
+    ]
+  },
   "metadata": {
     "title": "DIY Long Stitch | Sea Lemon",
     "author": "Basti Tee",
@@ -627,12 +638,12 @@
       ],
       "anchorLoops": [
         {
-          "side": "positive",
-          "afterEdge": 0,
           "hole": {
             "x": 10,
             "y": 60
-          }
+          },
+          "side": "positive",
+          "afterEdge": 0
         }
       ]
     }
