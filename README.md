@@ -22,6 +22,7 @@ Examples for import can be found in the [respective folder](examples/).
 * [ ] Print feature to use template on real binding
 * [ ] Mark orientation of signatures
 * [ ] Gallery feature for examples
+* [ ] Indicate the currently used file name
 
 ## Could
 
