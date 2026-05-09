@@ -1,3 +1,5 @@
+import { el, createModal } from "./dom-utils";
+
 type Mode = "design" | "sewing" | "playback";
 
 interface Shortcut {
@@ -48,79 +50,32 @@ const SECTIONS: Section[] = [
 ];
 
 export function openHelp(currentMode: Mode): void {
-  const backdrop = document.createElement("div");
-  backdrop.className = "gallery-backdrop";
+  if (document.querySelector(".gallery-backdrop")) return;
 
-  function close() {
-    if (backdrop.parentNode) document.body.removeChild(backdrop);
-    document.removeEventListener("keydown", onKey);
-  }
-
-  function onKey(e: KeyboardEvent) {
-    if (e.key === "Escape") close();
-  }
-
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) close();
-  });
-  document.addEventListener("keydown", onKey);
-
-  const modal = document.createElement("div");
-  modal.className = "gallery-modal help-modal";
-
-  const header = document.createElement("div");
-  header.className = "gallery-header";
-
-  const titleEl = document.createElement("h2");
-  titleEl.className = "gallery-title";
-  titleEl.textContent = "Keyboard & Mouse Controls";
-
-  const closeBtn = document.createElement("button");
-  closeBtn.className = "gallery-close-btn";
-  closeBtn.setAttribute("aria-label", "Close help");
-  closeBtn.textContent = "✕";
-  closeBtn.addEventListener("click", close);
-
-  header.appendChild(titleEl);
-  header.appendChild(closeBtn);
-  modal.appendChild(header);
-
-  const content = document.createElement("div");
-  content.className = "help-content";
+  const { modal } = createModal("Keyboard & Mouse Controls", "Close help", "help-modal");
+  const content = el("div", "help-content");
 
   for (const section of SECTIONS) {
-    const sectionEl = document.createElement("div");
-    sectionEl.className = "help-section";
-    if (section.mode === currentMode) {
-      sectionEl.classList.add("help-section--active");
-    }
+    const isActive = section.mode === currentMode;
+    const sectionEl = el("div", isActive ? "help-section help-section--active" : "help-section");
 
-    const sectionTitle = document.createElement("h3");
-    sectionTitle.className = "help-section-title";
-    sectionTitle.textContent = section.title;
-    if (section.mode === currentMode) {
-      const badge = document.createElement("span");
-      badge.className = "help-section-badge";
+    const titleEl = document.createElement("h3");
+    titleEl.className = "help-section-title";
+    titleEl.textContent = section.title;
+    if (isActive) {
+      const badge = el("span", "help-section-badge");
       badge.textContent = "current";
-      sectionTitle.appendChild(badge);
+      titleEl.appendChild(badge);
     }
-    sectionEl.appendChild(sectionTitle);
+    sectionEl.appendChild(titleEl);
 
-    const list = document.createElement("div");
-    list.className = "help-shortcut-list";
-
+    const list = el("div", "help-shortcut-list");
     for (const shortcut of section.shortcuts) {
-      const row = document.createElement("div");
-      row.className = "help-shortcut-row";
-
-      const keyEl = document.createElement("span");
-      keyEl.className = "help-key";
+      const row = el("div", "help-shortcut-row");
+      const keyEl = el("span", "help-key");
       keyEl.textContent = shortcut.key;
-
-      const descEl = document.createElement("span");
-      descEl.className = "help-shortcut-desc";
+      const descEl = el("span", "help-shortcut-desc");
       descEl.textContent = shortcut.description;
-
       row.appendChild(keyEl);
       row.appendChild(descEl);
       list.appendChild(row);
@@ -131,7 +86,4 @@ export function openHelp(currentMode: Mode): void {
   }
 
   modal.appendChild(content);
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-  closeBtn.focus();
 }

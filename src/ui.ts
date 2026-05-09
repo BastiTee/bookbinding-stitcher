@@ -317,7 +317,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   btnPlayback.addEventListener("click", switchToPlayback);
 
   // Help button (top-right of canvas)
-  svgPanel.style.position = "relative";
   const helpBtn = document.createElement("button");
   helpBtn.className = "help-btn";
   helpBtn.textContent = "?";
