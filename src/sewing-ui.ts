@@ -19,8 +19,8 @@ export function buildSewingPanel(
 
   // Start side radio group
   const radioGroup = el("div", "radio-group");
-  const radioPositive = radioOption("start-side", "positive", "Spine (positive)", true);
-  const radioNegative = radioOption("start-side", "negative", "Inside (negative)", false);
+  const radioPositive = radioOption("start-side", "positive", "Start from outside", false);
+  const radioNegative = radioOption("start-side", "negative", "Start from inside", true);
   radioGroup.appendChild(radioPositive.wrapper);
   radioGroup.appendChild(radioNegative.wrapper);
   panel.appendChild(radioGroup);

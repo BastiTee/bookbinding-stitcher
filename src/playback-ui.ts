@@ -75,6 +75,7 @@ export function buildPlaybackPanel(
     currentStep = totalEdges();
     panel.classList.remove("hidden");
     renderStep();
+    document.addEventListener("keydown", onKeyDown);
   }
 
   function deactivate() {
@@ -82,6 +83,26 @@ export function buildPlaybackPanel(
     spineOnly = false;
     viewBtn.textContent = "View: Front & Back";
     viewBtn.classList.remove("active");
+    document.removeEventListener("keydown", onKeyDown);
+  }
+
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    switch (e.key) {
+      case "ArrowRight":
+        e.preventDefault();
+        e.shiftKey ? setStep(totalEdges()) : setStep(currentStep + 1);
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        e.shiftKey ? setStep(0) : setStep(currentStep - 1);
+        break;
+      case "ArrowUp":
+      case "ArrowDown":
+        e.preventDefault();
+        viewBtn.click();
+        break;
+    }
   }
 
   return { activate, deactivate };

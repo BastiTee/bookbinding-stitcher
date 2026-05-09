@@ -38,7 +38,11 @@ const SECTIONS: Section[] = [
     mode: "playback",
     title: "Playback",
     shortcuts: [
-      { key: "—", description: "No keyboard shortcuts — use the sidebar buttons" },
+      { key: "→", description: "Next step" },
+      { key: "←", description: "Previous step" },
+      { key: "Shift+→", description: "Jump to end" },
+      { key: "Shift+←", description: "Jump to start" },
+      { key: "↑ / ↓", description: "Toggle view: Front & Back / Spine Only" },
     ],
   },
 ];
