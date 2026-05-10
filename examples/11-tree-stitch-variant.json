@@ -80,7 +80,8 @@
   "metadata": {
     "title": "Tree Stitch for 3 signatures",
     "author": "porsche and coffee",
-    "description": "A tree-like binding for three signatures, done with three separate threads. Originally I found this tutorial at https://www.youtube.com/watch?v=kVnhNKZIKh8"
+    "tutorial": "https://www.youtube.com/watch?v=kVnhNKZIKh8",
+    "description": "A tree-like binding for three signatures, done with three separate threads."
   },
   "threads": [
     {
