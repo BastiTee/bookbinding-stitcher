@@ -45,6 +45,21 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   let currentFileName: string | null = null;
 
   // ============================================================
+  // App header
+  // ============================================================
+  const appHeader = el("div", "app-header");
+  const appIcon = document.createElement("img");
+  appIcon.src = import.meta.env.BASE_URL + "favicon.png";
+  appIcon.alt = "Stitcher";
+  appIcon.className = "app-header-icon";
+  const appTitle = document.createElement("span");
+  appTitle.className = "app-header-title";
+  appTitle.textContent = "Bookbinding Stitcher";
+  appHeader.appendChild(appIcon);
+  appHeader.appendChild(appTitle);
+  sidebar.appendChild(appHeader);
+
+  // ============================================================
   // Metadata panel
   // ============================================================
   const { getMetadata, setMetadata } = buildMetadataPanel(sidebar, refresh, () => {
@@ -581,6 +596,7 @@ interface Metadata {
   title?: string;
   author?: string;
   description?: string;
+  tutorial?: string;
 }
 
 function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset: () => void): {
@@ -623,6 +639,28 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
     onChange();
   });
 
+  const tutorialInput = document.createElement("input");
+  tutorialInput.type = "text";
+  tutorialInput.maxLength = 500;
+  tutorialInput.placeholder = "Tutorial URL";
+  tutorialInput.className = "metadata-input";
+  panel.appendChild(tutorialInput);
+
+  const tutorialLink = document.createElement("a");
+  tutorialLink.className = "metadata-tutorial-link";
+  tutorialLink.textContent = "Open tutorial ↗";
+  tutorialLink.target = "_blank";
+  tutorialLink.rel = "noopener noreferrer";
+  tutorialLink.style.display = "none";
+  panel.appendChild(tutorialLink);
+
+  tutorialInput.addEventListener("input", () => {
+    const url = tutorialInput.value.trim();
+    tutorialLink.href = url;
+    tutorialLink.style.display = url ? "" : "none";
+    onChange();
+  });
+
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "Reset";
   resetBtn.className = "reset-btn";
@@ -632,6 +670,8 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
     authorInput.value = "";
     descTextarea.value = "";
     charCount.textContent = "0 / 500";
+    tutorialInput.value = "";
+    tutorialLink.style.display = "none";
     onReset();
   });
   panel.appendChild(resetBtn);
@@ -643,9 +683,11 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
     const title = titleInput.value.trim();
     const author = authorInput.value.trim();
     const description = descTextarea.value.trim();
+    const tutorial = tutorialInput.value.trim();
     if (title) meta.title = title;
     if (author) meta.author = author;
     if (description) meta.description = description;
+    if (tutorial) meta.tutorial = tutorial;
     return meta;
   }
 
@@ -654,6 +696,9 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
     authorInput.value = m.author ?? "";
     descTextarea.value = m.description ?? "";
     charCount.textContent = `${descTextarea.value.length} / 500`;
+    tutorialInput.value = m.tutorial ?? "";
+    tutorialLink.href = m.tutorial ?? "";
+    tutorialLink.style.display = m.tutorial ? "" : "none";
   }
 
   return { getMetadata, setMetadata };
