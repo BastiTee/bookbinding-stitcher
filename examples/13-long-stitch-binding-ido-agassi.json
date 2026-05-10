@@ -1,11 +1,15 @@
 {
   "spine": {
     "width": 150,
-    "height": 70
+    "height": 40
   },
   "holes": [
     {
       "x": 10,
+      "y": 0
+    },
+    {
+      "x": 10,
       "y": 10
     },
     {
@@ -21,108 +25,72 @@
       "y": 40
     },
     {
-      "x": 10,
-      "y": 50
-    },
-    {
-      "x": 10,
-      "y": 60
+      "x": 30,
+      "y": 0
     },
     {
       "x": 30,
-      "y": 10
+      "y": 13
     },
     {
       "x": 30,
-      "y": 20
-    },
-    {
-      "x": 30,
-      "y": 30
+      "y": 27
     },
     {
       "x": 30,
       "y": 40
     },
     {
-      "x": 30,
-      "y": 50
-    },
-    {
-      "x": 30,
-      "y": 60
+      "x": 60,
+      "y": 0
     },
     {
       "x": 60,
-      "y": 10
+      "y": 13
     },
     {
       "x": 60,
-      "y": 20
-    },
-    {
-      "x": 60,
-      "y": 30
+      "y": 27
     },
     {
       "x": 60,
       "y": 40
     },
     {
-      "x": 60,
-      "y": 50
-    },
-    {
-      "x": 60,
-      "y": 60
+      "x": 90,
+      "y": 0
     },
     {
       "x": 90,
-      "y": 10
+      "y": 13
     },
     {
       "x": 90,
-      "y": 20
-    },
-    {
-      "x": 90,
-      "y": 30
+      "y": 27
     },
     {
       "x": 90,
       "y": 40
     },
     {
-      "x": 90,
-      "y": 50
-    },
-    {
-      "x": 90,
-      "y": 60
+      "x": 120,
+      "y": 0
     },
     {
       "x": 120,
-      "y": 10
+      "y": 13
     },
     {
       "x": 120,
-      "y": 20
-    },
-    {
-      "x": 120,
-      "y": 30
+      "y": 27
     },
     {
       "x": 120,
       "y": 40
     },
     {
-      "x": 120,
-      "y": 50
-    },
-    {
-      "x": 120,
-      "y": 60
+      "x": 140,
+      "y": 0
     },
     {
       "x": 140,
@@ -139,39 +107,30 @@
     {
       "x": 140,
       "y": 40
-    },
-    {
-      "x": 140,
-      "y": 50
-    },
-    {
-      "x": 140,
-      "y": 60
     }
   ],
   "signatureLocations": {
     "orientation": "horizontal",
     "positions": [
+      0,
       10,
       20,
       30,
-      40,
-      50,
-      60
+      40
     ]
   },
   "metadata": {
-    "title": "DIY Long Stitch | Sea Lemon",
-    "author": "Basti Tee",
-    "description": "A simple, yet beautiful long stitch binding created by Sea Lemon. Original video can be found at https://www.youtube.com/watch?v=a_LZ-BWhH_Q"
+    "title": "Long Stitch Sketchbook",
+    "author": "Ido Agassi",
+    "description": "By far the most complicated long stitch to my knowledge. It was actually the reason to create this stitcher app in the first place, because I could not remember how to bind it properly. The original tutorial can be found at https://www.skillshare.com/en/classes/make-your-own-sketchbook-long-stitch-binding-style/1879283933"
   },
   "threads": [
     {
       "threadStart": {
         "side": "negative",
         "hole": {
-          "x": 10,
-          "y": 60
+          "x": 30,
+          "y": 0
         }
       },
       "threadEnd": {
@@ -179,167 +138,167 @@
         "side": "negative",
         "hole": {
           "x": 10,
-          "y": 10
+          "y": 40
         }
       },
       "edges": [
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 10,
-            "y": 60
+            "x": 30,
+            "y": 0
           },
           "to": {
-            "x": 30,
-            "y": 60
+            "x": 60,
+            "y": 0
           },
           "index": 1
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 30,
-            "y": 60
+            "x": 60,
+            "y": 0
           },
           "to": {
-            "x": 60,
-            "y": 60
+            "x": 90,
+            "y": 0
           },
           "index": 2
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 60,
-            "y": 60
+            "x": 90,
+            "y": 0
           },
           "to": {
-            "x": 90,
-            "y": 60
+            "x": 120,
+            "y": 0
           },
           "index": 3
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 90,
-            "y": 60
+            "x": 120,
+            "y": 0
           },
           "to": {
-            "x": 120,
-            "y": 60
+            "x": 140,
+            "y": 0
           },
           "index": 4
         },
         {
           "load": "negative",
           "from": {
-            "x": 120,
-            "y": 60
+            "x": 140,
+            "y": 0
           },
           "to": {
-            "x": 140,
-            "y": 60
+            "x": 120,
+            "y": 0
           },
           "index": 5
         },
         {
           "load": "positive",
           "from": {
-            "x": 140,
-            "y": 60
+            "x": 120,
+            "y": 0
           },
           "to": {
-            "x": 140,
-            "y": 50
+            "x": 90,
+            "y": 0
           },
           "index": 6
         },
         {
           "load": "negative",
           "from": {
-            "x": 140,
-            "y": 50
+            "x": 90,
+            "y": 0
           },
           "to": {
-            "x": 120,
-            "y": 50
+            "x": 60,
+            "y": 0
           },
           "index": 7
         },
         {
           "load": "positive",
           "from": {
-            "x": 120,
-            "y": 50
+            "x": 60,
+            "y": 0
           },
           "to": {
-            "x": 90,
-            "y": 50
+            "x": 30,
+            "y": 0
           },
           "index": 8
         },
         {
           "load": "negative",
           "from": {
-            "x": 90,
-            "y": 50
+            "x": 30,
+            "y": 0
           },
           "to": {
-            "x": 60,
-            "y": 50
+            "x": 10,
+            "y": 10
           },
           "index": 9
         },
         {
           "load": "positive",
           "from": {
-            "x": 60,
-            "y": 50
+            "x": 10,
+            "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 50
+            "x": 10,
+            "y": 0
           },
           "index": 10
         },
         {
           "load": "negative",
           "from": {
-            "x": 30,
-            "y": 50
+            "x": 10,
+            "y": 0
           },
           "to": {
             "x": 10,
-            "y": 50
+            "y": 0
           },
-          "index": 11
+          "index": 11,
+          "chainedVia": {
+            "x": 30,
+            "y": 0
+          }
         },
         {
           "load": "positive",
           "from": {
             "x": 10,
-            "y": 50
+            "y": 0
           },
           "to": {
             "x": 10,
-            "y": 40
+            "y": 10
           },
-          "index": 12,
-          "chainedVia": {
-            "x": 10,
-            "y": 60
-          }
+          "index": 12
         },
         {
           "load": "negative",
           "from": {
             "x": 10,
-            "y": 40
+            "y": 10
           },
           "to": {
             "x": 30,
-            "y": 40
+            "y": 13
           },
           "index": 13
         },
@@ -347,11 +306,11 @@
           "load": "positive",
           "from": {
             "x": 30,
-            "y": 40
+            "y": 13
           },
           "to": {
             "x": 60,
-            "y": 40
+            "y": 13
           },
           "index": 14
         },
@@ -359,11 +318,11 @@
           "load": "negative",
           "from": {
             "x": 60,
-            "y": 40
+            "y": 13
           },
           "to": {
             "x": 90,
-            "y": 40
+            "y": 13
           },
           "index": 15
         },
@@ -371,11 +330,11 @@
           "load": "positive",
           "from": {
             "x": 90,
-            "y": 40
+            "y": 13
           },
           "to": {
             "x": 120,
-            "y": 40
+            "y": 13
           },
           "index": 16
         },
@@ -383,11 +342,11 @@
           "load": "negative",
           "from": {
             "x": 120,
-            "y": 40
+            "y": 13
           },
           "to": {
             "x": 140,
-            "y": 40
+            "y": 10
           },
           "index": 17
         },
@@ -395,102 +354,102 @@
           "load": "positive",
           "from": {
             "x": 140,
-            "y": 40
+            "y": 10
           },
           "to": {
             "x": 140,
-            "y": 30
+            "y": 10
           },
           "index": 18,
           "chainedVia": {
             "x": 140,
-            "y": 50
+            "y": 0
           }
         },
         {
           "load": "negative",
           "from": {
             "x": 140,
-            "y": 30
+            "y": 10
           },
           "to": {
-            "x": 120,
-            "y": 30
+            "x": 140,
+            "y": 20
           },
           "index": 19
         },
         {
           "load": "positive",
           "from": {
-            "x": 120,
-            "y": 30
+            "x": 140,
+            "y": 20
           },
           "to": {
-            "x": 90,
-            "y": 30
+            "x": 140,
+            "y": 20
           },
-          "index": 20
+          "index": 20,
+          "chainedVia": {
+            "x": 140,
+            "y": 10
+          }
         },
         {
           "load": "negative",
           "from": {
-            "x": 90,
-            "y": 30
+            "x": 140,
+            "y": 20
           },
           "to": {
-            "x": 60,
-            "y": 30
+            "x": 120,
+            "y": 13
           },
           "index": 21
         },
         {
           "load": "positive",
           "from": {
-            "x": 60,
-            "y": 30
+            "x": 120,
+            "y": 13
           },
           "to": {
-            "x": 30,
-            "y": 30
+            "x": 90,
+            "y": 13
           },
           "index": 22
         },
         {
           "load": "negative",
           "from": {
-            "x": 30,
-            "y": 30
+            "x": 90,
+            "y": 13
           },
           "to": {
-            "x": 10,
-            "y": 30
+            "x": 60,
+            "y": 13
           },
           "index": 23
         },
         {
           "load": "positive",
           "from": {
-            "x": 10,
-            "y": 30
+            "x": 60,
+            "y": 13
           },
           "to": {
-            "x": 10,
-            "y": 20
+            "x": 30,
+            "y": 13
           },
-          "index": 24,
-          "chainedVia": {
-            "x": 10,
-            "y": 40
-          }
+          "index": 24
         },
         {
           "load": "negative",
           "from": {
-            "x": 10,
-            "y": 20
+            "x": 30,
+            "y": 13
           },
           "to": {
-            "x": 30,
+            "x": 10,
             "y": 20
           },
           "index": 25
@@ -498,62 +457,242 @@
         {
           "load": "positive",
           "from": {
-            "x": 30,
+            "x": 10,
             "y": 20
           },
           "to": {
-            "x": 60,
+            "x": 10,
             "y": 20
           },
-          "index": 26
+          "index": 26,
+          "chainedVia": {
+            "x": 10,
+            "y": 10
+          }
         },
         {
           "load": "negative",
           "from": {
-            "x": 60,
+            "x": 10,
             "y": 20
           },
           "to": {
-            "x": 90,
-            "y": 20
+            "x": 30,
+            "y": 27
           },
           "index": 27
         },
         {
           "load": "positive",
           "from": {
-            "x": 90,
-            "y": 20
+            "x": 30,
+            "y": 27
           },
           "to": {
-            "x": 120,
-            "y": 20
+            "x": 60,
+            "y": 27
           },
           "index": 28
         },
         {
           "load": "negative",
           "from": {
-            "x": 120,
-            "y": 20
+            "x": 60,
+            "y": 27
           },
           "to": {
-            "x": 140,
-            "y": 20
+            "x": 90,
+            "y": 27
           },
           "index": 29
         },
         {
           "load": "positive",
           "from": {
-            "x": 140,
-            "y": 20
+            "x": 90,
+            "y": 27
+          },
+          "to": {
+            "x": 120,
+            "y": 27
+          },
+          "index": 30
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 120,
+            "y": 27
           },
           "to": {
             "x": 140,
-            "y": 10
+            "y": 30
           },
-          "index": 30,
+          "index": 31
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 140,
+            "y": 30
+          },
+          "to": {
+            "x": 140,
+            "y": 30
+          },
+          "index": 32,
+          "chainedVia": {
+            "x": 140,
+            "y": 20
+          }
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 140,
+            "y": 30
+          },
+          "to": {
+            "x": 120,
+            "y": 27
+          },
+          "index": 33
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 120,
+            "y": 27
+          },
+          "to": {
+            "x": 90,
+            "y": 27
+          },
+          "index": 34
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 90,
+            "y": 27
+          },
+          "to": {
+            "x": 60,
+            "y": 27
+          },
+          "index": 35
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 60,
+            "y": 27
+          },
+          "to": {
+            "x": 30,
+            "y": 27
+          },
+          "index": 36
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 27
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 37
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 38,
+          "chainedVia": {
+            "x": 10,
+            "y": 20
+          }
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 30,
+            "y": 40
+          },
+          "index": 39
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 40
+          },
+          "to": {
+            "x": 60,
+            "y": 40
+          },
+          "index": 40
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 60,
+            "y": 40
+          },
+          "to": {
+            "x": 90,
+            "y": 40
+          },
+          "index": 41
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 90,
+            "y": 40
+          },
+          "to": {
+            "x": 120,
+            "y": 40
+          },
+          "index": 42
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 120,
+            "y": 40
+          },
+          "to": {
+            "x": 140,
+            "y": 40
+          },
+          "index": 43
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 140,
+            "y": 40
+          },
+          "to": {
+            "x": 140,
+            "y": 40
+          },
+          "index": 44,
           "chainedVia": {
             "x": 140,
             "y": 30
@@ -563,87 +702,87 @@
           "load": "negative",
           "from": {
             "x": 140,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 120,
-            "y": 10
+            "y": 40
           },
-          "index": 31
+          "index": 45
         },
         {
           "load": "positive",
           "from": {
             "x": 120,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 90,
-            "y": 10
+            "y": 40
           },
-          "index": 32
+          "index": 46
         },
         {
           "load": "negative",
           "from": {
             "x": 90,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 60,
-            "y": 10
+            "y": 40
           },
-          "index": 33
+          "index": 47
         },
         {
           "load": "positive",
           "from": {
             "x": 60,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 30,
-            "y": 10
+            "y": 40
           },
-          "index": 34
+          "index": 48
         },
         {
           "load": "negative",
           "from": {
             "x": 30,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 10,
-            "y": 10
+            "y": 40
           },
-          "index": 35
+          "index": 49
         },
         {
           "load": "positive",
           "from": {
             "x": 10,
-            "y": 10
+            "y": 40
           },
           "to": {
             "x": 10,
-            "y": 10
+            "y": 40
           },
-          "index": 36,
+          "index": 50,
           "chainedVia": {
             "x": 10,
-            "y": 20
+            "y": 30
           }
         }
       ],
       "anchorLoops": [
         {
           "hole": {
-            "x": 10,
-            "y": 60
+            "x": 140,
+            "y": 0
           },
           "side": "positive",
-          "afterEdge": 0
+          "afterEdge": 4
         }
       ]
     }

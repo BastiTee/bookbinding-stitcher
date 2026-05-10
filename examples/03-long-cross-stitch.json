@@ -1,12 +1,24 @@
 {
   "spine": {
-    "width": 150,
+    "width": 60,
     "height": 40
   },
   "holes": [
     {
-      "x": 0,
+      "x": 10,
       "y": 10
+    },
+    {
+      "x": 10,
+      "y": 30
+    },
+    {
+      "x": 20,
+      "y": 10
+    },
+    {
+      "x": 20,
+      "y": 30
     },
     {
       "x": 30,
@@ -14,55 +26,54 @@
     },
     {
       "x": 30,
-      "y": 40
+      "y": 30
     },
     {
-      "x": 60,
+      "x": 40,
       "y": 10
     },
     {
-      "x": 60,
-      "y": 40
+      "x": 40,
+      "y": 30
     },
     {
-      "x": 90,
+      "x": 50,
       "y": 10
     },
     {
-      "x": 90,
-      "y": 40
-    },
-    {
-      "x": 120,
-      "y": 10
-    },
-    {
-      "x": 120,
-      "y": 40
-    },
-    {
-      "x": 150,
-      "y": 10
+      "x": 50,
+      "y": 30
     }
   ],
+  "signatureLocations": {
+    "orientation": "vertical",
+    "positions": [
+      10,
+      20,
+      30,
+      40,
+      50
+    ]
+  },
   "metadata": {
-    "title": "Japanese Binding: Yotsume Toji",
-    "author": "Basti Tee",
-    "description": "This is the most basic Japanese Binding. Please note that at the end you don't pull out the thread, but tie it to the existing thread."
+    "title": "Long Cross Stitch",
+    "author": "Alison Russel",
+    "description": "A nice looking criss-cross stitch for any number of signatures. Full tutorial can be found here: https://www.youtube.com/watch?v=NYfOI7wBcvc"
   },
   "threads": [
     {
       "threadStart": {
         "side": "negative",
         "hole": {
-          "x": 90,
+          "x": 50,
           "y": 10
         }
       },
       "threadEnd": {
+        "type": "knot",
         "side": "positive",
         "hole": {
-          "x": 90,
+          "x": 50,
           "y": 10
         }
       },
@@ -70,23 +81,23 @@
         {
           "load": "positive",
           "from": {
-            "x": 90,
+            "x": 50,
             "y": 10
           },
           "to": {
-            "x": 90,
-            "y": 40
+            "x": 40,
+            "y": 30
           },
           "index": 1
         },
         {
           "load": "negative",
           "from": {
-            "x": 90,
-            "y": 40
+            "x": 40,
+            "y": 30
           },
           "to": {
-            "x": 90,
+            "x": 40,
             "y": 10
           },
           "index": 2
@@ -94,47 +105,47 @@
         {
           "load": "positive",
           "from": {
-            "x": 90,
+            "x": 40,
             "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 10
+            "x": 30,
+            "y": 30
           },
           "index": 3
         },
         {
           "load": "negative",
           "from": {
-            "x": 60,
-            "y": 10
+            "x": 30,
+            "y": 30
           },
           "to": {
-            "x": 60,
-            "y": 40
+            "x": 30,
+            "y": 10
           },
           "index": 4
         },
         {
           "load": "positive",
           "from": {
-            "x": 60,
-            "y": 40
+            "x": 30,
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 10
+            "x": 20,
+            "y": 30
           },
           "index": 5
         },
         {
           "load": "negative",
           "from": {
-            "x": 60,
-            "y": 10
+            "x": 20,
+            "y": 30
           },
           "to": {
-            "x": 30,
+            "x": 20,
             "y": 10
           },
           "index": 6
@@ -142,23 +153,23 @@
         {
           "load": "positive",
           "from": {
-            "x": 30,
+            "x": 20,
             "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 40
+            "x": 10,
+            "y": 30
           },
           "index": 7
         },
         {
           "load": "negative",
           "from": {
-            "x": 30,
-            "y": 40
+            "x": 10,
+            "y": 30
           },
           "to": {
-            "x": 30,
+            "x": 10,
             "y": 10
           },
           "index": 8
@@ -166,23 +177,23 @@
         {
           "load": "positive",
           "from": {
-            "x": 30,
+            "x": 10,
             "y": 10
           },
           "to": {
-            "x": 0,
-            "y": 10
+            "x": 20,
+            "y": 30
           },
           "index": 9
         },
         {
           "load": "negative",
           "from": {
-            "x": 0,
-            "y": 10
+            "x": 20,
+            "y": 30
           },
           "to": {
-            "x": 30,
+            "x": 20,
             "y": 10
           },
           "index": 10
@@ -190,23 +201,23 @@
         {
           "load": "positive",
           "from": {
-            "x": 30,
+            "x": 20,
             "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 10
+            "x": 30,
+            "y": 30
           },
           "index": 11
         },
         {
           "load": "negative",
           "from": {
-            "x": 60,
-            "y": 10
+            "x": 30,
+            "y": 30
           },
           "to": {
-            "x": 90,
+            "x": 30,
             "y": 10
           },
           "index": 12
@@ -214,76 +225,53 @@
         {
           "load": "positive",
           "from": {
-            "x": 90,
+            "x": 30,
             "y": 10
           },
           "to": {
-            "x": 120,
-            "y": 10
+            "x": 40,
+            "y": 30
           },
           "index": 13
         },
         {
           "load": "negative",
           "from": {
-            "x": 120,
-            "y": 10
+            "x": 40,
+            "y": 30
           },
           "to": {
-            "x": 120,
-            "y": 40
+            "x": 40,
+            "y": 10
           },
           "index": 14
         },
         {
           "load": "positive",
           "from": {
-            "x": 120,
-            "y": 40
+            "x": 40,
+            "y": 10
           },
           "to": {
-            "x": 120,
-            "y": 10
+            "x": 50,
+            "y": 30
           },
           "index": 15
         },
         {
           "load": "negative",
           "from": {
-            "x": 120,
-            "y": 10
+            "x": 50,
+            "y": 30
           },
           "to": {
-            "x": 150,
+            "x": 50,
             "y": 10
           },
           "index": 16
-        },
-        {
-          "load": "positive",
-          "from": {
-            "x": 150,
-            "y": 10
-          },
-          "to": {
-            "x": 120,
-            "y": 10
-          },
-          "index": 17
-        },
-        {
-          "load": "negative",
-          "from": {
-            "x": 120,
-            "y": 10
-          },
-          "to": {
-            "x": 90,
-            "y": 10
-          },
-          "index": 18
         }
-      ]
+      ],
+      "anchorLoops": []
     }
   ]
 }

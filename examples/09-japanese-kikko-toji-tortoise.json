@@ -5,114 +5,114 @@
   },
   "holes": [
     {
-      "x": 10,
-      "y": 0
-    },
-    {
-      "x": 10,
+      "x": 0,
       "y": 10
     },
     {
-      "x": 10,
+      "x": 20,
       "y": 20
     },
     {
-      "x": 10,
-      "y": 30
-    },
-    {
-      "x": 10,
+      "x": 20,
       "y": 40
     },
     {
       "x": 30,
-      "y": 0
-    },
-    {
-      "x": 30,
-      "y": 13
-    },
-    {
-      "x": 30,
-      "y": 27
-    },
-    {
-      "x": 30,
-      "y": 40
-    },
-    {
-      "x": 60,
-      "y": 0
-    },
-    {
-      "x": 60,
-      "y": 13
-    },
-    {
-      "x": 60,
-      "y": 27
-    },
-    {
-      "x": 60,
-      "y": 40
-    },
-    {
-      "x": 90,
-      "y": 0
-    },
-    {
-      "x": 90,
-      "y": 13
-    },
-    {
-      "x": 90,
-      "y": 27
-    },
-    {
-      "x": 90,
-      "y": 40
-    },
-    {
-      "x": 120,
-      "y": 0
-    },
-    {
-      "x": 120,
-      "y": 13
-    },
-    {
-      "x": 120,
-      "y": 27
-    },
-    {
-      "x": 120,
-      "y": 40
-    },
-    {
-      "x": 140,
-      "y": 0
-    },
-    {
-      "x": 140,
       "y": 10
     },
     {
-      "x": 140,
+      "x": 30,
+      "y": 40
+    },
+    {
+      "x": 40,
       "y": 20
     },
     {
-      "x": 140,
-      "y": 30
+      "x": 40,
+      "y": 40
     },
     {
-      "x": 140,
+      "x": 50,
+      "y": 20
+    },
+    {
+      "x": 50,
       "y": 40
+    },
+    {
+      "x": 60,
+      "y": 10
+    },
+    {
+      "x": 60,
+      "y": 40
+    },
+    {
+      "x": 70,
+      "y": 20
+    },
+    {
+      "x": 70,
+      "y": 40
+    },
+    {
+      "x": 80,
+      "y": 20
+    },
+    {
+      "x": 80,
+      "y": 40
+    },
+    {
+      "x": 90,
+      "y": 10
+    },
+    {
+      "x": 90,
+      "y": 40
+    },
+    {
+      "x": 100,
+      "y": 20
+    },
+    {
+      "x": 100,
+      "y": 40
+    },
+    {
+      "x": 110,
+      "y": 20
+    },
+    {
+      "x": 110,
+      "y": 40
+    },
+    {
+      "x": 120,
+      "y": 10
+    },
+    {
+      "x": 120,
+      "y": 40
+    },
+    {
+      "x": 130,
+      "y": 20
+    },
+    {
+      "x": 130,
+      "y": 40
+    },
+    {
+      "x": 150,
+      "y": 10
     }
   ],
   "metadata": {
-    "title": "Long Stitch Sketchbook | Ido Agassi",
+    "title": "Japanese Binding: Kikko Toji (Tortoise Shell)",
     "author": "Basti Tee",
-    "description": "By far the most complicated long stitch to my knowledge. It was more or less the reason to create the stitcher app in the first place, because I could not remember how to bind it properly. Original tutorial can be found at https://www.skillshare.com/en/classes/make-your-own-sketchbook-long-stitch-binding-style/1879283933"
+    "description": "Another variation of the Japanese Binding inspired by the tortoise's shell. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
   },
   "threads": [
     {
@@ -120,15 +120,15 @@
         "side": "negative",
         "hole": {
           "x": 30,
-          "y": 0
+          "y": 10
         }
       },
       "threadEnd": {
         "type": "loose",
-        "side": "negative",
+        "side": "positive",
         "hole": {
-          "x": 10,
-          "y": 40
+          "x": 30,
+          "y": 10
         }
       },
       "edges": [
@@ -136,645 +136,604 @@
           "load": "positive",
           "from": {
             "x": 30,
-            "y": 0
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 0
+            "x": 0,
+            "y": 10
           },
           "index": 1
         },
         {
           "load": "negative",
           "from": {
-            "x": 60,
-            "y": 0
+            "x": 0,
+            "y": 10
           },
           "to": {
-            "x": 90,
-            "y": 0
+            "x": 30,
+            "y": 10
           },
           "index": 2
         },
         {
           "load": "positive",
           "from": {
-            "x": 90,
-            "y": 0
+            "x": 30,
+            "y": 10
           },
           "to": {
-            "x": 120,
-            "y": 0
+            "x": 20,
+            "y": 20
           },
           "index": 3
         },
         {
           "load": "negative",
           "from": {
-            "x": 120,
-            "y": 0
+            "x": 20,
+            "y": 20
           },
           "to": {
-            "x": 140,
-            "y": 0
+            "x": 20,
+            "y": 40
           },
           "index": 4
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 140,
-            "y": 0
+            "x": 20,
+            "y": 40
           },
           "to": {
-            "x": 120,
-            "y": 0
+            "x": 20,
+            "y": 20
           },
           "index": 5
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 120,
-            "y": 0
+            "x": 20,
+            "y": 20
           },
           "to": {
-            "x": 90,
-            "y": 0
+            "x": 30,
+            "y": 10
           },
           "index": 6
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 90,
-            "y": 0
+            "x": 30,
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 0
+            "x": 30,
+            "y": 40
           },
           "index": 7
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 60,
-            "y": 0
+            "x": 30,
+            "y": 40
           },
           "to": {
             "x": 30,
-            "y": 0
+            "y": 10
           },
           "index": 8
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
             "x": 30,
-            "y": 0
+            "y": 10
           },
           "to": {
-            "x": 10,
-            "y": 10
+            "x": 40,
+            "y": 20
           },
           "index": 9
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 10,
-            "y": 10
+            "x": 40,
+            "y": 20
           },
           "to": {
-            "x": 10,
-            "y": 0
+            "x": 40,
+            "y": 40
           },
           "index": 10
         },
         {
-          "load": "negative",
-          "from": {
-            "x": 10,
-            "y": 0
-          },
-          "to": {
-            "x": 10,
-            "y": 0
-          },
-          "index": 11,
-          "chainedVia": {
-            "x": 30,
-            "y": 0
-          }
-        },
-        {
           "load": "positive",
           "from": {
-            "x": 10,
-            "y": 0
+            "x": 40,
+            "y": 40
           },
           "to": {
-            "x": 10,
+            "x": 40,
+            "y": 20
+          },
+          "index": 11
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 20
+          },
+          "to": {
+            "x": 30,
             "y": 10
           },
           "index": 12
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 10,
+            "x": 30,
             "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 13
+            "x": 60,
+            "y": 10
           },
           "index": 13
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 30,
-            "y": 13
+            "x": 60,
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 13
+            "x": 50,
+            "y": 20
           },
           "index": 14
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 60,
-            "y": 13
+            "x": 50,
+            "y": 20
           },
           "to": {
-            "x": 90,
-            "y": 13
+            "x": 50,
+            "y": 40
           },
           "index": 15
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 90,
-            "y": 13
+            "x": 50,
+            "y": 40
           },
           "to": {
-            "x": 120,
-            "y": 13
+            "x": 50,
+            "y": 20
           },
           "index": 16
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 120,
-            "y": 13
+            "x": 50,
+            "y": 20
           },
           "to": {
-            "x": 140,
+            "x": 60,
             "y": 10
           },
           "index": 17
         },
         {
-          "load": "positive",
-          "from": {
-            "x": 140,
-            "y": 10
-          },
-          "to": {
-            "x": 140,
-            "y": 10
-          },
-          "index": 18,
-          "chainedVia": {
-            "x": 140,
-            "y": 0
-          }
-        },
-        {
           "load": "negative",
           "from": {
-            "x": 140,
+            "x": 60,
             "y": 10
           },
           "to": {
-            "x": 140,
-            "y": 20
+            "x": 60,
+            "y": 40
+          },
+          "index": 18
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 60,
+            "y": 40
+          },
+          "to": {
+            "x": 60,
+            "y": 10
           },
           "index": 19
         },
         {
-          "load": "positive",
-          "from": {
-            "x": 140,
-            "y": 20
-          },
-          "to": {
-            "x": 140,
-            "y": 20
-          },
-          "index": 20,
-          "chainedVia": {
-            "x": 140,
-            "y": 10
-          }
-        },
-        {
           "load": "negative",
           "from": {
-            "x": 140,
+            "x": 60,
+            "y": 10
+          },
+          "to": {
+            "x": 70,
+            "y": 20
+          },
+          "index": 20
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 70,
             "y": 20
           },
           "to": {
-            "x": 120,
-            "y": 13
+            "x": 70,
+            "y": 40
           },
           "index": 21
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 120,
-            "y": 13
+            "x": 70,
+            "y": 40
           },
           "to": {
-            "x": 90,
-            "y": 13
+            "x": 70,
+            "y": 20
           },
           "index": 22
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 90,
-            "y": 13
+            "x": 70,
+            "y": 20
           },
           "to": {
             "x": 60,
-            "y": 13
+            "y": 10
           },
           "index": 23
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
             "x": 60,
-            "y": 13
+            "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 13
+            "x": 90,
+            "y": 10
           },
           "index": 24
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 30,
-            "y": 13
+            "x": 90,
+            "y": 10
           },
           "to": {
-            "x": 10,
+            "x": 80,
             "y": 20
           },
           "index": 25
         },
         {
-          "load": "positive",
-          "from": {
-            "x": 10,
-            "y": 20
-          },
-          "to": {
-            "x": 10,
-            "y": 20
-          },
-          "index": 26,
-          "chainedVia": {
-            "x": 10,
-            "y": 10
-          }
-        },
-        {
           "load": "negative",
           "from": {
-            "x": 10,
+            "x": 80,
             "y": 20
           },
           "to": {
-            "x": 30,
-            "y": 27
+            "x": 80,
+            "y": 40
+          },
+          "index": 26
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 80,
+            "y": 40
+          },
+          "to": {
+            "x": 80,
+            "y": 20
           },
           "index": 27
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 30,
-            "y": 27
+            "x": 80,
+            "y": 20
           },
           "to": {
-            "x": 60,
-            "y": 27
+            "x": 90,
+            "y": 10
           },
           "index": 28
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 60,
-            "y": 27
+            "x": 90,
+            "y": 10
           },
           "to": {
             "x": 90,
-            "y": 27
+            "y": 40
           },
           "index": 29
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
             "x": 90,
-            "y": 27
+            "y": 40
           },
           "to": {
-            "x": 120,
-            "y": 27
+            "x": 90,
+            "y": 10
           },
           "index": 30
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 120,
-            "y": 27
+            "x": 90,
+            "y": 10
           },
           "to": {
-            "x": 140,
-            "y": 30
+            "x": 100,
+            "y": 20
           },
           "index": 31
         },
         {
-          "load": "positive",
-          "from": {
-            "x": 140,
-            "y": 30
-          },
-          "to": {
-            "x": 140,
-            "y": 30
-          },
-          "index": 32,
-          "chainedVia": {
-            "x": 140,
-            "y": 20
-          }
-        },
-        {
           "load": "negative",
           "from": {
-            "x": 140,
-            "y": 30
+            "x": 100,
+            "y": 20
           },
           "to": {
-            "x": 120,
-            "y": 27
+            "x": 100,
+            "y": 40
+          },
+          "index": 32
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 100,
+            "y": 40
+          },
+          "to": {
+            "x": 100,
+            "y": 20
           },
           "index": 33
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 120,
-            "y": 27
+            "x": 100,
+            "y": 20
           },
           "to": {
             "x": 90,
-            "y": 27
+            "y": 10
           },
           "index": 34
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
             "x": 90,
-            "y": 27
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 27
+            "x": 120,
+            "y": 10
           },
           "index": 35
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 60,
-            "y": 27
+            "x": 120,
+            "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 27
+            "x": 110,
+            "y": 20
           },
           "index": 36
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 30,
-            "y": 27
+            "x": 110,
+            "y": 20
           },
           "to": {
-            "x": 10,
-            "y": 30
+            "x": 110,
+            "y": 40
           },
           "index": 37
         },
         {
-          "load": "positive",
-          "from": {
-            "x": 10,
-            "y": 30
-          },
-          "to": {
-            "x": 10,
-            "y": 30
-          },
-          "index": 38,
-          "chainedVia": {
-            "x": 10,
-            "y": 20
-          }
-        },
-        {
           "load": "negative",
           "from": {
-            "x": 10,
-            "y": 30
+            "x": 110,
+            "y": 40
           },
           "to": {
-            "x": 30,
-            "y": 40
+            "x": 110,
+            "y": 20
+          },
+          "index": 38
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 110,
+            "y": 20
+          },
+          "to": {
+            "x": 120,
+            "y": 10
           },
           "index": 39
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 30,
-            "y": 40
+            "x": 120,
+            "y": 10
           },
           "to": {
-            "x": 60,
+            "x": 120,
             "y": 40
           },
           "index": 40
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 60,
+            "x": 120,
             "y": 40
           },
           "to": {
-            "x": 90,
-            "y": 40
+            "x": 120,
+            "y": 10
           },
           "index": 41
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 90,
-            "y": 40
+            "x": 120,
+            "y": 10
           },
           "to": {
-            "x": 120,
-            "y": 40
+            "x": 130,
+            "y": 20
           },
           "index": 42
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 120,
-            "y": 40
+            "x": 130,
+            "y": 20
           },
           "to": {
-            "x": 140,
+            "x": 130,
             "y": 40
           },
           "index": 43
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 140,
+            "x": 130,
             "y": 40
           },
           "to": {
-            "x": 140,
-            "y": 40
+            "x": 130,
+            "y": 20
           },
-          "index": 44,
-          "chainedVia": {
-            "x": 140,
-            "y": 30
-          }
+          "index": 44
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 140,
-            "y": 40
+            "x": 130,
+            "y": 20
           },
           "to": {
             "x": 120,
-            "y": 40
+            "y": 10
           },
           "index": 45
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
             "x": 120,
-            "y": 40
+            "y": 10
           },
           "to": {
-            "x": 90,
-            "y": 40
+            "x": 150,
+            "y": 10
           },
           "index": 46
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 90,
-            "y": 40
+            "x": 150,
+            "y": 10
           },
           "to": {
-            "x": 60,
-            "y": 40
+            "x": 120,
+            "y": 10
           },
           "index": 47
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 60,
-            "y": 40
+            "x": 120,
+            "y": 10
           },
           "to": {
-            "x": 30,
-            "y": 40
+            "x": 90,
+            "y": 10
           },
           "index": 48
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 30,
-            "y": 40
+            "x": 90,
+            "y": 10
           },
           "to": {
-            "x": 10,
-            "y": 40
+            "x": 60,
+            "y": 10
           },
           "index": 49
         },
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
-            "x": 10,
-            "y": 40
+            "x": 60,
+            "y": 10
           },
           "to": {
-            "x": 10,
-            "y": 40
+            "x": 30,
+            "y": 10
           },
-          "index": 50,
-          "chainedVia": {
-            "x": 10,
-            "y": 30
-          }
+          "index": 50
         }
       ],
-      "anchorLoops": [
-        {
-          "side": "positive",
-          "afterEdge": 4,
-          "hole": {
-            "x": 140,
-            "y": 0
-          }
-        }
-      ]
+      "anchorLoops": []
     }
   ]
 }
