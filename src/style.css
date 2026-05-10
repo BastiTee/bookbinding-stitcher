@@ -30,6 +30,24 @@ body {
   border-right: 1px solid #ccc;
   padding: 16px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.sidebar-footer-link {
+  font-size: 11px;
+  color: #aaa;
+  text-decoration: none;
+  cursor: default;
+}
+
+.sidebar-footer-link:hover {
+  cursor: pointer;
 }
 
 .app-header {

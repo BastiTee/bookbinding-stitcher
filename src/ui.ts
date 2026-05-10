@@ -289,6 +289,16 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   persistentPanel.appendChild(fileNameDisplay);
   persistentPanel.appendChild(importError);
 
+  const sidebarFooter = el("div", "sidebar-footer");
+  const footerLink = document.createElement("a");
+  footerLink.href = "https://github.com/BastiTee/bookbinding-stitcher";
+  footerLink.target = "_blank";
+  footerLink.rel = "noopener noreferrer";
+  footerLink.className = "sidebar-footer-link";
+  footerLink.textContent = "Made with waxed linen thread • Basti Tee";
+  sidebarFooter.appendChild(footerLink);
+  sidebar.appendChild(sidebarFooter);
+
   function updateFileNameDisplay() {
     fileNameDisplay.textContent = currentFileName ?? "";
   }
