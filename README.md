@@ -49,3 +49,8 @@ Examples for import can be found in the [respective folder](examples/).
 
 * [x] Consolidate buttons to delete the current design
 * [x] When finishing typing into the meta data fields the JSON data doesn't get updated properly
+
+# License
+
+This software is licensed under [Apache License 2.0](LICENSE).
+Pile icons created by [Smashicons - Flatico](https://www.flaticon.com/free-icon/books_5764850).

@@ -15,12 +15,18 @@ Notation: `[load][start]-[end]`, e.g., `p0,0-1,1 n1,1-1,0 p1,0-0,1 n0,1-0,0`
 
 - `npm run dev` — start local dev server
 - `npm run build` — typecheck with tsc then build with Vite
-- `npm run preview` — preview production build locally
+- `npm run preview` — preview production build locally (overrides base to `/` for local use)
 - `npm test` — run tests with Vitest (tests live in `src/__tests__/`)
+- `npx vitest run src/__tests__/anchor-loop.test.ts` — run a single test file
+- `npx vitest run -t "test name pattern"` — run tests matching a name filter
 
 ## Tech Stack
 
 Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github/workflows/deploy.yml` on push to `main`.
+
+**TypeScript strictness:** `noUnusedLocals` and `noUnusedParameters` are enabled — any unused import or variable is a build error (`npm run build`). Remove or use every declaration.
+
+**Vite base path:** Dev server uses `base: "/"`. Production build uses `base: "/bookbinding-stitcher/"` (GitHub Pages subpath). `npm run preview` runs `vite build --base=/` to override for local testing.
 
 ## Architecture
 
@@ -36,7 +42,7 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 
 **Module responsibilities:**
 - `src/model.ts` — `GridModel` observable; spine dimensions + flat `holes: Hole[]` sorted array
-- `src/sewing-model.ts` — `SewingModel` observable; threads with undo/redo (50-step history via JSON deep-clone snapshots)
+- `src/sewing-model.ts` — `SewingModel` observable; threads with undo/redo (50-step history via JSON deep-clone snapshots). Also exports utility functions used by `sewing-ui.ts`: `getCurrentHole`, `getEligibleChainHoles`, `getEligibleAnchorLoopHoles`, `canEndWithKnot`
 - `src/render.ts` — `renderGrid(svg, state, highlight)` — **clears `svg.innerHTML` on every call**
 - `src/sewing-render.ts` — `renderSewing(svg, sewingState, sizes, spine, previewEdge?, options?)` — removes and re-appends `<g class="sewing-layer">` each call
 - `src/interaction.ts` — `screenToSvg`, `resolveTarget`, `snapToGrid`; proximity threshold is 10px converted to mm via CTM
@@ -44,7 +50,7 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 - `src/ui.ts` — wires everything; owns the `refresh()` cycle; manages ghost layer
 - `src/sewing-ui.ts` — `buildSewingPanel(...)` — returns `{ panel, activate, deactivate }`
 - `src/playback-ui.ts` — `buildPlaybackPanel(...)` — returns `{ activate, deactivate }`
-- `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/*.json', { eager: true })` at module level (computed once, works identically in dev and dist)
+- `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/*.json', { eager: true })` at module level (computed once, works identically in dev and dist). Files in `examples-experimental/` are **not** bundled into the gallery.
 - `src/help-ui.ts` — `openHelp(currentMode)` — keyboard/mouse controls modal; highlights the active mode section
 
 **Critical rendering constraint:** `renderGrid` wipes `svg.innerHTML`, so the ghost layer and sewing layer must be re-appended after every grid render. The `refresh()` function in `ui.ts` always calls `ensureGhostLayer()` and `renderSewing()` after `renderGrid()`.
