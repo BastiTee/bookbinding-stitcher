@@ -22,32 +22,45 @@ body {
   height: 100%;
 }
 
-/* Sidebar */
+/* Sidebar panels (shared base) */
 .sidebar {
-  width: 280px;
-  min-width: 280px;
   background: #fff;
-  border-right: 1px solid #ccc;
   padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
+.left-panel {
+  width: 280px;
+  min-width: 280px;
+  border-right: 1px solid #ccc;
+}
+
+.right-panel {
+  width: 260px;
+  min-width: 260px;
+  border-left: 1px solid #ccc;
+}
+
 .sidebar-footer {
   margin-top: auto;
   padding-top: 12px;
+  text-align: center;
 }
 
 .sidebar-footer-link {
+  display: block;
   font-size: 11px;
   color: #aaa;
   text-decoration: none;
-  cursor: default;
+  cursor: pointer;
+  line-height: 1.6;
 }
 
 .sidebar-footer-link:hover {
   cursor: pointer;
+  color: #ccc;
 }
 
 .app-header {
@@ -440,9 +453,38 @@ button.active {
 
 /* Metadata panel */
 .metadata-panel {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #ddd;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.meta-view-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.3;
+  word-break: break-word;
+  margin-bottom: 3px;
+}
+
+.meta-view-title.meta-view-empty {
+  color: #bbb;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.meta-view-author {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.meta-view-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 10px;
 }
 
 .metadata-input {
@@ -463,10 +505,11 @@ button.active {
 
 .metadata-textarea {
   width: 100%;
-  min-height: 70px;
+  min-height: 240px;
   padding: 5px 7px;
   border: 1px solid #ccc;
   border-radius: 3px;
+  font-family: inherit;
   font-size: 13px;
   resize: vertical;
   box-sizing: border-box;
@@ -484,21 +527,6 @@ button.active {
   font-size: 11px;
   color: #999;
   margin-top: 2px;
-}
-
-.metadata-tutorial-link {
-  display: block;
-  font-size: 12px;
-  color: #4a90d9;
-  margin-top: 2px;
-  margin-bottom: 6px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.metadata-tutorial-link:hover {
-  text-decoration: underline;
 }
 
 /* Playback panel */

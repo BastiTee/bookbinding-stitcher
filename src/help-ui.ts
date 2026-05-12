@@ -16,7 +16,7 @@ interface Section {
 const SECTIONS: Section[] = [
   {
     mode: "design",
-    title: "Grid Design",
+    title: "Spine Design",
     shortcuts: [
       { key: "Click", description: "Add hole" },
       { key: "Shift+Click", description: "Remove hole" },

@@ -22,10 +22,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   container.classList.add("app-layout");
 
   // --- Layout ---
-  const sidebar = el("div", "sidebar");
+  const leftPanel = el("div", "sidebar left-panel");
+  const rightPanel = el("div", "sidebar right-panel");
   const svgPanel = el("div", "svg-panel");
-  container.appendChild(sidebar);
+  container.appendChild(leftPanel);
   container.appendChild(svgPanel);
+  container.appendChild(rightPanel);
 
   // SVG element
   const svg = document.createElementNS(SVG_NS, "svg");
@@ -57,21 +59,19 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   appTitle.textContent = "Bookbinding Stitcher";
   appHeader.appendChild(appIcon);
   appHeader.appendChild(appTitle);
-  sidebar.appendChild(appHeader);
+  leftPanel.appendChild(appHeader);
 
   // ============================================================
   // Metadata panel
   // ============================================================
-  const { getMetadata, setMetadata } = buildMetadataPanel(sidebar, refresh, () => {
-    model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
-  });
+  const { getMetadata, setMetadata } = buildMetadataPanel(leftPanel, refresh);
 
   // ============================================================
   // Mode switcher
   // ============================================================
   const modeSwitcher = el("div", "mode-switcher");
   const btnDesign = document.createElement("button");
-  btnDesign.textContent = "Grid Design";
+  btnDesign.textContent = "Spine Design";
   btnDesign.classList.add("mode-btn", "active");
   const btnSewing = document.createElement("button");
   btnSewing.textContent = "Sewing";
@@ -83,13 +83,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   modeSwitcher.appendChild(btnDesign);
   modeSwitcher.appendChild(btnSewing);
   modeSwitcher.appendChild(btnPlayback);
-  sidebar.appendChild(modeSwitcher);
+  rightPanel.appendChild(modeSwitcher);
 
   // ============================================================
   // Design panel (wrap all design sections)
   // ============================================================
   const designPanel = el("div", "design-panel");
-  sidebar.appendChild(designPanel);
+  rightPanel.appendChild(designPanel);
 
   // --- Spine section ---
   designPanel.appendChild(sectionTitle("Spine"));
@@ -118,14 +118,14 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // ============================================================
   // Sewing panel
   // ============================================================
-  const sewingPanelObj = buildSewingPanel(sidebar, sewingModel, model, svg, refresh);
-  const playbackPanelObj = buildPlaybackPanel(sidebar, sewingModel, model, svg);
+  const sewingPanelObj = buildSewingPanel(rightPanel, sewingModel, model, svg, refresh);
+  const playbackPanelObj = buildPlaybackPanel(rightPanel, sewingModel, model, svg);
 
   // ============================================================
   // Persistent Export / Import section (always visible)
   // ============================================================
   const persistentPanel = el("div", "persistent-panel");
-  sidebar.appendChild(persistentPanel);
+  rightPanel.appendChild(persistentPanel);
 
   persistentPanel.appendChild(sectionTitle("Load / Save"));
 
@@ -289,15 +289,31 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   persistentPanel.appendChild(fileNameDisplay);
   persistentPanel.appendChild(importError);
 
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "Reset";
+  resetBtn.className = "reset-btn";
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
+    setMetadata({});
+    model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
+  });
+  persistentPanel.appendChild(resetBtn);
+
   const sidebarFooter = el("div", "sidebar-footer");
   const footerLink = document.createElement("a");
   footerLink.href = "https://github.com/BastiTee/bookbinding-stitcher";
   footerLink.target = "_blank";
   footerLink.rel = "noopener noreferrer";
   footerLink.className = "sidebar-footer-link";
-  footerLink.textContent = "Made with waxed linen thread • Basti Tee";
+  const line1 = document.createElement("span");
+  line1.textContent = "Made with waxed linen thread";
+  const line2 = document.createElement("span");
+  line2.textContent = "by Basti Tee";
+  footerLink.appendChild(line1);
+  footerLink.appendChild(document.createElement("br"));
+  footerLink.appendChild(line2);
   sidebarFooter.appendChild(footerLink);
-  sidebar.appendChild(sidebarFooter);
+  leftPanel.appendChild(sidebarFooter);
 
   function updateFileNameDisplay() {
     fileNameDisplay.textContent = currentFileName ?? "";
@@ -612,13 +628,35 @@ interface Metadata {
   tutorial?: string;
 }
 
-function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset: () => void): {
+function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   getMetadata: () => Metadata;
   setMetadata: (m: Metadata) => void;
 } {
   const panel = el("div", "metadata-panel");
 
-  panel.appendChild(sectionTitle("Stitch Pattern"));
+  // View mode container (shown by default)
+  const metadataView = el("div", "metadata-view");
+  const viewTitle = document.createElement("p");
+  viewTitle.className = "meta-view-title";
+  const viewAuthor = document.createElement("p");
+  viewAuthor.className = "meta-view-author";
+  const viewDesc = document.createElement("p");
+  viewDesc.className = "meta-view-desc";
+  const viewTutorialBtn = document.createElement("button");
+  viewTutorialBtn.textContent = "Open tutorial";
+  viewTutorialBtn.style.display = "none";
+  viewTutorialBtn.addEventListener("click", () => {
+    const url = tutorialInput.value.trim();
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  });
+  metadataView.appendChild(viewTitle);
+  metadataView.appendChild(viewAuthor);
+  metadataView.appendChild(viewDesc);
+  metadataView.appendChild(viewTutorialBtn);
+  panel.appendChild(metadataView);
+
+  // Edit mode container (hidden by default)
+  const metadataEdit = el("div", "metadata-edit hidden");
 
   const titleInput = document.createElement("input");
   titleInput.type = "text";
@@ -626,7 +664,7 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
   titleInput.placeholder = "Title";
   titleInput.className = "metadata-input";
   titleInput.addEventListener("input", onChange);
-  panel.appendChild(titleInput);
+  metadataEdit.appendChild(titleInput);
 
   const authorInput = document.createElement("input");
   authorInput.type = "text";
@@ -634,18 +672,18 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
   authorInput.placeholder = "Author";
   authorInput.className = "metadata-input";
   authorInput.addEventListener("input", onChange);
-  panel.appendChild(authorInput);
+  metadataEdit.appendChild(authorInput);
 
   const descTextarea = document.createElement("textarea");
   descTextarea.maxLength = 500;
-  descTextarea.placeholder = "Description\u2026";
+  descTextarea.placeholder = "Description…";
   descTextarea.className = "metadata-textarea";
-  panel.appendChild(descTextarea);
+  metadataEdit.appendChild(descTextarea);
 
   const charCount = document.createElement("span");
   charCount.className = "char-count";
   charCount.textContent = "0 / 500";
-  panel.appendChild(charCount);
+  metadataEdit.appendChild(charCount);
 
   descTextarea.addEventListener("input", () => {
     charCount.textContent = `${descTextarea.value.length} / 500`;
@@ -657,39 +695,44 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
   tutorialInput.maxLength = 500;
   tutorialInput.placeholder = "Tutorial URL";
   tutorialInput.className = "metadata-input";
-  panel.appendChild(tutorialInput);
+  metadataEdit.appendChild(tutorialInput);
 
-  const tutorialLink = document.createElement("a");
-  tutorialLink.className = "metadata-tutorial-link";
-  tutorialLink.textContent = "Open tutorial ↗";
-  tutorialLink.target = "_blank";
-  tutorialLink.rel = "noopener noreferrer";
-  tutorialLink.style.display = "none";
-  panel.appendChild(tutorialLink);
+  metadataEdit.appendChild(tutorialInput);
 
-  tutorialInput.addEventListener("input", () => {
-    const url = tutorialInput.value.trim();
-    tutorialLink.href = url;
-    tutorialLink.style.display = url ? "" : "none";
-    onChange();
-  });
+  tutorialInput.addEventListener("input", onChange);
 
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "Reset";
-  resetBtn.className = "reset-btn";
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
-    titleInput.value = "";
-    authorInput.value = "";
-    descTextarea.value = "";
-    charCount.textContent = "0 / 500";
-    tutorialInput.value = "";
-    tutorialLink.style.display = "none";
-    onReset();
-  });
-  panel.appendChild(resetBtn);
-
+  panel.appendChild(metadataEdit);
   sidebar.appendChild(panel);
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "Edit metadata";
+  sidebar.appendChild(editBtn);
+
+  function updateView() {
+    const t = titleInput.value.trim();
+    viewTitle.textContent = t || "Untitled";
+    viewTitle.classList.toggle("meta-view-empty", !t);
+    const a = authorInput.value.trim();
+    viewAuthor.textContent = a ? `by ${a}` : "";
+    viewAuthor.hidden = !a;
+    const d = descTextarea.value.trim();
+    viewDesc.textContent = d;
+    viewDesc.hidden = !d;
+    const url = tutorialInput.value.trim();
+    viewTutorialBtn.style.display = url ? "" : "none";
+  }
+
+  let isEditing = false;
+  editBtn.addEventListener("click", () => {
+    isEditing = !isEditing;
+    editBtn.textContent = isEditing ? "Done" : "Edit metadata";
+    metadataEdit.classList.toggle("hidden", !isEditing);
+    metadataView.classList.toggle("hidden", isEditing);
+    if (isEditing) titleInput.focus();
+    else { updateView(); onChange(); }
+  });
+
+  updateView();
 
   function getMetadata(): Metadata {
     const meta: Metadata = {};
@@ -710,9 +753,13 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void, onReset:
     descTextarea.value = m.description ?? "";
     charCount.textContent = `${descTextarea.value.length} / 500`;
     tutorialInput.value = m.tutorial ?? "";
-    tutorialLink.href = m.tutorial ?? "";
-    tutorialLink.style.display = m.tutorial ? "" : "none";
+    isEditing = false;
+    editBtn.textContent = "Edit metadata";
+    metadataEdit.classList.add("hidden");
+    metadataView.classList.remove("hidden");
+    updateView();
   }
 
   return { getMetadata, setMetadata };
 }
+
