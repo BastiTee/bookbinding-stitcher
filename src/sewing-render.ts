@@ -75,7 +75,7 @@ export function renderSewing(
   sizes: ScaleSizes,
   spine: Spine,
   previewEdge?: PreviewEdge | null,
-  options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Hole[] },
+  options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Hole[]; startTailTargets?: Hole[] },
   chainEligibleHoles?: Hole[],
 ): void {
   const spineOnly = options?.spineOnly ?? false;
@@ -194,61 +194,50 @@ export function renderSewing(
 
   // Skip all markers in spine-only view
   if (spineOnly) return;
-  for (const thread of sewingState.threads) {
-    if (thread.edges.length > 0) {
-      const firstEdge = thread.edges[0];
-      const dir = normalize(
-        firstEdge.to.x - thread.startHole.x,
-        firstEdge.to.y - thread.startHole.y,
-      );
-      // Perpendicular nudge: rotate dir 90° left so start and end don't overlap
-      const perpStart = { x: -dir.y, y: dir.x };
-      const startTip = {
-        x: thread.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
-        y: thread.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
-      };
-      drawTailLine(layer, thread.startHole, startTip, thread.startSide);
-      drawStartMarker(layer, startTip, thread.startSide, sizes);
+  for (let ti = 0; ti < sewingState.threads.length; ti++) {
+    const thread = sewingState.threads[ti];
+    const firstTo = thread.edges[0]?.to ?? options?.startTailTargets?.[ti];
+    const dir = firstTo
+      ? normalize(firstTo.x - thread.startHole.x, firstTo.y - thread.startHole.y)
+      : { x: 0, y: thread.startHole.y < spine.height / 2 ? -1 : 1 };
+    const perpStart = { x: -dir.y, y: dir.x };
+    const startTip = {
+      x: thread.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
+      y: thread.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
+    };
+    drawTailLine(layer, thread.startHole, startTip, thread.startSide);
+    drawStartMarker(layer, startTip, thread.startSide, sizes);
 
-      if (thread.completed) {
-        const lastEdge = thread.edges[thread.edges.length - 1];
-        if (thread.endType === "knot") {
-          drawKnotMarker(layer, lastEdge.to, sizes);
-        } else {
-          // Always point end marker outward: upward if closer to top, downward if closer to bottom
-          const outY = lastEdge.to.y < spine.height / 2 ? -1 : 1;
-          const endTip = {
-            x: lastEdge.to.x,
-            y: lastEdge.to.y + outY * MARKER_OFFSET_MM,
-          };
-          const endLoad: Load = lastEdge.load === "positive" ? "negative" : "positive";
-          drawTailLine(layer, lastEdge.to, endTip, endLoad);
-          drawEndMarker(layer, endTip, endLoad, sizes);
-        }
+    if (thread.edges.length > 0 && thread.completed) {
+      const lastEdge = thread.edges[thread.edges.length - 1];
+      if (thread.endType === "knot") {
+        drawKnotMarker(layer, lastEdge.to, sizes);
+      } else {
+        const outY = lastEdge.to.y < spine.height / 2 ? -1 : 1;
+        const endTip = {
+          x: lastEdge.to.x,
+          y: lastEdge.to.y + outY * MARKER_OFFSET_MM,
+        };
+        const endLoad: Load = lastEdge.load === "positive" ? "negative" : "positive";
+        drawTailLine(layer, lastEdge.to, endTip, endLoad);
+        drawEndMarker(layer, endTip, endLoad, sizes);
       }
-    } else {
-      drawStartMarker(layer, thread.startHole, thread.startSide, sizes);
     }
   }
 
   // --- Markers for active thread ---
   if (active && active.startHole) {
-    if (active.edges.length > 0) {
-      const firstEdge = active.edges[0];
-      const dir = normalize(
-        firstEdge.to.x - active.startHole.x,
-        firstEdge.to.y - active.startHole.y,
-      );
-      const perpStart = { x: -dir.y, y: dir.x };
-      const startTip = {
-        x: active.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
-        y: active.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
-      };
-      drawTailLine(layer, active.startHole, startTip, active.startSide);
-      drawStartMarker(layer, startTip, active.startSide, sizes);
-    } else {
-      drawStartMarker(layer, active.startHole, active.startSide, sizes);
-    }
+    const firstTo = active.edges[0]?.to ?? previewEdge?.to;
+    const dir = firstTo
+      ? normalize(firstTo.x - active.startHole.x, firstTo.y - active.startHole.y)
+      : { x: 0, y: active.startHole.y < spine.height / 2 ? -1 : 1 };
+    const perpStart = { x: -dir.y, y: dir.x };
+    const startTip = {
+      x: active.startHole.x - dir.x * MARKER_OFFSET_MM + perpStart.x * MARKER_PERP_MM,
+      y: active.startHole.y - dir.y * MARKER_OFFSET_MM + perpStart.y * MARKER_PERP_MM,
+    };
+    drawTailLine(layer, active.startHole, startTip, active.startSide);
+    drawStartMarker(layer, startTip, active.startSide, sizes);
 
     // Current endpoint indicator — always exactly on the hole
     const currentPoint = getCurrentHole(active);

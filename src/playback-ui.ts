@@ -1,6 +1,6 @@
 import type { GridModel } from "./model";
 import type { SewingModel } from "./sewing-model";
-import type { SewingState, Thread } from "./sewing-model";
+import type { SewingState, Thread, Hole } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { el } from "./dom-utils";
@@ -79,7 +79,19 @@ export function buildPlaybackPanel(
 
     const gridState = gridModel.getState();
     const sizes = computeScaleSizes(gridState.spine);
-    renderSewing(svg, sliced, sizes, gridState.spine, null, { spineOnly });
+
+    let startTailTargets: Hole[] | undefined;
+    if (currentStepIdx > 0 && steps[currentStepIdx - 1].edgeCount === 0) {
+      const step = steps[currentStepIdx - 1];
+      const completedThreads = sewingState.threads.filter(t => t.completed && t.edges.length > 0);
+      const fullThread = completedThreads[step.activeThreadIdx];
+      if (fullThread) {
+        startTailTargets = [];
+        startTailTargets[step.activeThreadIdx] = fullThread.edges[0].to;
+      }
+    }
+
+    renderSewing(svg, sliced, sizes, gridState.spine, null, { spineOnly, startTailTargets });
   }
 
   function activate() {
