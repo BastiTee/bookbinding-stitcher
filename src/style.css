@@ -748,11 +748,17 @@ button.gallery-cta:hover {
   font-style: italic;
 }
 
-/* Help panel (bottom of right sidebar) */
-.help-panel {
-  margin-top: 16px;
-  padding-top: 8px;
-  border-top: 1px solid #ddd;
+/* Bottom action group (pinned to bottom of right sidebar) */
+.bottom-panel {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.bottom-panel button {
+  width: 100%;
 }
 
 /* Help modal */

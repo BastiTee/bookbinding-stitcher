@@ -188,8 +188,8 @@ export class GridModel {
 }
 
 function assertPositiveInt(n: number, label: string) {
-  if (!Number.isInteger(n) || n <= 0) {
-    throw new Error(`${label} must be a positive integer, got ${n}`);
+  if (!Number.isInteger(n) || n < 10) {
+    throw new Error(`${label} must be an integer of at least 10, got ${n}`);
   }
 }
 

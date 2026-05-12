@@ -287,16 +287,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   persistentPanel.appendChild(fileNameDisplay);
   persistentPanel.appendChild(importError);
 
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "Reset";
-  resetBtn.className = "reset-btn";
-  resetBtn.addEventListener("click", () => {
-    if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
-    setMetadata({});
-    model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
-  });
-  persistentPanel.appendChild(resetBtn);
-
   const sidebarFooter = el("div", "sidebar-footer");
   const footerLink = document.createElement("a");
   footerLink.href = "https://github.com/BastiTee/bookbinding-stitcher";
@@ -355,13 +345,30 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   btnSewing.addEventListener("click", switchToSewing);
   btnPlayback.addEventListener("click", switchToPlayback);
 
-  // Help panel (bottom of right sidebar)
-  const helpPanel = el("div", "help-panel");
+  // Bottom action group (pinned to bottom of right sidebar)
+  const bottomPanel = el("div", "bottom-panel");
+  const resetThreadsBtn = document.createElement("button");
+  resetThreadsBtn.textContent = "Reset Threads";
+  resetThreadsBtn.className = "reset-btn";
+  resetThreadsBtn.addEventListener("click", () => {
+    if (!confirm("Reset threads? This will clear all threads but keep the spine design and metadata.")) return;
+    sewingModel.reset();
+  });
+  bottomPanel.appendChild(resetThreadsBtn);
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "Reset Everything";
+  resetBtn.className = "reset-btn";
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
+    setMetadata({});
+    model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
+  });
+  bottomPanel.appendChild(resetBtn);
   const helpBtn = document.createElement("button");
   helpBtn.textContent = "Keyboard & Mouse controls";
   helpBtn.addEventListener("click", () => openHelp(currentMode));
-  helpPanel.appendChild(helpBtn);
-  rightPanel.appendChild(helpPanel);
+  bottomPanel.appendChild(helpBtn);
+  rightPanel.appendChild(bottomPanel);
 
   // ============================================================
   // Ghost layer management
