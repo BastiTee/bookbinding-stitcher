@@ -1,5 +1,7 @@
 # [Bookbinding Stitcher](https://bastitee.github.io/bookbinding-stitcher/)
 
+<img src="public/favicon.png" width="100" align="right" alt="Bookbinding Stitcher">
+
 ## Summary
 
 A browser tool to create, learn, and share non-adhesive book bindings such as long stitch or Japanese bindings. Explore the gallery to get inspired for your next book project.
