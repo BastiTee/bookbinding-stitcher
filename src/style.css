@@ -440,6 +440,25 @@ button.active {
   background: #fee;
 }
 
+button.gallery-cta {
+  background: #4a90d9;
+  color: #fff;
+  border-color: #4a90d9;
+  font-weight: 500;
+  animation: gallery-cta-pulse 1.8s ease-out 0.4s 2;
+}
+
+button.gallery-cta:hover {
+  background: #3a7fc8;
+  border-color: #3a7fc8;
+}
+
+@keyframes gallery-cta-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 144, 217, 0.55); }
+  60%  { box-shadow: 0 0 0 6px rgba(74, 144, 217, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 144, 217, 0); }
+}
+
 /* Undo / Redo row */
 .undo-redo-row {
   display: flex;

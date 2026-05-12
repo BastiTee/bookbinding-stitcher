@@ -277,6 +277,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   saveBtnRow.appendChild(saveBtn);
   saveBtnRow.appendChild(saveAsBtn);
+  galleryBtn.classList.add("gallery-cta");
   importBtnRow.appendChild(importBtn);
   importBtnRow.appendChild(galleryBtn);
   persistentPanel.appendChild(saveBtnRow);
