@@ -1,4 +1,7 @@
 {
+  "metadata": {
+    "title": "Simply Grid"
+  },
   "spine": {
     "width": 60,
     "height": 30
@@ -29,8 +32,5 @@
       "y": 20
     }
   ],
-  "metadata": {
-    "title": "Simply Grid"
-  },
   "threads": []
 }

@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Japanese Binding: Kikko Toji (Tortoise Shell)",
+    "author": "Basti Tee",
+    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
+    "description": "Another variation of the Japanese Binding inspired by the tortoise's shell. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
+  },
   "spine": {
     "width": 150,
     "height": 40
@@ -109,12 +115,6 @@
       "y": 10
     }
   ],
-  "metadata": {
-    "title": "Japanese Binding: Kikko Toji (Tortoise Shell)",
-    "author": "Basti Tee",
-    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
-    "description": "Another variation of the Japanese Binding inspired by the tortoise's shell. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
-  },
   "threads": [
     {
       "threadStart": {

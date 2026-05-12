@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "DIY Long Stitch",
+    "author": "Sea Lemon",
+    "tutorial": "https://www.youtube.com/watch?v=a_LZ-BWhH_Q",
+    "description": "A simple, yet beautiful long stitch binding."
+  },
   "spine": {
     "width": 150,
     "height": 70
@@ -149,7 +155,7 @@
       "y": 60
     }
   ],
-  "signatureLocations": {
+  "signatures": {
     "orientation": "horizontal",
     "positions": [
       10,
@@ -159,12 +165,6 @@
       50,
       60
     ]
-  },
-  "metadata": {
-    "title": "DIY Long Stitch",
-    "author": "Sea Lemon",
-    "tutorial": "https://www.youtube.com/watch?v=a_LZ-BWhH_Q",
-    "description": "A simple, yet beautiful long stitch binding."
   },
   "threads": [
     {

@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Japanese Binding: Asa-no-ha Toji (Hemp Leaf)",
+    "author": "Basti Tee",
+    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
+    "description": "Another variation of the Japanese Binding with a beautiful hemp leaf pattern. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
+  },
   "spine": {
     "width": 150,
     "height": 40
@@ -69,12 +75,6 @@
       "y": 10
     }
   ],
-  "metadata": {
-    "title": "Japanese Binding: Asa-no-ha Toji (Hemp Leaf)",
-    "author": "Basti Tee",
-    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
-    "description": "Another variation of the Japanese Binding with a beautiful hemp leaf pattern. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
-  },
   "threads": [
     {
       "threadStart": {

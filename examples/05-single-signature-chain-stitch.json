@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Single Signature Chain Stitch",
+    "author": "Basti Tee",
+    "tutorial": "https://www.youtube.com/watch?v=kVnhNKZIKh8",
+    "description": "This binding is easy and ideal for a single-signature pamphlet."
+  },
   "spine": {
     "width": 140,
     "height": 20
@@ -33,17 +39,11 @@
       "y": 10
     }
   ],
-  "signatureLocations": {
+  "signatures": {
     "orientation": "horizontal",
     "positions": [
       10
     ]
-  },
-  "metadata": {
-    "title": "Single Signature Chain Stitch",
-    "author": "Basti Tee",
-    "tutorial": "https://www.youtube.com/watch?v=kVnhNKZIKh8",
-    "description": "This binding is easy and ideal for a single-signature pamphlet."
   },
   "threads": [
     {

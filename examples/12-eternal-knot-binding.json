@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Eternal Knot Binding",
+    "author": "AI WO ART",
+    "tutorial": "https://www.youtube.com/watch?v=vvaN3JY07L8",
+    "description": "A delicate long stitch binding for 7 signatures. To attach the signatures properly, you will need to create this pattern several times on the same spine."
+  },
   "spine": {
     "width": 80,
     "height": 100
@@ -61,7 +67,7 @@
       "y": 60
     }
   ],
-  "signatureLocations": {
+  "signatures": {
     "orientation": "vertical",
     "positions": [
       10,
@@ -72,12 +78,6 @@
       60,
       70
     ]
-  },
-  "metadata": {
-    "title": "Eternal Knot Binding",
-    "author": "AI WO ART",
-    "tutorial": "https://www.youtube.com/watch?v=vvaN3JY07L8",
-    "description": "A delicate long stitch binding for 7 signatures. To attach the signatures properly, you will need to create this pattern several times on the same spine."
   },
   "threads": [
     {

@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Tree Stitch for 3 signatures",
+    "author": "porsche and coffee",
+    "tutorial": "https://www.youtube.com/watch?v=kVnhNKZIKh8",
+    "description": "A tree-like binding for three signatures, done with three separate threads."
+  },
   "spine": {
     "width": 150,
     "height": 40
@@ -69,19 +75,13 @@
       "y": 30
     }
   ],
-  "signatureLocations": {
+  "signatures": {
     "orientation": "horizontal",
     "positions": [
       10,
       20,
       30
     ]
-  },
-  "metadata": {
-    "title": "Tree Stitch for 3 signatures",
-    "author": "porsche and coffee",
-    "tutorial": "https://www.youtube.com/watch?v=kVnhNKZIKh8",
-    "description": "A tree-like binding for three signatures, done with three separate threads."
   },
   "threads": [
     {

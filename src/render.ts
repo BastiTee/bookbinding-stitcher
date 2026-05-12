@@ -41,10 +41,10 @@ export function renderGrid(
   svg.innerHTML = "";
 
   // Layer 0: Signature lines (drawn first so spine rect renders on top)
-  if (state.signatureLocations) {
-    for (const pos of state.signatureLocations.positions) {
+  if (state.signatures) {
+    for (const pos of state.signatures.positions) {
       const line = document.createElementNS(SVG_NS, "line");
-      if (state.signatureLocations.orientation === "horizontal") {
+      if (state.signatures.orientation === "horizontal") {
         line.setAttribute("x1", String(-SIG_OVERHANG));
         line.setAttribute("x2", String(spine.width + SIG_OVERHANG));
         line.setAttribute("y1", String(pos));
@@ -180,9 +180,9 @@ function renderRulers(svg: SVGSVGElement, spine: Readonly<Spine>) {
 }
 
 function renderSignatureButtons(svg: SVGSVGElement, state: Readonly<GridState>) {
-  const { spine, signatureLocations } = state;
-  const activePositions = new Set(signatureLocations?.positions ?? []);
-  const orientation = signatureLocations?.orientation;
+  const { spine, signatures } = state;
+  const activePositions = new Set(signatures?.positions ?? []);
+  const orientation = signatures?.orientation;
   const BTN_R = 0.2;
   const BTN_OFFSET = 3;
 

@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "Japanese Binding: Koki Toji (Noble)",
+    "author": "Basti Tee",
+    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
+    "description": "This is a popular extension of the basic Japanese Binding with a slightly more advanced corner. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
+  },
   "spine": {
     "width": 150,
     "height": 40
@@ -69,12 +75,6 @@
       "y": 25
     }
   ],
-  "metadata": {
-    "title": "Japanese Binding: Koki Toji (Noble)",
-    "author": "Basti Tee",
-    "tutorial": "https://www.youtube.com/watch?v=CX8qOFis9qA",
-    "description": "This is a popular extension of the basic Japanese Binding with a slightly more advanced corner. Please note that at the end you don't pull out the thread, but tie it to the existing thread. The holes at the edges indicate going around the cover."
-  },
   "threads": [
     {
       "threadStart": {
