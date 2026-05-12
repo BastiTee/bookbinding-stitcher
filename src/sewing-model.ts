@@ -24,6 +24,13 @@ export interface ChainStitch {
   afterEdge: number; // active.edges.length at time of creation; used for playback ordering
 }
 
+export interface HiddenLinkStitch {
+  from: Hole;           // current hole at time of creation
+  to: Hole;             // target hole (user-selected)
+  side: Load;           // output load after the link: "negative" = type 1 (ends inside), "positive" = type 2 (continues outside)
+  afterEdge: number;    // edges.length at creation; used for playback ordering
+}
+
 export interface Thread {
   startSide: Load;
   startHole: Hole;
@@ -32,6 +39,7 @@ export interface Thread {
   endType?: "loose" | "knot";
   anchorLoops: AnchorLoop[];
   chainStitches: ChainStitch[];
+  hiddenLinkStitches: HiddenLinkStitch[];
 }
 
 export interface ActiveThread {
@@ -41,6 +49,7 @@ export interface ActiveThread {
   nextLoad: Load;
   anchorLoops: AnchorLoop[];
   chainStitches: ChainStitch[];
+  hiddenLinkStitches: HiddenLinkStitch[];
 }
 
 export interface SewingState {
@@ -52,13 +61,18 @@ export function getCurrentHole(active: {
   startHole: Hole | null;
   edges: { to: Hole }[];
   chainStitches?: { hole: Hole; afterEdge: number }[];
+  hiddenLinkStitches?: { to: Hole; afterEdge: number }[];
 }): Hole | null {
   if (!active.startHole) return null;
+  const edgeCount = active.edges.length;
   const css = active.chainStitches ?? [];
+  const hlss = active.hiddenLinkStitches ?? [];
   const lastCS = css.length > 0 ? css[css.length - 1] : null;
-  if (lastCS && lastCS.afterEdge === active.edges.length) return lastCS.hole;
-  if (active.edges.length === 0) return active.startHole;
-  return active.edges[active.edges.length - 1].to;
+  const lastHLS = hlss.length > 0 ? hlss[hlss.length - 1] : null;
+  if (lastCS && lastCS.afterEdge === edgeCount) return lastCS.hole;
+  if (lastHLS && lastHLS.afterEdge === edgeCount) return lastHLS.to;
+  if (edgeCount === 0) return active.startHole;
+  return active.edges[edgeCount - 1].to;
 }
 
 function toggleLoad(load: Load): Load {
@@ -180,6 +194,21 @@ export function getEligibleAnchorLoopHoles(
   return result;
 }
 
+/**
+ * Returns holes eligible for a hidden link stitch (all grid holes except the current position).
+ * Only valid when nextLoad is "positive" (hidden link replaces an outside pass).
+ */
+export function getEligibleHiddenLinkHoles(
+  active: ActiveThread,
+  allHoles: Hole[],
+): Hole[] {
+  if (!active.startHole || active.nextLoad !== "positive") return [];
+  const currentPos = getCurrentHole(active);
+  return allHoles.filter(h =>
+    !currentPos || h.x !== currentPos.x || h.y !== currentPos.y
+  );
+}
+
 type Listener = () => void;
 
 export class SewingModel {
@@ -249,6 +278,7 @@ export class SewingModel {
         nextLoad: toggleLoad(startSide),
         anchorLoops: [],
         chainStitches: [],
+        hiddenLinkStitches: [],
       },
     };
     this.notify();
@@ -307,6 +337,7 @@ export class SewingModel {
       completed: true,
       anchorLoops: active.anchorLoops,
       chainStitches: active.chainStitches,
+      hiddenLinkStitches: active.hiddenLinkStitches,
     };
 
     this.saveHistory();
@@ -333,6 +364,7 @@ export class SewingModel {
       endType: "knot",
       anchorLoops: active.anchorLoops,
       chainStitches: active.chainStitches,
+      hiddenLinkStitches: active.hiddenLinkStitches,
     };
     this.saveHistory();
     this.state = { threads: [...this.state.threads, completed], activeThread: null };
@@ -344,10 +376,14 @@ export class SewingModel {
     if (!active) throw new Error("No active thread");
     if (active.edges.length === 0) throw new Error("Thread has no edges to remove");
 
-    // Guard: if the last action was a chain stitch, it must be removed first
+    // Guard: if the last action was a chain stitch or hidden link stitch, it must be removed first
     const css = active.chainStitches;
     if (css.length > 0 && css[css.length - 1].afterEdge === active.edges.length) {
       throw new Error("Last action was a chain stitch; remove it first (Shift+Click current point)");
+    }
+    const hlss = active.hiddenLinkStitches;
+    if (hlss.length > 0 && hlss[hlss.length - 1].afterEdge === active.edges.length) {
+      throw new Error("Last action was a hidden link stitch; remove it first (Shift+Click current point)");
     }
 
     const newEdges = active.edges.slice(0, -1);
@@ -423,15 +459,78 @@ export class SewingModel {
     this.notify();
   }
 
+  addHiddenLinkStitch(to: Hole, kind: Load) {
+    const active = this.state.activeThread;
+    if (!active || !active.startHole) throw new Error("No active thread with start point");
+    if (active.nextLoad !== "positive") throw new Error("Hidden link stitch can only replace an outside (positive) pass");
+
+    const from = getCurrentHole(active)!;
+    if (from.x === to.x && from.y === to.y) throw new Error("Cannot link a hole to itself");
+
+    // Guard: cannot add hidden link stitch if there's already a chain stitch at this afterEdge
+    const css = active.chainStitches;
+    if (css.length > 0 && css[css.length - 1].afterEdge === active.edges.length) {
+      throw new Error("Cannot add hidden link stitch: remove the chain stitch first");
+    }
+
+    const hls: HiddenLinkStitch = {
+      from: { ...from },
+      to: { ...to },
+      side: kind,
+      afterEdge: active.edges.length,
+    };
+
+    // Type 1 (kind="negative"): flips nextLoad positive→negative
+    // Type 2 (kind="positive"): nextLoad stays positive (no toggle)
+    const nextLoad: Load = kind === "negative" ? toggleLoad(active.nextLoad) : active.nextLoad;
+
+    this.saveHistory();
+    this.state = {
+      ...this.state,
+      activeThread: {
+        ...active,
+        hiddenLinkStitches: [...active.hiddenLinkStitches, hls],
+        nextLoad,
+      },
+    };
+    this.notify();
+  }
+
+  removeLastHiddenLinkStitch() {
+    const active = this.state.activeThread;
+    if (!active) throw new Error("No active thread");
+    const hlss = active.hiddenLinkStitches;
+    if (hlss.length === 0 || hlss[hlss.length - 1].afterEdge !== active.edges.length) {
+      throw new Error("Last action was not a hidden link stitch");
+    }
+    const lastHLS = hlss[hlss.length - 1];
+    // Type 1 (side="negative"): undo the positive→negative toggle (goes back to positive)
+    // Type 2 (side="positive"): nextLoad was unchanged, so undo is also a no-op
+    const nextLoad: Load = lastHLS.side === "negative" ? toggleLoad(active.nextLoad) : active.nextLoad;
+    this.saveHistory();
+    this.state = {
+      ...this.state,
+      activeThread: {
+        ...active,
+        hiddenLinkStitches: hlss.slice(0, -1),
+        nextLoad,
+      },
+    };
+    this.notify();
+  }
+
   uncompleteThread(threadIndex: number) {
     const threads = this.state.threads;
     if (threadIndex < 0 || threadIndex >= threads.length) throw new Error("Invalid thread index");
     if (this.state.activeThread) throw new Error("Cannot un-complete thread while another is active");
     const thread = threads[threadIndex];
 
-    const nextLoad: Load = toggleLoad(
+    let nextLoad: Load = toggleLoad(
       thread.edges.length > 0 ? thread.edges[thread.edges.length - 1].load : thread.startSide
     );
+    const hlss = thread.hiddenLinkStitches ?? [];
+    const finalHLS = hlss.length > 0 ? hlss[hlss.length - 1] : null;
+    if (finalHLS && finalHLS.afterEdge === thread.edges.length) nextLoad = finalHLS.side;
 
     const active: ActiveThread = {
       startSide: thread.startSide,
@@ -440,6 +539,7 @@ export class SewingModel {
       nextLoad,
       anchorLoops: thread.anchorLoops ?? [],
       chainStitches: thread.chainStitches ?? [],
+      hiddenLinkStitches: thread.hiddenLinkStitches ?? [],
     };
 
     this.saveHistory();
@@ -495,6 +595,18 @@ export class SewingModel {
           throw new Error("Chain stitch afterEdge must be a non-negative number");
         }
       }
+      for (const hls of t.hiddenLinkStitches ?? []) {
+        if (hls.side !== "positive" && hls.side !== "negative") {
+          throw new Error(`Invalid hidden link stitch side: ${hls.side}`);
+        }
+        if (typeof hls.from?.x !== "number" || typeof hls.from?.y !== "number" ||
+            typeof hls.to?.x !== "number" || typeof hls.to?.y !== "number") {
+          throw new Error("Hidden link stitch from/to must have numeric x and y");
+        }
+        if (typeof hls.afterEdge !== "number" || hls.afterEdge < 0) {
+          throw new Error("Hidden link stitch afterEdge must be a non-negative number");
+        }
+      }
     }
     this.history = [];
     this.future = [];
@@ -505,6 +617,7 @@ export class SewingModel {
         endType: t.endType ?? "loose",
         anchorLoops: t.anchorLoops ?? [],
         chainStitches: t.chainStitches ?? [],
+        hiddenLinkStitches: t.hiddenLinkStitches ?? [],
         edges: t.edges.map((e, i) => ({ ...e, index: e.index ?? i + 1 })),
       })),
       activeThread: null,

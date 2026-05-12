@@ -1,4 +1,4 @@
-import { el, createModal } from "./dom-utils";
+import { el } from "./dom-utils";
 
 type Mode = "design" | "sewing" | "playback";
 
@@ -13,6 +13,10 @@ interface Section {
   shortcuts: Shortcut[];
 }
 
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+const CTRL = isMac ? "⌘" : "Ctrl";
+const ALT = isMac ? "Option" : "Alt";
+
 const SECTIONS: Section[] = [
   {
     mode: "design",
@@ -20,8 +24,7 @@ const SECTIONS: Section[] = [
     shortcuts: [
       { key: "Click", description: "Add hole" },
       { key: "Shift+Click", description: "Remove hole" },
-      { key: "Click ▶", description: "Add signature at column" },
-      { key: "Shift+Click ▶", description: "Remove signature" },
+      { key: "Click ▶", description: "Toggle signature at column" },
     ],
   },
   {
@@ -29,11 +32,12 @@ const SECTIONS: Section[] = [
     title: "Sewing",
     shortcuts: [
       { key: "Click", description: "Set start point / draw edge" },
-      { key: "Shift+Click", description: "Delete last edge or chain stitch" },
-      { key: "Alt+Click", description: "Add anchor loop at current endpoint" },
-      { key: "Ctrl/⌘+Click", description: "Place chain stitch at highlighted hole" },
-      { key: "Ctrl/⌘+Z", description: "Undo" },
-      { key: "Ctrl/⌘+Shift+Z", description: "Redo" },
+      { key: "Shift+Click", description: "Place chain stitch at highlighted hole" },
+      { key: `${ALT}+Click`, description: "Add anchor loop at current endpoint" },
+      { key: `${CTRL}+Click`, description: "Place negative hidden link (ends inside; skips outside pass)" },
+      { key: `Shift+${CTRL}+Click`, description: "Place positive hidden link (continues outside pass at new hole)" },
+      { key: `${CTRL}+Z`, description: "Undo" },
+      { key: `${CTRL}+Shift+Z`, description: "Redo" },
     ],
   },
   {
@@ -49,41 +53,18 @@ const SECTIONS: Section[] = [
   },
 ];
 
-export function openHelp(currentMode: Mode): void {
-  if (document.querySelector(".gallery-backdrop")) return;
-
-  const { modal } = createModal("Keyboard & Mouse controls", "Close help", "help-modal");
-  const content = el("div", "help-content");
-
-  for (const section of SECTIONS) {
-    const isActive = section.mode === currentMode;
-    const sectionEl = el("div", isActive ? "help-section help-section--active" : "help-section");
-
-    const titleEl = document.createElement("h3");
-    titleEl.className = "help-section-title";
-    titleEl.textContent = section.title;
-    if (isActive) {
-      const badge = el("span", "help-section-badge");
-      badge.textContent = "current";
-      titleEl.appendChild(badge);
-    }
-    sectionEl.appendChild(titleEl);
-
-    const list = el("div", "help-shortcut-list");
-    for (const shortcut of section.shortcuts) {
-      const row = el("div", "help-shortcut-row");
-      const keyEl = el("span", "help-key");
-      keyEl.textContent = shortcut.key;
-      const descEl = el("span", "help-shortcut-desc");
-      descEl.textContent = shortcut.description;
-      row.appendChild(keyEl);
-      row.appendChild(descEl);
-      list.appendChild(row);
-    }
-
-    sectionEl.appendChild(list);
-    content.appendChild(sectionEl);
+export function buildShortcutsPanel(mode: Mode): HTMLElement {
+  const section = SECTIONS.find(s => s.mode === mode)!;
+  const list = el("div", "help-shortcut-list");
+  for (const shortcut of section.shortcuts) {
+    const row = el("div", "help-shortcut-row");
+    const keyEl = el("span", "help-key");
+    keyEl.textContent = shortcut.key;
+    const descEl = el("span", "help-shortcut-desc");
+    descEl.textContent = shortcut.description;
+    row.appendChild(keyEl);
+    row.appendChild(descEl);
+    list.appendChild(row);
   }
-
-  modal.appendChild(content);
+  return list;
 }

@@ -393,6 +393,30 @@ button.active {
   stroke-dasharray: 2 1.5;
 }
 
+/* Hidden link stitch (inside-signature path, replaces an outside pass) */
+.hidden-link-stitch {
+  stroke: #3498db;
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+/* Origin edge of a hidden link stitch — overrides normal positive/negative color */
+.thread-edge--hidden-link-origin {
+  stroke: #3498db;
+}
+
+/* Hidden link stitch — eligible hole indicator */
+.hidden-link-eligible-halo {
+  fill: none;
+  stroke: #3498db;
+  stroke-width: 0.6;
+  stroke-dasharray: 1.5 1;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
 /* Chain stitch — eligible hole indicator */
 .chain-eligible-halo {
   fill: none;
@@ -411,6 +435,10 @@ button.active {
 /* Sewing sidebar panel */
 .sewing-panel .section-title:first-child {
   margin-top: 0;
+}
+.sewing-panel > button {
+  display: block;
+  width: 100%;
 }
 
 /* Radio group */
@@ -774,61 +802,28 @@ button.gallery-cta:hover {
   width: 100%;
 }
 
-/* Help modal */
-.help-modal {
-  max-width: 520px;
+/* Mode switcher divider */
+.mode-switcher-hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 10px 0;
 }
 
-.help-content {
-  padding: 16px 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.help-section {
-  border: 1px solid #e8e8e8;
-  border-radius: 5px;
-  padding: 12px 14px;
-}
-
-.help-section--active {
-  border-color: #4a90d9;
-  background: #f5f9ff;
-}
-
-.help-section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.help-section-badge {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  background: #4a90d9;
-  color: #fff;
-  padding: 1px 6px;
-  border-radius: 10px;
+/* Inline shortcuts panel */
+.shortcuts-container {
+  margin-bottom: 12px;
 }
 
 .help-shortcut-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .help-shortcut-row {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .help-key {
@@ -839,8 +834,7 @@ button.gallery-cta:hover {
   border-radius: 3px;
   padding: 1px 5px;
   white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 110px;
+  align-self: flex-start;
   color: #333;
 }
 

@@ -1,5 +1,5 @@
 import type { GridModel } from "./model";
-import { SewingModel, canEndWithKnot, getCurrentHole, getEligibleChainHoles, getEligibleAnchorLoopHoles, type Load, type Hole } from "./sewing-model";
+import { SewingModel, canEndWithKnot, getCurrentHole, getEligibleChainHoles, getEligibleAnchorLoopHoles, getEligibleHiddenLinkHoles, type Load, type Hole } from "./sewing-model";
 import { renderSewing, type PreviewEdge } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { screenToSvg, resolveTarget } from "./interaction";
@@ -18,10 +18,10 @@ export function buildSewingPanel(
 
   // Start side radio group
   const radioGroup = el("div", "radio-group");
-  const radioPositive = radioOption("start-side", "positive", "Start from outside", false);
-  const radioNegative = radioOption("start-side", "negative", "Start from inside", true);
-  radioGroup.appendChild(radioPositive.wrapper);
+  const radioPositive = radioOption("start-side", "positive", "Start thread outside", false);
+  const radioNegative = radioOption("start-side", "negative", "Start thread inside", true);
   radioGroup.appendChild(radioNegative.wrapper);
+  radioGroup.appendChild(radioPositive.wrapper);
   panel.appendChild(radioGroup);
 
   function getSelectedSide(): Load {
@@ -49,7 +49,6 @@ export function buildSewingPanel(
       threadError.textContent = (e as Error).message;
     }
   });
-  endBtn.classList.add("hidden");
 
   const endKnotBtn = button("End Thread with Knot", () => {
     threadError.textContent = "";
@@ -60,18 +59,6 @@ export function buildSewingPanel(
       threadError.textContent = (e as Error).message;
     }
   });
-  endKnotBtn.classList.add("hidden");
-
-  const anchorLoopBtn = button("Add Anchor loop", () => {
-    threadError.textContent = "";
-    try {
-      sewingModel.addAnchorLoop();
-      updateThreadButtons();
-    } catch (e) {
-      threadError.textContent = (e as Error).message;
-    }
-  });
-  anchorLoopBtn.classList.add("hidden");
 
   const cancelBtn = button("Cancel Thread", () => {
     threadError.textContent = "";
@@ -79,13 +66,11 @@ export function buildSewingPanel(
     clearPreview();
     updateThreadButtons();
   });
-  cancelBtn.classList.add("hidden");
 
   panel.appendChild(startBtn);
+  panel.appendChild(cancelBtn);
   panel.appendChild(endBtn);
   panel.appendChild(endKnotBtn);
-  panel.appendChild(anchorLoopBtn);
-  panel.appendChild(cancelBtn);
   panel.appendChild(threadError);
 
   // --- Undo / Redo ---
@@ -111,11 +96,13 @@ export function buildSewingPanel(
   let previewEdge: PreviewEdge | null = null;
   let chainEligibleHoles: Hole[] = [];
   let anchorLoopEligiblePoints: Hole[] = [];
+  let hiddenLinkEligibleHoles: Hole[] = [];
 
   function clearPreview() {
     previewEdge = null;
     chainEligibleHoles = [];
     anchorLoopEligiblePoints = [];
+    hiddenLinkEligibleHoles = [];
   }
 
   function updateThreadButtons() {
@@ -126,14 +113,11 @@ export function buildSewingPanel(
     const hasStartPoint = hasActive && active.startHole !== null;
 
     startBtn.classList.toggle("hidden", hasActive);
-    radioGroup.classList.toggle("hidden", hasActive);
-    endBtn.classList.toggle("hidden", !(hasEdges));
-    endKnotBtn.classList.toggle(
-      "hidden",
-      !(hasEdges && active !== null && canEndWithKnot(active, state.threads)),
-    );
-    anchorLoopBtn.classList.toggle("hidden", !hasStartPoint);
-    cancelBtn.classList.toggle("hidden", !hasActive);
+    radioPositive.input.disabled = hasActive;
+    radioNegative.input.disabled = hasActive;
+    cancelBtn.disabled = !hasActive;
+    endBtn.disabled = !hasEdges;
+    endKnotBtn.disabled = !(hasEdges && active !== null && canEndWithKnot(active, state.threads));
 
     undoBtn.disabled = !sewingModel.canUndo();
     redoBtn.disabled = !sewingModel.canRedo();
@@ -147,16 +131,6 @@ export function buildSewingPanel(
       }
     } else {
       nextEdgeLabel.textContent = "";
-      // Auto-default start side radio to match last completed thread's last edge load
-      const threads = state.threads;
-      if (threads.length > 0) {
-        const lastThread = threads[threads.length - 1];
-        if (lastThread.edges.length > 0) {
-          const lastLoad = lastThread.edges[lastThread.edges.length - 1].load;
-          radioPositive.input.checked = lastLoad === "positive";
-          radioNegative.input.checked = lastLoad === "negative";
-        }
-      }
     }
   }
 
@@ -193,6 +167,7 @@ export function buildSewingPanel(
 
     chainEligibleHoles = getEligibleChainHoles(active, state.threads);
     anchorLoopEligiblePoints = getEligibleAnchorLoopHoles(active, state.threads);
+    hiddenLinkEligibleHoles = getEligibleHiddenLinkHoles(active, gridState.holes);
 
     const target = resolveTarget(svg, coord, gridState);
     if (target.kind === "hole" && target.holeX !== undefined && target.holeY !== undefined) {
@@ -206,15 +181,16 @@ export function buildSewingPanel(
       previewEdge = null;
     }
 
-    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, previewEdge, { anchorLoopEligiblePoints }, chainEligibleHoles);
+    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, previewEdge, { anchorLoopEligiblePoints }, chainEligibleHoles, hiddenLinkEligibleHoles);
   }
 
   function onMouseLeave() {
     previewEdge = null;
     chainEligibleHoles = [];
+    hiddenLinkEligibleHoles = [];
     const gridState = gridModel.getState();
     const sizes = computeScaleSizes(gridState.spine);
-    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, null, {}, []);
+    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, null, {}, [], []);
   }
 
   function onClick(e: MouseEvent) {
@@ -222,8 +198,7 @@ export function buildSewingPanel(
     const state = sewingModel.getState();
     const active = state.activeThread;
 
-    // Alt+click creates anchor loop at the current thread position, regardless of where the user clicked.
-    // Must be checked before resolveTarget so alt+clicking anywhere on the SVG works.
+    // Alt/Option+Click: anchor loop (checked first — takes priority over Shift+Alt combos)
     if (e.altKey) {
       if (active?.startHole) {
         try {
@@ -244,40 +219,36 @@ export function buildSewingPanel(
     const p: Hole = { x: target.holeX, y: target.holeY };
 
     try {
-      if (e.shiftKey) {
-        if (active) {
-          // Delete last chain stitch or edge if shift+clicking the current endpoint
-          const currentPoint = getCurrentHole(active);
-          if (currentPoint && p.x === currentPoint.x && p.y === currentPoint.y) {
-            const css = active.chainStitches;
-            const lastCS = css.length > 0 ? css[css.length - 1] : null;
-            if (lastCS && lastCS.afterEdge === active.edges.length) {
-              sewingModel.removeLastChainStitch();
-            } else if (active.edges.length > 0) {
-              sewingModel.removeLastEdge();
-            }
+      // Shift+Ctrl/⌘+Click: type 2 hidden link stitch (nextLoad stays positive).
+      if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
+        if (active?.startHole) {
+          try {
+            sewingModel.addHiddenLinkStitch(p, "positive");
             updateThreadButtons();
             refresh();
-          }
-        } else {
-          // Un-complete the most recently completed thread ending at this point
-          const threads = state.threads;
-          for (let i = threads.length - 1; i >= 0; i--) {
-            const t = threads[i];
-            const lastPt = t.edges.length > 0 ? t.edges[t.edges.length - 1].to : t.startHole;
-            if (lastPt.x === p.x && lastPt.y === p.y) {
-              sewingModel.uncompleteThread(i);
-              updateThreadButtons();
-              refresh();
-              break;
-            }
+          } catch (err) {
+            threadError.textContent = (err as Error).message;
           }
         }
         return;
       }
 
-      // Ctrl/Cmd+Click: chain stitch at an eligible hole or anchor loop
-      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+      // Ctrl/⌘+Click: type 1 hidden link stitch (nextLoad flips positive→negative).
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        if (active?.startHole) {
+          try {
+            sewingModel.addHiddenLinkStitch(p, "negative");
+            updateThreadButtons();
+            refresh();
+          } catch (err) {
+            threadError.textContent = (err as Error).message;
+          }
+        }
+        return;
+      }
+
+      // Shift+Click: chain stitch at an eligible hole.
+      if (e.shiftKey) {
         if (!active?.startHole) return;
         const from = getCurrentHole(active);
         if (!from || (p.x === from.x && p.y === from.y)) return;

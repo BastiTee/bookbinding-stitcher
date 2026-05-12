@@ -2,8 +2,8 @@
   "metadata": {
     "title": "Long Stitch Sketchbook",
     "author": "Ido Agassi",
-    "tutorial": "https://www.skillshare.com/en/classes/make-your-own-sketchbook-long-stitch-binding-style/1879283933",
-    "description": "By far the most complicated long stitch to my knowledge. It was actually the reason to create this stitcher app in the first place, because I could not remember how to bind it properly."
+    "description": "By far the most complex long stitch I have come across, but also one of the most beautiful and sturdy. It combines multiple signatures at the same spine level with anchor loops, chain stitches, and hidden link stitches.\n\nFun fact: It was the main reason—alongside my own curiosity—to create this app in the first place, because I could not remember how to bind it properly.",
+    "tutorial": "https://www.skillshare.com/en/classes/make-your-own-sketchbook-long-stitch-binding-style/1879283933"
   },
   "spine": {
     "width": 150,
@@ -247,7 +247,7 @@
           },
           "to": {
             "x": 10,
-            "y": 10
+            "y": 0
           },
           "index": 9
         },
@@ -784,6 +784,20 @@
           },
           "side": "positive",
           "afterEdge": 4
+        }
+      ],
+      "hiddenLinkStitches": [
+        {
+          "from": {
+            "x": 10,
+            "y": 0
+          },
+          "to": {
+            "x": 10,
+            "y": 10
+          },
+          "side": "positive",
+          "afterEdge": 9
         }
       ]
     }

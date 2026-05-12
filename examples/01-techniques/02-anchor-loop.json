@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Minimal anchor loop stitch",
+    "title": "Anchor loop stitch",
     "author": "Basti Tee",
-    "description": "An example of a minimal anchor loop stitch. You start from the inside at the leftmost station, then you stitch to the middle hole on the outside. Here you go through the spine, form a loop and go back through the hole to the outside. Now you have an anchor loop on the inside. You now go on the outside to the rightmost hole and inside the spine. You can now stitch through the anchor loop back to the hole on the right. In this example, you simply end the thread on the outside, but of course these anchor loops give you a lot of flexibility for complex stitching patterns on either side."
+    "description": "An example of an anchor loop stitch. You start from the inside at the leftmost station, then stitch to the middle hole on the outside. There you pass through the spine, form a loop on the inside, and return through the same hole to the outside, creating an anchor loop. You then travel on the outside to the rightmost hole and enter the spine. On your way back you can thread through the anchor loop to the right hole. In this example you simply end the thread on the outside, but these anchor loops give you a lot of flexibility for complex stitching patterns on either side."
   },
   "spine": {
     "width": 60,

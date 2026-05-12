@@ -1,0 +1,184 @@
+{
+  "metadata": {
+    "title": "Hidden link stitch (Signature variant)",
+    "author": "Basti Tee",
+    "description": "A hidden link stitch is when the thread travels through the signature on the inside — hidden behind the spine — without returning directly through the spine. In the signature variant, the thread passes into another signature and continues as usual. A typical example using this technique is the \"Slotted Wrapper Binding\".\n\nAt step 4, the thread returns on the inside through the signature, but into the next signature rather than back through the spine. The hidden link is indicated by the blue dashed line. From there, the thread continues on the inside (step 5), around the spine to the outside (step 6), and back through the hole via spine and signature."
+  },
+  "spine": {
+    "width": 70,
+    "height": 30
+  },
+  "holes": [
+    {
+      "x": 10,
+      "y": 10
+    },
+    {
+      "x": 10,
+      "y": 20
+    },
+    {
+      "x": 30,
+      "y": 10
+    },
+    {
+      "x": 30,
+      "y": 20
+    },
+    {
+      "x": 50,
+      "y": 10
+    },
+    {
+      "x": 50,
+      "y": 20
+    },
+    {
+      "x": 70,
+      "y": 10
+    },
+    {
+      "x": 70,
+      "y": 20
+    }
+  ],
+  "signatures": {
+    "orientation": "horizontal",
+    "positions": [
+      10,
+      20
+    ]
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 10,
+          "y": 20
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 20
+          },
+          "to": {
+            "x": 30,
+            "y": 20
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 20
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 50,
+            "y": 20
+          },
+          "to": {
+            "x": 70,
+            "y": 20
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 70,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 20
+          },
+          "index": 4
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 10
+          },
+          "to": {
+            "x": 70,
+            "y": 10
+          },
+          "index": 5
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 70,
+            "y": 10
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "index": 6
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 7
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 10,
+            "y": 10
+          },
+          "index": 8
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": [
+        {
+          "from": {
+            "x": 50,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "side": "negative",
+          "afterEdge": 4
+        }
+      ]
+    }
+  ]
+}

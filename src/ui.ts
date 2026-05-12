@@ -11,7 +11,7 @@ import { buildSewingPanel } from "./sewing-ui";
 import { el } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
 import { openGallery } from "./gallery-ui";
-import { openHelp } from "./help-ui";
+import { buildShortcutsPanel } from "./help-ui";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -120,6 +120,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const sewingPanelObj = buildSewingPanel(rightPanel, sewingModel, model, svg, refresh);
   const playbackPanelObj = buildPlaybackPanel(rightPanel, sewingModel, model, svg);
 
+  const modeSwitcherHr = document.createElement("hr");
+  modeSwitcherHr.className = "mode-switcher-hr";
+  rightPanel.appendChild(modeSwitcherHr);
+  const shortcutsContainer = el("div", "shortcuts-container");
+  shortcutsContainer.appendChild(buildShortcutsPanel("design"));
+  rightPanel.appendChild(shortcutsContainer);
+
   // ============================================================
   // Persistent Export / Import section (always visible)
   // ============================================================
@@ -211,6 +218,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
           threadEnd?: { type?: unknown };
           edges: Array<Record<string, unknown>>;
           anchorLoops?: unknown[];
+          hiddenLinkStitches?: unknown[];
         }) => {
           const chainStitches: Array<Record<string, unknown>> = [];
           const normalizedEdges = (t.edges ?? []).map((e, i) => {
@@ -226,6 +234,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
             side: al.side,
             afterEdge: al.afterEdge,
           }));
+          const hiddenLinkStitches = (t.hiddenLinkStitches ?? []).map((hls: any) => ({
+            from: hls.from,
+            to: hls.to,
+            side: hls.side,
+            afterEdge: hls.afterEdge,
+          }));
           return {
             startSide: t.threadStart?.side,
             startHole: t.threadStart?.hole,
@@ -234,6 +248,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
             endType: t.threadEnd?.type === "knot" ? "knot" : "loose",
             anchorLoops,
             chainStitches,
+            hiddenLinkStitches,
           };
         }));
       }
@@ -272,6 +287,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       setSaveEnabled(false);
       updateFileNameDisplay();
       applyImport(json);
+      switchToPlayback();
     });
   });
 
@@ -318,6 +334,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     designPanel.classList.remove("hidden");
     sewingPanelObj.deactivate();
     playbackPanelObj.deactivate();
+    shortcutsContainer.replaceChildren(buildShortcutsPanel("design"));
     refresh();
   }
 
@@ -329,6 +346,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     designPanel.classList.add("hidden");
     sewingPanelObj.activate();
     playbackPanelObj.deactivate();
+    shortcutsContainer.replaceChildren(buildShortcutsPanel("sewing"));
   }
 
   function switchToPlayback() {
@@ -339,6 +357,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     designPanel.classList.add("hidden");
     sewingPanelObj.deactivate();
     playbackPanelObj.activate();
+    shortcutsContainer.replaceChildren(buildShortcutsPanel("playback"));
   }
 
   btnDesign.addEventListener("click", switchToDesign);
@@ -364,10 +383,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
   });
   bottomPanel.appendChild(resetBtn);
-  const helpBtn = document.createElement("button");
-  helpBtn.textContent = "Keyboard & Mouse controls";
-  helpBtn.addEventListener("click", () => openHelp(currentMode));
-  bottomPanel.appendChild(helpBtn);
   rightPanel.appendChild(bottomPanel);
 
   // ============================================================
@@ -485,8 +500,9 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       if (!isNaN(pos) && axis) {
         const orientation = axis === "right" ? "horizontal" : "vertical";
         try {
-          if (e.shiftKey) model.removeSignature(pos);
-          else             model.addSignature(orientation, pos);
+          const sigs = model.getState().signatures;
+          if (sigs?.positions.includes(pos)) model.removeSignature(pos);
+          else model.addSignature(orientation, pos);
         } catch (err) {
           interactionError.textContent = (err as Error).message;
         }
@@ -581,6 +597,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
         },
         edges: exportEdges,
         anchorLoops: (t.anchorLoops ?? []).map(al => ({ hole: al.hole, side: al.side, afterEdge: al.afterEdge })),
+        hiddenLinkStitches: (t.hiddenLinkStitches ?? []).map(hls => ({ from: hls.from, to: hls.to, side: hls.side, afterEdge: hls.afterEdge })),
       };
     });
     exportJson = JSON.stringify(exportObj, null, 2);
@@ -687,18 +704,18 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   metadataEdit.appendChild(authorInput);
 
   const descTextarea = document.createElement("textarea");
-  descTextarea.maxLength = 500;
+  descTextarea.maxLength = 1000;
   descTextarea.placeholder = "Description…";
   descTextarea.className = "metadata-textarea";
   metadataEdit.appendChild(descTextarea);
 
   const charCount = document.createElement("span");
   charCount.className = "char-count";
-  charCount.textContent = "0 / 500";
+  charCount.textContent = "0 / 1000";
   metadataEdit.appendChild(charCount);
 
   descTextarea.addEventListener("input", () => {
-    charCount.textContent = `${descTextarea.value.length} / 500`;
+    charCount.textContent = `${descTextarea.value.length} / 1000`;
     onChange();
   });
 
@@ -763,7 +780,7 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
     titleInput.value = m.title ?? "";
     authorInput.value = m.author ?? "";
     descTextarea.value = m.description ?? "";
-    charCount.textContent = `${descTextarea.value.length} / 500`;
+    charCount.textContent = `${descTextarea.value.length} / 1000`;
     tutorialInput.value = m.tutorial ?? "";
     isEditing = false;
     editBtn.textContent = "Edit metadata";

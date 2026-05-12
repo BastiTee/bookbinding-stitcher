@@ -1,0 +1,1131 @@
+{
+  "metadata": {
+    "title": "Multi-Color Waffle Spine Design",
+    "author": "AI WO ART",
+    "description": "A remarkable spine design that doesn't use any complicated stitches, but creates its complexity from using multiple threads. The original design comprises of multi-colored threads which gives the design a very unique and standout look. From a practical standpoint however, you will have a good swell in the signatures as the threads have to pass through the signatures  several times.",
+    "tutorial": "https://www.youtube.com/shorts/tAkVIbt-kPo"
+  },
+  "spine": {
+    "width": 234,
+    "height": 60
+  },
+  "holes": [
+    {
+      "x": 2,
+      "y": 30
+    },
+    {
+      "x": 6,
+      "y": 24
+    },
+    {
+      "x": 6,
+      "y": 36
+    },
+    {
+      "x": 10,
+      "y": 6
+    },
+    {
+      "x": 10,
+      "y": 30
+    },
+    {
+      "x": 10,
+      "y": 54
+    },
+    {
+      "x": 16,
+      "y": 12
+    },
+    {
+      "x": 16,
+      "y": 48
+    },
+    {
+      "x": 22,
+      "y": 18
+    },
+    {
+      "x": 22,
+      "y": 42
+    },
+    {
+      "x": 28,
+      "y": 24
+    },
+    {
+      "x": 28,
+      "y": 36
+    },
+    {
+      "x": 34,
+      "y": 30
+    },
+    {
+      "x": 50,
+      "y": 30
+    },
+    {
+      "x": 56,
+      "y": 24
+    },
+    {
+      "x": 56,
+      "y": 36
+    },
+    {
+      "x": 62,
+      "y": 18
+    },
+    {
+      "x": 62,
+      "y": 42
+    },
+    {
+      "x": 68,
+      "y": 12
+    },
+    {
+      "x": 68,
+      "y": 48
+    },
+    {
+      "x": 74,
+      "y": 6
+    },
+    {
+      "x": 74,
+      "y": 54
+    },
+    {
+      "x": 94,
+      "y": 24
+    },
+    {
+      "x": 94,
+      "y": 36
+    },
+    {
+      "x": 100,
+      "y": 18
+    },
+    {
+      "x": 100,
+      "y": 42
+    },
+    {
+      "x": 106,
+      "y": 12
+    },
+    {
+      "x": 106,
+      "y": 48
+    },
+    {
+      "x": 112,
+      "y": 6
+    },
+    {
+      "x": 112,
+      "y": 54
+    },
+    {
+      "x": 124,
+      "y": 6
+    },
+    {
+      "x": 124,
+      "y": 54
+    },
+    {
+      "x": 130,
+      "y": 12
+    },
+    {
+      "x": 130,
+      "y": 48
+    },
+    {
+      "x": 136,
+      "y": 18
+    },
+    {
+      "x": 136,
+      "y": 42
+    },
+    {
+      "x": 142,
+      "y": 24
+    },
+    {
+      "x": 142,
+      "y": 36
+    },
+    {
+      "x": 160,
+      "y": 6
+    },
+    {
+      "x": 160,
+      "y": 54
+    },
+    {
+      "x": 166,
+      "y": 12
+    },
+    {
+      "x": 166,
+      "y": 48
+    },
+    {
+      "x": 172,
+      "y": 18
+    },
+    {
+      "x": 172,
+      "y": 42
+    },
+    {
+      "x": 178,
+      "y": 24
+    },
+    {
+      "x": 178,
+      "y": 36
+    },
+    {
+      "x": 184,
+      "y": 30
+    },
+    {
+      "x": 200,
+      "y": 30
+    },
+    {
+      "x": 206,
+      "y": 24
+    },
+    {
+      "x": 206,
+      "y": 36
+    },
+    {
+      "x": 212,
+      "y": 18
+    },
+    {
+      "x": 212,
+      "y": 42
+    },
+    {
+      "x": 218,
+      "y": 12
+    },
+    {
+      "x": 218,
+      "y": 48
+    },
+    {
+      "x": 224,
+      "y": 6
+    },
+    {
+      "x": 224,
+      "y": 30
+    },
+    {
+      "x": 224,
+      "y": 54
+    },
+    {
+      "x": 228,
+      "y": 24
+    },
+    {
+      "x": 228,
+      "y": 36
+    },
+    {
+      "x": 232,
+      "y": 30
+    }
+  ],
+  "signatures": {
+    "orientation": "horizontal",
+    "positions": [
+      6,
+      12,
+      18,
+      24,
+      30,
+      36,
+      42,
+      48,
+      54
+    ]
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 224,
+          "y": 54
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 10,
+          "y": 54
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 224,
+            "y": 54
+          },
+          "to": {
+            "x": 160,
+            "y": 54
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 160,
+            "y": 54
+          },
+          "to": {
+            "x": 124,
+            "y": 54
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 124,
+            "y": 54
+          },
+          "to": {
+            "x": 94,
+            "y": 24
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 94,
+            "y": 24
+          },
+          "to": {
+            "x": 56,
+            "y": 24
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 56,
+            "y": 24
+          },
+          "to": {
+            "x": 28,
+            "y": 24
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 28,
+            "y": 24
+          },
+          "to": {
+            "x": 206,
+            "y": 24
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 206,
+            "y": 24
+          },
+          "to": {
+            "x": 178,
+            "y": 24
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 178,
+            "y": 24
+          },
+          "to": {
+            "x": 142,
+            "y": 24
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 142,
+            "y": 24
+          },
+          "to": {
+            "x": 112,
+            "y": 54
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 112,
+            "y": 54
+          },
+          "to": {
+            "x": 74,
+            "y": 54
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 74,
+            "y": 54
+          },
+          "to": {
+            "x": 10,
+            "y": 54
+          },
+          "index": 11
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": []
+    },
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 218,
+          "y": 48
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 16,
+          "y": 48
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 218,
+            "y": 48
+          },
+          "to": {
+            "x": 166,
+            "y": 48
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 166,
+            "y": 48
+          },
+          "to": {
+            "x": 130,
+            "y": 48
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 130,
+            "y": 48
+          },
+          "to": {
+            "x": 100,
+            "y": 18
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 100,
+            "y": 18
+          },
+          "to": {
+            "x": 62,
+            "y": 18
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 62,
+            "y": 18
+          },
+          "to": {
+            "x": 22,
+            "y": 18
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 22,
+            "y": 18
+          },
+          "to": {
+            "x": 212,
+            "y": 18
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 212,
+            "y": 18
+          },
+          "to": {
+            "x": 172,
+            "y": 18
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 172,
+            "y": 18
+          },
+          "to": {
+            "x": 136,
+            "y": 18
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 136,
+            "y": 18
+          },
+          "to": {
+            "x": 106,
+            "y": 48
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 106,
+            "y": 48
+          },
+          "to": {
+            "x": 68,
+            "y": 48
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 68,
+            "y": 48
+          },
+          "to": {
+            "x": 16,
+            "y": 48
+          },
+          "index": 11
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": []
+    },
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 212,
+          "y": 42
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 22,
+          "y": 42
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 212,
+            "y": 42
+          },
+          "to": {
+            "x": 172,
+            "y": 42
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 172,
+            "y": 42
+          },
+          "to": {
+            "x": 136,
+            "y": 42
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 136,
+            "y": 42
+          },
+          "to": {
+            "x": 106,
+            "y": 12
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 106,
+            "y": 12
+          },
+          "to": {
+            "x": 68,
+            "y": 12
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 68,
+            "y": 12
+          },
+          "to": {
+            "x": 16,
+            "y": 12
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 16,
+            "y": 12
+          },
+          "to": {
+            "x": 218,
+            "y": 12
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 218,
+            "y": 12
+          },
+          "to": {
+            "x": 166,
+            "y": 12
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 166,
+            "y": 12
+          },
+          "to": {
+            "x": 130,
+            "y": 12
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 130,
+            "y": 12
+          },
+          "to": {
+            "x": 100,
+            "y": 42
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 100,
+            "y": 42
+          },
+          "to": {
+            "x": 62,
+            "y": 42
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 62,
+            "y": 42
+          },
+          "to": {
+            "x": 22,
+            "y": 42
+          },
+          "index": 11
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": []
+    },
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 206,
+          "y": 36
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 28,
+          "y": 36
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 206,
+            "y": 36
+          },
+          "to": {
+            "x": 178,
+            "y": 36
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 178,
+            "y": 36
+          },
+          "to": {
+            "x": 142,
+            "y": 36
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 142,
+            "y": 36
+          },
+          "to": {
+            "x": 112,
+            "y": 6
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 112,
+            "y": 6
+          },
+          "to": {
+            "x": 74,
+            "y": 6
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 74,
+            "y": 6
+          },
+          "to": {
+            "x": 10,
+            "y": 6
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 6
+          },
+          "to": {
+            "x": 224,
+            "y": 6
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 224,
+            "y": 6
+          },
+          "to": {
+            "x": 160,
+            "y": 6
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 160,
+            "y": 6
+          },
+          "to": {
+            "x": 124,
+            "y": 6
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 124,
+            "y": 6
+          },
+          "to": {
+            "x": 94,
+            "y": 36
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 94,
+            "y": 36
+          },
+          "to": {
+            "x": 56,
+            "y": 36
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 56,
+            "y": 36
+          },
+          "to": {
+            "x": 28,
+            "y": 36
+          },
+          "index": 11
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": []
+    },
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 228,
+          "y": 36
+        }
+      },
+      "threadEnd": {
+        "type": "knot",
+        "side": "negative",
+        "hole": {
+          "x": 224,
+          "y": 30
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 228,
+            "y": 36
+          },
+          "to": {
+            "x": 232,
+            "y": 30
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 232,
+            "y": 30
+          },
+          "to": {
+            "x": 200,
+            "y": 30
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 200,
+            "y": 30
+          },
+          "to": {
+            "x": 184,
+            "y": 30
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 184,
+            "y": 30
+          },
+          "to": {
+            "x": 50,
+            "y": 30
+          },
+          "index": 4
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 50,
+            "y": 30
+          },
+          "to": {
+            "x": 34,
+            "y": 30
+          },
+          "index": 5
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 34,
+            "y": 30
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 6
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 6,
+            "y": 36
+          },
+          "index": 7
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 6,
+            "y": 36
+          },
+          "to": {
+            "x": 2,
+            "y": 30
+          },
+          "index": 8
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 2,
+            "y": 30
+          },
+          "to": {
+            "x": 6,
+            "y": 36
+          },
+          "index": 9
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 6,
+            "y": 36
+          },
+          "to": {
+            "x": 6,
+            "y": 24
+          },
+          "index": 10
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 6,
+            "y": 24
+          },
+          "to": {
+            "x": 2,
+            "y": 30
+          },
+          "index": 11
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 2,
+            "y": 30
+          },
+          "to": {
+            "x": 6,
+            "y": 24
+          },
+          "index": 12
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 6,
+            "y": 24
+          },
+          "to": {
+            "x": 10,
+            "y": 30
+          },
+          "index": 13
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 10,
+            "y": 30
+          },
+          "to": {
+            "x": 224,
+            "y": 30
+          },
+          "index": 14
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 224,
+            "y": 30
+          },
+          "to": {
+            "x": 228,
+            "y": 24
+          },
+          "index": 15
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 228,
+            "y": 24
+          },
+          "to": {
+            "x": 232,
+            "y": 30
+          },
+          "index": 16
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 232,
+            "y": 30
+          },
+          "to": {
+            "x": 228,
+            "y": 24
+          },
+          "index": 17
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 228,
+            "y": 24
+          },
+          "to": {
+            "x": 228,
+            "y": 36
+          },
+          "index": 18
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 228,
+            "y": 36
+          },
+          "to": {
+            "x": 224,
+            "y": 30
+          },
+          "index": 19
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": []
+    }
+  ]
+}

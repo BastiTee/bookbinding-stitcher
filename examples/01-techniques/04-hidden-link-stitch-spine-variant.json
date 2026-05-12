@@ -1,0 +1,124 @@
+{
+  "metadata": {
+    "title": "Hidden link stitch (Spine variant)",
+    "author": "Basti Tee",
+    "description": "A hidden link stitch is when the thread travels through the signature on the inside — hidden behind the spine — without returning directly through the spine. In the spine variant, the thread exits through the spine at a different hole.\n\nIn this variant, at step 2 the thread travels through the signature at 50x20 without returning through the spine. Instead, it is led to a different hole (50x10) and exits back outside. The hidden link is indicated by the blue dashed line."
+  },
+  "spine": {
+    "width": 70,
+    "height": 30
+  },
+  "holes": [
+    {
+      "x": 10,
+      "y": 10
+    },
+    {
+      "x": 10,
+      "y": 20
+    },
+    {
+      "x": 30,
+      "y": 10
+    },
+    {
+      "x": 30,
+      "y": 20
+    },
+    {
+      "x": 50,
+      "y": 10
+    },
+    {
+      "x": 50,
+      "y": 20
+    },
+    {
+      "x": 70,
+      "y": 10
+    },
+    {
+      "x": 70,
+      "y": 20
+    }
+  ],
+  "signatures": {
+    "orientation": "horizontal",
+    "positions": [
+      10,
+      20
+    ]
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 10,
+          "y": 20
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 70,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 20
+          },
+          "to": {
+            "x": 30,
+            "y": 20
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 30,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 20
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 50,
+            "y": 10
+          },
+          "to": {
+            "x": 70,
+            "y": 10
+          },
+          "index": 3
+        }
+      ],
+      "anchorLoops": [],
+      "hiddenLinkStitches": [
+        {
+          "from": {
+            "x": 50,
+            "y": 20
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "side": "positive",
+          "afterEdge": 2
+        }
+      ]
+    }
+  ]
+}

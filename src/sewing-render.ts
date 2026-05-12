@@ -1,4 +1,4 @@
-import type { SewingState, Load, Hole, ChainStitch } from "./sewing-model";
+import type { SewingState, Load, Hole, ChainStitch, HiddenLinkStitch } from "./sewing-model";
 import { getCurrentHole } from "./sewing-model";
 import type { Spine } from "./model";
 import type { ScaleSizes } from "./render";
@@ -36,6 +36,7 @@ function pairKey(a: Hole, b: Hole): string {
 type EdgeEntry = {
   from: Hole; to: Hole; load: Load; preview: boolean;
   index?: number;
+  hiddenLinkOrigin?: boolean;
 };
 
 type ChainEntry = { from: Hole; to: Hole; end: Hole; load: Load };
@@ -77,6 +78,7 @@ export function renderSewing(
   previewEdge?: PreviewEdge | null,
   options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Hole[]; startTailTargets?: Hole[] },
   chainEligibleHoles?: Hole[],
+  hiddenLinkEligibleHoles?: Hole[],
 ): void {
   const spineOnly = options?.spineOnly ?? false;
 
@@ -94,18 +96,20 @@ export function renderSewing(
   let allEdges: EdgeEntry[] = [];
   for (const thread of sewingState.threads) {
     const consumed = new Set((thread.chainStitches ?? []).map(cs => cs.afterEdge));
+    const hlsAfterEdges = new Set((thread.hiddenLinkStitches ?? []).map(hls => hls.afterEdge));
     for (let i = 0; i < thread.edges.length; i++) {
       if (consumed.has(i)) continue;
       const e = thread.edges[i];
-      allEdges.push({ from: e.from, to: e.to, load: e.load, preview: false, index: e.index });
+      allEdges.push({ from: e.from, to: e.to, load: e.load, preview: false, index: e.index, hiddenLinkOrigin: hlsAfterEdges.has(i + 1) });
     }
   }
   if (active) {
     const consumed = new Set((active.chainStitches ?? []).map(cs => cs.afterEdge));
+    const hlsAfterEdges = new Set((active.hiddenLinkStitches ?? []).map(hls => hls.afterEdge));
     for (let i = 0; i < active.edges.length; i++) {
       if (consumed.has(i)) continue;
       const e = active.edges[i];
-      allEdges.push({ from: e.from, to: e.to, load: e.load, preview: false, index: e.index });
+      allEdges.push({ from: e.from, to: e.to, load: e.load, preview: false, index: e.index, hiddenLinkOrigin: hlsAfterEdges.has(i + 1) });
     }
     if (previewEdge) {
       allEdges.push({ from: previewEdge.from, to: previewEdge.to, load: previewEdge.load, preview: true });
@@ -141,6 +145,17 @@ export function renderSewing(
     if (!spineOnly || loop.side === "positive") drawAnchorLoop(layer, loop.hole, loop.side, sizes);
   }
 
+  // --- Draw hidden link stitches (inside-signature paths, always non-spine) ---
+  if (!spineOnly) {
+    const allHiddenLinks: HiddenLinkStitch[] = [
+      ...sewingState.threads.flatMap(t => t.hiddenLinkStitches ?? []),
+      ...(active?.hiddenLinkStitches ?? []),
+    ];
+    for (const hls of allHiddenLinks) {
+      drawHiddenLinkStitch(layer, hls.from, hls.to);
+    }
+  }
+
   // --- Draw eligible chain hole halos ---
   if (!spineOnly && chainEligibleHoles && chainEligibleHoles.length > 0) {
     for (const p of chainEligibleHoles) {
@@ -166,6 +181,18 @@ export function renderSewing(
     }
   }
 
+  // --- Draw hidden-link-eligible halos (blue dashed ring) ---
+  if (!spineOnly && hiddenLinkEligibleHoles && hiddenLinkEligibleHoles.length > 0) {
+    for (const p of hiddenLinkEligibleHoles) {
+      const halo = document.createElementNS(SVG_NS, "circle");
+      halo.setAttribute("cx", String(p.x));
+      halo.setAttribute("cy", String(p.y));
+      halo.setAttribute("r", String(sizes.dotRadius * 2.8));
+      halo.classList.add("hidden-link-eligible-halo");
+      layer.appendChild(halo);
+    }
+  }
+
   // --- Count occurrences per canonical endpoint pair ---
   const pairCount = new Map<string, number>();
   for (const e of allEdges) {
@@ -177,10 +204,10 @@ export function renderSewing(
   const pairSeen = new Map<string, number>();
   for (const e of allEdges) {
     const k = pairKey(e.from, e.to);
-    const total = spineOnly ? 1 : pairCount.get(k)!;
-    const slotIndex = spineOnly ? 0 : (pairSeen.get(k) ?? 0);
+    const total = pairCount.get(k)!;
+    const slotIndex = pairSeen.get(k) ?? 0;
     pairSeen.set(k, (pairSeen.get(k) ?? 0) + 1);
-    drawEdgeLine(layer, e.from, e.to, e.load, e.preview, slotIndex, total, e.index, sizes);
+    drawEdgeLine(layer, e.from, e.to, e.load, e.preview, slotIndex, total, e.index, sizes, e.hiddenLinkOrigin);
   }
 
   // --- Draw chain stitches (custom hook-around-hole path) ---
@@ -278,6 +305,7 @@ function drawEdgeLine(
   slotTotal: number,
   index: number | undefined,
   _sizes: ScaleSizes,
+  hiddenLinkOrigin?: boolean,
 ) {
   const loadClass = load === "positive" ? "thread-edge--positive" : "thread-edge--negative";
 
@@ -292,6 +320,7 @@ function drawEdgeLine(
     line.setAttribute("x2", String(to.x));
     line.setAttribute("y2", String(to.y));
     line.classList.add("thread-edge", loadClass);
+    if (hiddenLinkOrigin) line.classList.add("thread-edge--hidden-link-origin");
     if (preview) line.classList.add("thread-edge--preview");
     layer.appendChild(line);
     if (index !== undefined && !preview) {
@@ -318,6 +347,7 @@ function drawEdgeLine(
   path.setAttribute("d", `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`);
   path.setAttribute("fill", "none");
   path.classList.add("thread-edge", loadClass);
+  if (hiddenLinkOrigin) path.classList.add("thread-edge--hidden-link-origin");
   if (preview) path.classList.add("thread-edge--preview");
   layer.appendChild(path);
   if (index !== undefined && !preview) {
@@ -406,6 +436,16 @@ function drawAnchorLoop(layer: SVGGElement, point: Hole, side: Load, sizes: Scal
   path.setAttribute("fill", "none");
   path.classList.add("anchor-loop", side === "positive" ? "anchor-loop--positive" : "anchor-loop--negative");
   layer.appendChild(path);
+}
+
+function drawHiddenLinkStitch(layer: SVGGElement, from: Hole, to: Hole): void {
+  const line = document.createElementNS(SVG_NS, "line");
+  line.setAttribute("x1", String(from.x));
+  line.setAttribute("y1", String(from.y));
+  line.setAttribute("x2", String(to.x));
+  line.setAttribute("y2", String(to.y));
+  line.classList.add("hidden-link-stitch");
+  layer.appendChild(line);
 }
 
 /**

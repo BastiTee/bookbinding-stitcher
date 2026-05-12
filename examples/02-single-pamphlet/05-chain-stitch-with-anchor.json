@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Saddle Stitch",
+    "title": "Chain Stitch with Anchor Loop",
     "author": "Basti Tee",
-    "description": "This saddle stitch can be found on the Moleskine cahier notebooks and using a light thread it provides a professional and robust spine for pamphlets."
+    "description": "This binding is easy and ideal for a single-signature pamphlet. In contrast to the basic chain stitch it uses an anchor loop at the start to create a chain-like look at the first step as well."
   },
   "spine": {
     "width": 140,
@@ -54,16 +54,16 @@
         }
       },
       "threadEnd": {
-        "type": "knot",
-        "side": "positive",
+        "type": "loose",
+        "side": "negative",
         "hole": {
-          "x": 10,
+          "x": 130,
           "y": 10
         }
       },
       "edges": [
         {
-          "load": "positive",
+          "load": "negative",
           "from": {
             "x": 10,
             "y": 10
@@ -75,6 +75,22 @@
           "index": 1
         },
         {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 2,
+          "chainedVia": {
+            "x": 10,
+            "y": 10
+          }
+        },
+        {
           "load": "negative",
           "from": {
             "x": 30,
@@ -82,132 +98,150 @@
           },
           "to": {
             "x": 50,
-            "y": 10
-          },
-          "index": 2
-        },
-        {
-          "load": "positive",
-          "from": {
-            "x": 50,
-            "y": 10
-          },
-          "to": {
-            "x": 70,
             "y": 10
           },
           "index": 3
         },
         {
-          "load": "negative",
-          "from": {
-            "x": 70,
-            "y": 10
-          },
-          "to": {
-            "x": 90,
-            "y": 10
-          },
-          "index": 4
-        },
-        {
           "load": "positive",
           "from": {
-            "x": 90,
+            "x": 50,
             "y": 10
           },
           "to": {
-            "x": 110,
+            "x": 50,
+            "y": 10
+          },
+          "index": 4,
+          "chainedVia": {
+            "x": 30,
+            "y": 10
+          }
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 10
+          },
+          "to": {
+            "x": 70,
             "y": 10
           },
           "index": 5
         },
         {
-          "load": "negative",
-          "from": {
-            "x": 110,
-            "y": 10
-          },
-          "to": {
-            "x": 130,
-            "y": 10
-          },
-          "index": 6
-        },
-        {
           "load": "positive",
           "from": {
-            "x": 130,
+            "x": 70,
             "y": 10
           },
           "to": {
-            "x": 110,
+            "x": 70,
+            "y": 10
+          },
+          "index": 6,
+          "chainedVia": {
+            "x": 50,
+            "y": 10
+          }
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 70,
+            "y": 10
+          },
+          "to": {
+            "x": 90,
             "y": 10
           },
           "index": 7
         },
         {
+          "load": "positive",
+          "from": {
+            "x": 90,
+            "y": 10
+          },
+          "to": {
+            "x": 90,
+            "y": 10
+          },
+          "index": 8,
+          "chainedVia": {
+            "x": 70,
+            "y": 10
+          }
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 90,
+            "y": 10
+          },
+          "to": {
+            "x": 110,
+            "y": 10
+          },
+          "index": 9
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 110,
+            "y": 10
+          },
+          "to": {
+            "x": 110,
+            "y": 10
+          },
+          "index": 10,
+          "chainedVia": {
+            "x": 90,
+            "y": 10
+          }
+        },
+        {
           "load": "negative",
           "from": {
             "x": 110,
             "y": 10
           },
           "to": {
-            "x": 90,
-            "y": 10
-          },
-          "index": 8
-        },
-        {
-          "load": "positive",
-          "from": {
-            "x": 90,
-            "y": 10
-          },
-          "to": {
-            "x": 70,
-            "y": 10
-          },
-          "index": 9
-        },
-        {
-          "load": "negative",
-          "from": {
-            "x": 70,
-            "y": 10
-          },
-          "to": {
-            "x": 50,
-            "y": 10
-          },
-          "index": 10
-        },
-        {
-          "load": "positive",
-          "from": {
-            "x": 50,
-            "y": 10
-          },
-          "to": {
-            "x": 30,
+            "x": 130,
             "y": 10
           },
           "index": 11
         },
         {
-          "load": "negative",
+          "load": "positive",
           "from": {
-            "x": 30,
+            "x": 130,
             "y": 10
           },
           "to": {
+            "x": 130,
+            "y": 10
+          },
+          "index": 12,
+          "chainedVia": {
+            "x": 110,
+            "y": 10
+          }
+        }
+      ],
+      "anchorLoops": [
+        {
+          "hole": {
             "x": 10,
             "y": 10
           },
-          "index": 12
+          "side": "positive",
+          "afterEdge": 0
         }
       ],
-      "anchorLoops": []
+      "hiddenLinkStitches": []
     }
   ]
 }

@@ -42,9 +42,9 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 
 **Module responsibilities:**
 - `src/model.ts` — `GridModel` observable; spine dimensions + flat `holes: Hole[]` sorted array
-- `src/sewing-model.ts` — `SewingModel` observable; threads with undo/redo (50-step history via JSON deep-clone snapshots). Also exports utility functions used by `sewing-ui.ts`: `getCurrentHole`, `getEligibleChainHoles`, `getEligibleAnchorLoopHoles`, `canEndWithKnot`
+- `src/sewing-model.ts` — `SewingModel` observable; threads with undo/redo (50-step history via JSON deep-clone snapshots). Also exports utility functions used by `sewing-ui.ts`: `getCurrentHole`, `getEligibleChainHoles`, `getEligibleAnchorLoopHoles`, `getEligibleHiddenLinkHoles`, `canEndWithKnot`
 - `src/render.ts` — `renderGrid(svg, state, highlight)` — **clears `svg.innerHTML` on every call**
-- `src/sewing-render.ts` — `renderSewing(svg, sewingState, sizes, spine, previewEdge?, options?)` — removes and re-appends `<g class="sewing-layer">` each call
+- `src/sewing-render.ts` — `renderSewing(svg, sewingState, sizes, spine, previewEdge?, options?, chainEligibleHoles?, hiddenLinkEligibleHoles?)` — removes and re-appends `<g class="sewing-layer">` each call
 - `src/interaction.ts` — `screenToSvg`, `resolveTarget`, `snapToGrid`; proximity threshold is 10px converted to mm via CTM
 - `src/dom-utils.ts` — shared DOM helpers: `el(tag, className?)`, `sectionTitle(text)`, `createModal(title, closeAriaLabel, extraClass?)` — **always use these instead of raw `document.createElement`**
 - `src/ui.ts` — wires everything; owns the `refresh()` cycle; manages ghost layer
@@ -81,6 +81,12 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 
 **2b. Chain stitch:** The thread can loop around an already-placed stitch at another hole before returning to its current position. Internally stored as `{ hole, side, afterEdge }` entries in `thread.chainStitches[]`, where `afterEdge` is the 0-based index of the edge that is "consumed" (its `from` is redirected to `cs.hole`). Rendered as a smooth teardrop by `drawChainStitchPath` in `sewing-render.ts` — two cubic beziers, no straight segments, sharp cusp at the thread position, round cap past the chain hole.
 
+**2c. Hidden link stitch:** The thread travels inside the signature from hole A to hole B without passing through the spine. Only valid when `nextLoad="positive"` (replaces or redirects an outside pass). Two types triggered by different modifier keys:
+- **Type 1 (negative)** `Shift+Alt+Click`: `nextLoad` flips positive→negative. The thread arrives at B ready for an inside pass — effectively skipping the outside pass.
+- **Type 2 (positive)** `Ctrl/Cmd+Alt+Click`: `nextLoad` stays positive. The thread arrives at B still ready for an outside pass — the outside path continues from a new hole.
+
+Internally stored as `{ from, to, side, afterEdge }` entries in `thread.hiddenLinkStitches[]`. **`side` is the output load after the link** (`"negative"` = type 1, `"positive"` = type 2) — NOT the load at creation time. The predecessor edge (arriving at `from`) is rendered in blue via class `thread-edge--hidden-link-origin`. The link itself renders as a blue dashed line (`.hidden-link-stitch`). Eligible targets are shown as blue dashed halos (`.hidden-link-eligible-halo`) during hover. Implemented via `sewingModel.addHiddenLinkStitch(to, kind)` / `removeLastHiddenLinkStitch()`.
+
 **2a. Anchor loop:** At any point after the start hole is set, the user can place an anchor loop at the current endpoint. The loop is recorded on the `nextLoad` side — the thread dips into the spine and returns, so `nextLoad` flips twice (net: same as before). Implemented via `sewingModel.addAnchorLoop()`, triggered by the "Add Anchor Loop" button or Alt+Click. Rendered as a U-shape (horseshoe) above the hole in `drawAnchorLoop`.
 
 **3. End thread:** User clicks "End Thread" (loose end) or "End Thread with Knot" (knot requires the current hole+load to coincide with an earlier thread pass). A completed thread is immutable. Multiple threads can coexist; `uncompleteThread(i)` re-opens one for editing.
@@ -104,7 +110,8 @@ The textarea in the sidebar always contains the live JSON export. The schema is:
         // `from` = position before the loop; `to` = return position (usually == `from`).
         { "load": "positive", "from": {...}, "chainedVia": {...}, "to": {...}, "index": 3 }
       ],
-      "anchorLoops": [{ "hole": {...}, "side": "positive"|"negative", "afterEdge": 2 }, ...]
+      "anchorLoops": [{ "hole": {...}, "side": "positive"|"negative", "afterEdge": 2 }, ...],
+      "hiddenLinkStitches": [{ "from": {...}, "to": {...}, "side": "negative"|"positive", "afterEdge": 4 }, ...]
     }
   ]
 }
@@ -112,14 +119,17 @@ The textarea in the sidebar always contains the live JSON export. The schema is:
 
 **Internal vs. export chain stitch representation:** The internal `Thread` model stores chain stitches separately as `chainStitches: { hole, side, afterEdge }[]`. The JSON export merges them into their corresponding edge as `chainedVia`. `ui.ts` converts between formats on import/export — no other code touches this boundary.
 
+**Hidden link stitch `side` field:** In `hiddenLinkStitches`, `side` is the **output load** after the link (`"negative"` = type 1, `"positive"` = type 2), not the load at creation time. This is the opposite convention from `anchorLoops.side` and `chainStitches.side`, which record the load at creation.
+
 ## Thread lifecycle
 
 1. `sewingModel.beginThread(startSide)` — creates active thread; `nextLoad` is set to the opposite of `startSide`
 2. `sewingModel.setThreadStartPoint(h)` — first click on a hole
 3. `sewingModel.addEdge(to)` — subsequent clicks; load alternates automatically
 4. `sewingModel.addAnchorLoop()` — places an anchor loop at the current endpoint; `nextLoad` flips twice (net unchanged)
+4b. `sewingModel.addHiddenLinkStitch(to, kind)` — places a hidden link stitch; only valid when `nextLoad="positive"`. `kind="negative"` (type 1): flips nextLoad positive→negative. `kind="positive"` (type 2): nextLoad stays positive. Position advances to `to`.
 5. `sewingModel.endThread()` → `endType: "loose"` | `sewingModel.endThreadWithKnot()` → `endType: "knot"` (knot requires current hole/load to coincide with a prior thread pass)
-6. `sewingModel.uncompleteThread(i)` — re-opens a completed thread for editing
+6. `sewingModel.uncompleteThread(i)` — re-opens a completed thread for editing; correctly reconstructs `nextLoad` accounting for any final hidden link stitch
 
 Undo/redo operates on `SewingModel` only; grid changes are not undoable.
 

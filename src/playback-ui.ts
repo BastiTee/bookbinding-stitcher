@@ -11,6 +11,7 @@ interface PlaybackStep {
   edgeCount: number;
   alMax: number;           // include anchor loops with afterEdge <= alMax (-1 = none)
   csMax: number;           // include chain stitches with afterEdge <= csMax (-1 = none)
+  hlsMax: number;          // include hidden link stitches with afterEdge <= hlsMax (-1 = none)
   showActiveEnd: boolean;
 }
 
@@ -19,7 +20,7 @@ export function buildPlaybackPanel(
   sewingModel: SewingModel,
   gridModel: GridModel,
   svg: SVGSVGElement,
-): { activate: () => void; deactivate: () => void } {
+): { activate: () => void; deactivate: () => void; setSpineOnly: (enabled: boolean) => void } {
   const panel = el("div", "playback-panel hidden");
   sidebar.appendChild(panel);
 
@@ -129,7 +130,14 @@ export function buildPlaybackPanel(
     }
   }
 
-  return { activate, deactivate };
+  function setSpineOnly(enabled: boolean) {
+    spineOnly = enabled;
+    viewBtn.textContent = enabled ? "View: Spine Only" : "View: Front & Back";
+    viewBtn.classList.toggle("active", enabled);
+    if (!panel.classList.contains("hidden")) renderStep();
+  }
+
+  return { activate, deactivate, setSpineOnly };
 }
 
 function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
@@ -148,17 +156,24 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
       loopsByAfterEdge.set(key, (loopsByAfterEdge.get(key) ?? 0) + 1);
     }
 
+    const hlsByAfterEdge = new Map<number, number>();
+    for (const hls of thread.hiddenLinkStitches ?? []) {
+      hlsByAfterEdge.set(hls.afterEdge, (hlsByAfterEdge.get(hls.afterEdge) ?? 0) + 1);
+    }
+
     steps.push({
       label: `Thread ${n} · Start`,
       activeThreadIdx: i,
       edgeCount: 0,
       alMax: -1,
       csMax: -1,
+      hlsMax: -1,
       showActiveEnd: false,
     });
 
     let alMaxSoFar = -1;
     let csMaxSoFar = -1;
+    let hlsMaxSoFar = -1;
     let stitchCount = 0;
 
     for (let j = 0; j < thread.edges.length; j++) {
@@ -170,6 +185,21 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
           edgeCount: j,
           alMax: j,
           csMax: csMaxSoFar,
+          hlsMax: hlsMaxSoFar,
+          showActiveEnd: false,
+        });
+      }
+
+      if (hlsByAfterEdge.has(j)) {
+        hlsMaxSoFar = j;
+        stitchCount++;
+        steps.push({
+          label: `Thread ${n} · Hidden Link`,
+          activeThreadIdx: i,
+          edgeCount: j,
+          alMax: alMaxSoFar,
+          csMax: csMaxSoFar,
+          hlsMax: j,
           showActiveEnd: false,
         });
       }
@@ -183,6 +213,7 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
           edgeCount: j + 1,
           alMax: alMaxSoFar,
           csMax: j,
+          hlsMax: hlsMaxSoFar,
           showActiveEnd: false,
         });
       } else {
@@ -193,6 +224,7 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
           edgeCount: j + 1,
           alMax: alMaxSoFar,
           csMax: csMaxSoFar,
+          hlsMax: hlsMaxSoFar,
           showActiveEnd: false,
         });
       }
@@ -206,6 +238,21 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
         edgeCount: thread.edges.length,
         alMax: thread.edges.length,
         csMax: csMaxSoFar,
+        hlsMax: hlsMaxSoFar,
+        showActiveEnd: false,
+      });
+    }
+
+    if (hlsByAfterEdge.has(thread.edges.length)) {
+      hlsMaxSoFar = thread.edges.length;
+      stitchCount++;
+      steps.push({
+        label: `Thread ${n} · Hidden Link`,
+        activeThreadIdx: i,
+        edgeCount: thread.edges.length,
+        alMax: alMaxSoFar,
+        csMax: csMaxSoFar,
+        hlsMax: thread.edges.length,
         showActiveEnd: false,
       });
     }
@@ -216,6 +263,7 @@ function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
       edgeCount: thread.edges.length,
       alMax: thread.edges.length,
       csMax: thread.edges.length,
+      hlsMax: thread.edges.length,
       showActiveEnd: true,
     });
   }
@@ -240,6 +288,7 @@ function sliceState(state: Readonly<SewingState>, step: PlaybackStep): SewingSta
         endType: step.showActiveEnd ? thread.endType : undefined,
         anchorLoops: (thread.anchorLoops ?? []).filter(loop => (loop.afterEdge ?? 0) <= step.alMax),
         chainStitches: (thread.chainStitches ?? []).filter(cs => cs.afterEdge <= step.csMax),
+        hiddenLinkStitches: (thread.hiddenLinkStitches ?? []).filter(hls => hls.afterEdge <= step.hlsMax),
       });
     } else {
       threads.push({
@@ -250,6 +299,7 @@ function sliceState(state: Readonly<SewingState>, step: PlaybackStep): SewingSta
         endType: thread.endType,
         anchorLoops: thread.anchorLoops ?? [],
         chainStitches: thread.chainStitches ?? [],
+        hiddenLinkStitches: thread.hiddenLinkStitches ?? [],
       });
     }
   }
