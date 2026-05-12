@@ -1,6 +1,6 @@
 import { el, createModal } from "./dom-utils";
 
-const rawModules = import.meta.glob("/examples/*.json", {
+const rawModules = import.meta.glob("/examples/**/*.json", {
   eager: true,
 }) as Record<string, { default: Record<string, unknown> }>;
 
@@ -11,66 +11,102 @@ interface GalleryEntry {
   json: string;
 }
 
+function folderToSectionTitle(folder: string): string {
+  return folder
+    .replace(/^\d+-/, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function filenameToTitle(path: string): string {
   const base = path.split("/").pop()!.replace(".json", "");
   return base.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-const ENTRIES: GalleryEntry[] = Object.entries(rawModules)
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([path, mod]) => {
+const SECTIONS: { title: string; entries: GalleryEntry[] }[] = (() => {
+  const sectionMap = new Map<string, GalleryEntry[]>();
+
+  for (const [path, mod] of Object.entries(rawModules).sort(([a], [b]) =>
+    a.localeCompare(b)
+  )) {
+    const parts = path.split("/");
+    const folder = parts[parts.length - 2];
+    const sectionTitle = folderToSectionTitle(folder);
+
     const data = mod.default;
     const meta = (data.metadata as Record<string, string | null> | undefined) ?? {};
-    return {
+    const entry: GalleryEntry = {
       title: meta.title || filenameToTitle(path),
       author: meta.author || "",
       description: meta.description || "",
       json: JSON.stringify(data, null, 2),
     };
-  });
+
+    if (!sectionMap.has(sectionTitle)) sectionMap.set(sectionTitle, []);
+    sectionMap.get(sectionTitle)!.push(entry);
+  }
+
+  return Array.from(sectionMap.entries()).map(([title, entries]) => ({
+    title,
+    entries,
+  }));
+})();
 
 export function openGallery(onSelect: (json: string) => void): void {
   if (document.querySelector(".gallery-backdrop")) return;
 
   const { modal, close } = createModal("Pattern Gallery", "Close gallery");
-  const grid = el("div", "gallery-grid");
+  const content = el("div", "gallery-content");
 
-  for (const entry of ENTRIES) {
-    const card = el("div", "gallery-card");
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `Load pattern: ${entry.title}`);
+  for (const section of SECTIONS) {
+    const sectionEl = el("div", "gallery-section");
 
-    const cardTitle = el("div", "gallery-card-title");
-    cardTitle.textContent = entry.title;
-    card.appendChild(cardTitle);
+    const sectionTitle = el("div", "gallery-section-title");
+    sectionTitle.textContent = section.title;
+    sectionEl.appendChild(sectionTitle);
 
-    if (entry.author) {
-      const cardAuthor = el("div", "gallery-card-author");
-      cardAuthor.textContent = `by ${entry.author}`;
-      card.appendChild(cardAuthor);
-    }
+    const grid = el("div", "gallery-grid");
 
-    const cardDesc = el("div", "gallery-card-desc");
-    cardDesc.textContent = entry.description || "No description.";
-    if (!entry.description) cardDesc.classList.add("gallery-card-desc--empty");
-    card.appendChild(cardDesc);
+    for (const entry of section.entries) {
+      const card = el("div", "gallery-card");
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `Load pattern: ${entry.title}`);
 
-    function selectEntry() {
-      onSelect(entry.json);
-      close();
-    }
+      const cardTitle = el("div", "gallery-card-title");
+      cardTitle.textContent = entry.title;
+      card.appendChild(cardTitle);
 
-    card.addEventListener("click", selectEntry);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        selectEntry();
+      if (entry.author) {
+        const cardAuthor = el("div", "gallery-card-author");
+        cardAuthor.textContent = `by ${entry.author}`;
+        card.appendChild(cardAuthor);
       }
-    });
 
-    grid.appendChild(card);
+      const cardDesc = el("div", "gallery-card-desc");
+      cardDesc.textContent = entry.description || "No description.";
+      if (!entry.description) cardDesc.classList.add("gallery-card-desc--empty");
+      card.appendChild(cardDesc);
+
+      function selectEntry() {
+        onSelect(entry.json);
+        close();
+      }
+
+      card.addEventListener("click", selectEntry);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          selectEntry();
+        }
+      });
+
+      grid.appendChild(card);
+    }
+
+    sectionEl.appendChild(grid);
+    content.appendChild(sectionEl);
   }
 
-  modal.appendChild(grid);
+  modal.appendChild(content);
 }

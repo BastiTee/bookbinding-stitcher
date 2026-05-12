@@ -622,12 +622,35 @@ button.active {
   color: #333;
 }
 
+.gallery-content {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.gallery-section {
+  padding: 16px 20px 4px;
+}
+
+.gallery-section + .gallery-section {
+  padding-top: 8px;
+}
+
+.gallery-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 16px 20px;
-  overflow-y: auto;
 }
 
 .gallery-card {

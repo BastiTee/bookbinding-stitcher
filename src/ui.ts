@@ -525,8 +525,11 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     // Build export JSON — combined grid + threads
     const sewingState = sewingModel.getState();
     const meta = getMetadata();
-    const exportObj: Record<string, unknown> = { ...state };
+    const exportObj: Record<string, unknown> = {};
     if (Object.keys(meta).length > 0) exportObj.metadata = meta;
+    exportObj.spine = state.spine;
+    exportObj.holes = state.holes;
+    if (state.signatures) exportObj.signatures = state.signatures;
     exportObj.threads = sewingState.threads.map(t => {
       const lastEdge = t.edges.length > 0 ? t.edges[t.edges.length - 1] : null;
       const lastLoad = lastEdge ? lastEdge.load : t.startSide;

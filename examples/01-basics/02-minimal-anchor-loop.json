@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "title": "Minimal anchor loop stitch",
+    "author": "Basti Tee",
+    "description": "An example of a minimal anchor loop stitch. You start from the inside at the leftmost station, then you stitch to the middle hole on the outside. Here you go through the spine, form a loop and go back through the hole to the outside. Now you have an anchor loop on the inside. You now go on the outside to the rightmost hole and inside the spine. You can now stitch through the anchor loop back to the hole on the right. In this example, you simply end the thread on the outside, but of course these anchor loops give you a lot of flexibility for complex stitching patterns on either side."
+  },
+  "spine": {
+    "width": 60,
+    "height": 20
+  },
+  "holes": [
+    {
+      "x": 10,
+      "y": 10
+    },
+    {
+      "x": 30,
+      "y": 10
+    },
+    {
+      "x": 50,
+      "y": 10
+    }
+  ],
+  "signatures": {
+    "orientation": "horizontal",
+    "positions": [
+      10
+    ]
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "positive",
+        "hole": {
+          "x": 50,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 10,
+            "y": 10
+          },
+          "to": {
+            "x": 30,
+            "y": 10
+          },
+          "index": 1
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 30,
+            "y": 10
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "index": 2
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 50,
+            "y": 10
+          },
+          "to": {
+            "x": 50,
+            "y": 10
+          },
+          "index": 3,
+          "chainedVia": {
+            "x": 30,
+            "y": 10
+          }
+        }
+      ],
+      "anchorLoops": [
+        {
+          "hole": {
+            "x": 30,
+            "y": 10
+          },
+          "side": "negative",
+          "afterEdge": 1
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "metadata": {
     "title": "Minimal chain stitch",
     "author": "Basti Tee",
-    "description": "An example of a minimal chain stitch. You start from the inside at the leftmost station, then into the middle hole and continuing on the inside to the right hole. From there you chain-stitch around the thread at the middle hole back into the right hole and then finish the thread on the inside."
+    "description": "An example of a minimal chain stitch. You start from the inside at the leftmost station, then you go into the middle hole back to the inside and continuing on the inside to the right hole. From there you go out again and chain-stitch around the thread at the middle hole and then back into the right hole. You finish the thread on the inside. This leaves a chain between the middle and the right hole."
   },
   "spine": {
     "width": 60,
