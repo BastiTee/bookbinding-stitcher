@@ -536,6 +536,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       highlight.selectedHole = null;
     }
 
+    // Enable/disable sewing button based on whether there are holes
+    const hasHoles = state.holes.length > 0;
+    btnSewing.disabled = !hasHoles;
+    if (!hasHoles && currentMode === "sewing") {
+      switchToDesign();
+    }
+
     // Enable/disable playback button based on whether there are completed threads with edges
     const hasPattern = sewingModel.getState().threads.some(t => t.edges.length > 0);
     btnPlayback.disabled = !hasPattern;
