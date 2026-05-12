@@ -11,16 +11,16 @@ interface GalleryEntry {
   json: string;
 }
 
+function toTitleCase(s: string): string {
+  return s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function folderToSectionTitle(folder: string): string {
-  return folder
-    .replace(/^\d+-/, "")
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return toTitleCase(folder.replace(/^\d+-/, ""));
 }
 
 function filenameToTitle(path: string): string {
-  const base = path.split("/").pop()!.replace(".json", "");
-  return base.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return toTitleCase(path.split("/").pop()!.replace(".json", ""));
 }
 
 const SECTIONS: { title: string; entries: GalleryEntry[] }[] = (() => {
@@ -42,8 +42,9 @@ const SECTIONS: { title: string; entries: GalleryEntry[] }[] = (() => {
       json: JSON.stringify(data, null, 2),
     };
 
-    if (!sectionMap.has(sectionTitle)) sectionMap.set(sectionTitle, []);
-    sectionMap.get(sectionTitle)!.push(entry);
+    let section = sectionMap.get(sectionTitle);
+    if (!section) { section = []; sectionMap.set(sectionTitle, section); }
+    section.push(entry);
   }
 
   return Array.from(sectionMap.entries()).map(([title, entries]) => ({
