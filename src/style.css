@@ -554,11 +554,24 @@ button.gallery-cta:hover {
 }
 
 .playback-step-label {
-  font-size: 13px;
-  color: #555;
   margin-bottom: 10px;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.playback-step-main {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  min-height: 1.2em;
+}
+
+.playback-step-count {
+  font-size: 11px;
+  color: #888;
 }
 
 .playback-btn-row {

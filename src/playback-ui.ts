@@ -1,9 +1,18 @@
 import type { GridModel } from "./model";
 import type { SewingModel } from "./sewing-model";
-import type { SewingState, Thread, Edge } from "./sewing-model";
+import type { SewingState, Thread } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { el } from "./dom-utils";
+
+interface PlaybackStep {
+  label: string;
+  activeThreadIdx: number; // 0-based index into completedThreads
+  edgeCount: number;
+  alMax: number;           // include anchor loops with afterEdge <= alMax (-1 = none)
+  csMax: number;           // include chain stitches with afterEdge <= csMax (-1 = none)
+  showActiveEnd: boolean;
+}
 
 export function buildPlaybackPanel(
   sidebar: HTMLElement,
@@ -14,14 +23,17 @@ export function buildPlaybackPanel(
   const panel = el("div", "playback-panel hidden");
   sidebar.appendChild(panel);
 
-
   const stepLabel = el("div", "playback-step-label");
+  const stepLabelMain = el("span", "playback-step-main");
+  const stepLabelCount = el("span", "playback-step-count");
+  stepLabel.appendChild(stepLabelMain);
+  stepLabel.appendChild(stepLabelCount);
   panel.appendChild(stepLabel);
 
   const btnRow = el("div", "playback-btn-row");
   const startBtn = btn("⏮ Start", () => setStep(0));
-  const prevBtn = btn("← Back", () => setStep(currentStep - 1));
-  const nextBtn = btn("Next →", () => setStep(currentStep + 1));
+  const prevBtn = btn("← Back", () => setStep(currentStepIdx - 1));
+  const nextBtn = btn("Next →", () => setStep(currentStepIdx + 1));
   btnRow.appendChild(startBtn);
   btnRow.appendChild(prevBtn);
   btnRow.appendChild(nextBtn);
@@ -37,32 +49,33 @@ export function buildPlaybackPanel(
   viewBtn.className = "playback-view-btn";
   panel.appendChild(viewBtn);
 
-  let currentStep = 0; // 0 = show nothing; max = all edges
-
-  function totalEdges(): number {
-    return sewingModel.getState().threads.reduce((s, t) => s + t.edges.length, 0);
-  }
+  let currentStepIdx = 0;
+  let steps: PlaybackStep[] = [];
 
   function setStep(n: number) {
-    const max = totalEdges();
-    currentStep = Math.max(0, Math.min(max, n));
+    currentStepIdx = Math.max(0, Math.min(steps.length, n));
     renderStep();
   }
 
   function renderStep() {
     const sewingState = sewingModel.getState();
-    const max = totalEdges();
+    const max = steps.length;
 
-    // Label
-    stepLabel.textContent = `Step ${currentStep} / ${max}`;
+    if (currentStepIdx === 0) {
+      stepLabelMain.textContent = "";
+      stepLabelCount.textContent = `0 / ${max}`;
+    } else {
+      stepLabelMain.textContent = steps[currentStepIdx - 1].label;
+      stepLabelCount.textContent = `${currentStepIdx} / ${max}`;
+    }
 
-    // Button states
-    startBtn.disabled = currentStep <= 0;
-    prevBtn.disabled = currentStep <= 0;
-    nextBtn.disabled = currentStep >= max;
+    startBtn.disabled = currentStepIdx <= 0;
+    prevBtn.disabled = currentStepIdx <= 0;
+    nextBtn.disabled = currentStepIdx >= max;
 
-    // Build a sliced SewingState showing only the first `currentStep` edges
-    const sliced = sliceState(sewingState, currentStep);
+    const sliced = currentStepIdx === 0
+      ? { threads: [], activeThread: null }
+      : sliceState(sewingState, steps[currentStepIdx - 1]);
 
     const gridState = gridModel.getState();
     const sizes = computeScaleSizes(gridState.spine);
@@ -70,8 +83,8 @@ export function buildPlaybackPanel(
   }
 
   function activate() {
-    // Start at the last step (all edges visible) so it is immediately usable
-    currentStep = totalEdges();
+    steps = buildSteps(sewingModel.getState());
+    currentStepIdx = steps.length;
     panel.classList.remove("hidden");
     renderStep();
     document.addEventListener("keydown", onKeyDown);
@@ -90,11 +103,11 @@ export function buildPlaybackPanel(
     switch (e.key) {
       case "ArrowRight":
         e.preventDefault();
-        e.shiftKey ? setStep(totalEdges()) : setStep(currentStep + 1);
+        e.shiftKey ? setStep(steps.length) : setStep(currentStepIdx + 1);
         break;
       case "ArrowLeft":
         e.preventDefault();
-        e.shiftKey ? setStep(0) : setStep(currentStep - 1);
+        e.shiftKey ? setStep(0) : setStep(currentStepIdx - 1);
         break;
       case "ArrowUp":
       case "ArrowDown":
@@ -107,34 +120,130 @@ export function buildPlaybackPanel(
   return { activate, deactivate };
 }
 
-/**
- * Returns a SewingState containing only the first `count` edges across all threads.
- * Threads with zero remaining edges are omitted entirely so markers don't float.
- */
-function sliceState(state: Readonly<SewingState>, count: number): SewingState {
-  const threads: Thread[] = [];
-  let remaining = count;
+function buildSteps(state: Readonly<SewingState>): PlaybackStep[] {
+  const completedThreads = state.threads.filter(t => t.completed && t.edges.length > 0);
+  const steps: PlaybackStep[] = [];
 
-  for (const thread of state.threads) {
-    if (remaining <= 0) break;
-    const take = Math.min(thread.edges.length, remaining);
-    const slicedEdges: Edge[] = thread.edges.slice(0, take);
-    threads.push({
-      startSide: thread.startSide,
-      startHole: thread.startHole,
-      edges: slicedEdges,
-      completed: take === thread.edges.length,
-      endType: take === thread.edges.length ? thread.endType : undefined,
-      anchorLoops: (thread.anchorLoops ?? []).filter(loop => (loop.afterEdge ?? 0) <= take),
-      chainStitches: (thread.chainStitches ?? []).filter(cs => cs.afterEdge <= take),
+  for (let i = 0; i < completedThreads.length; i++) {
+    const thread = completedThreads[i];
+    const n = i + 1;
+
+    const chainByEdge = new Map(thread.chainStitches.map(cs => [cs.afterEdge, cs]));
+
+    const loopsByAfterEdge = new Map<number, number>();
+    for (const loop of thread.anchorLoops ?? []) {
+      const key = loop.afterEdge ?? 0;
+      loopsByAfterEdge.set(key, (loopsByAfterEdge.get(key) ?? 0) + 1);
+    }
+
+    steps.push({
+      label: `Thread ${n} · Start`,
+      activeThreadIdx: i,
+      edgeCount: 0,
+      alMax: -1,
+      csMax: -1,
+      showActiveEnd: false,
     });
-    remaining -= take;
+
+    let alMaxSoFar = -1;
+    let csMaxSoFar = -1;
+    let stitchCount = 0;
+
+    for (let j = 0; j < thread.edges.length; j++) {
+      if (loopsByAfterEdge.has(j)) {
+        alMaxSoFar = j;
+        steps.push({
+          label: `Thread ${n} · Anchor Loop`,
+          activeThreadIdx: i,
+          edgeCount: j,
+          alMax: j,
+          csMax: csMaxSoFar,
+          showActiveEnd: false,
+        });
+      }
+
+      if (chainByEdge.has(j)) {
+        csMaxSoFar = j;
+        stitchCount++;
+        steps.push({
+          label: `Thread ${n} · Chain Stitch`,
+          activeThreadIdx: i,
+          edgeCount: j + 1,
+          alMax: alMaxSoFar,
+          csMax: j,
+          showActiveEnd: false,
+        });
+      } else {
+        stitchCount++;
+        steps.push({
+          label: `Thread ${n} · Stitch ${stitchCount}`,
+          activeThreadIdx: i,
+          edgeCount: j + 1,
+          alMax: alMaxSoFar,
+          csMax: csMaxSoFar,
+          showActiveEnd: false,
+        });
+      }
+    }
+
+    if (loopsByAfterEdge.has(thread.edges.length)) {
+      alMaxSoFar = thread.edges.length;
+      steps.push({
+        label: `Thread ${n} · Anchor Loop`,
+        activeThreadIdx: i,
+        edgeCount: thread.edges.length,
+        alMax: thread.edges.length,
+        csMax: csMaxSoFar,
+        showActiveEnd: false,
+      });
+    }
+
+    steps.push({
+      label: `Thread ${n} · End`,
+      activeThreadIdx: i,
+      edgeCount: thread.edges.length,
+      alMax: thread.edges.length,
+      csMax: thread.edges.length,
+      showActiveEnd: true,
+    });
+  }
+
+  return steps;
+}
+
+function sliceState(state: Readonly<SewingState>, step: PlaybackStep): SewingState {
+  const completedThreads = state.threads.filter(t => t.completed && t.edges.length > 0);
+  const threads: Thread[] = [];
+
+  for (let i = 0; i <= step.activeThreadIdx && i < completedThreads.length; i++) {
+    const thread = completedThreads[i];
+    const isActive = i === step.activeThreadIdx;
+
+    if (isActive) {
+      threads.push({
+        startSide: thread.startSide,
+        startHole: thread.startHole,
+        edges: thread.edges.slice(0, step.edgeCount),
+        completed: step.showActiveEnd,
+        endType: step.showActiveEnd ? thread.endType : undefined,
+        anchorLoops: (thread.anchorLoops ?? []).filter(loop => (loop.afterEdge ?? 0) <= step.alMax),
+        chainStitches: (thread.chainStitches ?? []).filter(cs => cs.afterEdge <= step.csMax),
+      });
+    } else {
+      threads.push({
+        startSide: thread.startSide,
+        startHole: thread.startHole,
+        edges: thread.edges,
+        completed: true,
+        endType: thread.endType,
+        anchorLoops: thread.anchorLoops ?? [],
+        chainStitches: thread.chainStitches ?? [],
+      });
+    }
   }
 
   return { threads, activeThread: null };
 }
-
-// --- Helpers ---
 
 function btn(text: string, onClick: () => void): HTMLButtonElement {
   const b = document.createElement("button");
