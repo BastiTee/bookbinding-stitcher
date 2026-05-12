@@ -4,6 +4,7 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 export const PADDING = 20; // mm padding around spine in viewBox
 const GRID_STEP = 10; // mm between major grid lines
 const SIG_OVERHANG = 6; // mm signature lines extend beyond spine edges
+const BTN_OFFSET = 3; // mm sig-button dots are offset from spine edge
 
 export interface HighlightState {
   selectedHole: { x: number; y: number } | null;
@@ -183,8 +184,8 @@ function renderSignatureButtons(svg: SVGSVGElement, state: Readonly<GridState>) 
   const { spine, signatures } = state;
   const activePositions = new Set(signatures?.positions ?? []);
   const orientation = signatures?.orientation;
-  const BTN_R = 0.2;
-  const BTN_OFFSET = 3;
+  const BTN_R = 0.3;
+
 
   // Right-side buttons: indicate horizontal signature positions (Y values)
   for (let y = 0; y <= spine.height; y++) {
@@ -218,5 +219,24 @@ function renderSignatureButtons(svg: SVGSVGElement, state: Readonly<GridState>) 
       c.classList.add("sig-button--locked");
     }
     svg.appendChild(c);
+  }
+
+  if (activePositions.size > 0) {
+    const t = document.createElementNS(SVG_NS, "text");
+    t.setAttribute("text-anchor", "middle");
+    t.classList.add("ruler-label", "sig-direction-label");
+    t.textContent = "Direction of signatures";
+    if (orientation === "horizontal") {
+      const cx = spine.width + BTN_OFFSET + 7;
+      const cy = spine.height / 2;
+      t.setAttribute("x", String(cx));
+      t.setAttribute("y", String(cy));
+      t.setAttribute("dominant-baseline", "middle");
+      t.setAttribute("transform", `rotate(-90, ${cx}, ${cy})`);
+    } else if (orientation === "vertical") {
+      t.setAttribute("x", String(spine.width / 2));
+      t.setAttribute("y", String(spine.height + BTN_OFFSET + 7));
+    }
+    svg.appendChild(t);
   }
 }

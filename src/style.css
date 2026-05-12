@@ -819,20 +819,24 @@ button.active {
   pointer-events: none;
 }
 
-/* Signature margin buttons */
+.sig-direction-label {
+  font-size: 2px;
+  font-style: italic;
+}
+
 .sig-button {
-  fill: #ccc;
+  fill: #666;
   stroke: none;
   cursor: pointer;
 }
 .sig-button:hover {
-  fill: #888;
+  fill: #444;
 }
 .sig-button--active {
-  fill: #888;
+  fill: #444;
 }
 .sig-button--active:hover {
-  fill: #555;
+  fill: #2b2b2b;
 }
 .sig-button--locked {
   opacity: 0.25;
