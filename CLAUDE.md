@@ -50,7 +50,7 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 - `src/ui.ts` — wires everything; owns the `refresh()` cycle; manages ghost layer
 - `src/sewing-ui.ts` — `buildSewingPanel(...)` — returns `{ panel, activate, deactivate }`
 - `src/playback-ui.ts` — `buildPlaybackPanel(...)` — returns `{ activate, deactivate }`
-- `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/*.json', { eager: true })` at module level (computed once, works identically in dev and dist). Files in `examples-experimental/` are **not** bundled into the gallery.
+- `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/**/*.json', { eager: true })` at module level (computed once, works identically in dev and dist). Examples are organized into sections by subdirectory name (leading `\d+-` stripped and title-cased). Files in `examples-experimental/` are **not** bundled into the gallery.
 - `src/help-ui.ts` — `openHelp(currentMode)` — keyboard/mouse controls modal; highlights the active mode section
 
 **Critical rendering constraint:** `renderGrid` wipes `svg.innerHTML`, so the ghost layer and sewing layer must be re-appended after every grid render. The `refresh()` function in `ui.ts` always calls `ensureGhostLayer()` and `renderSewing()` after `renderGrid()`.
@@ -139,7 +139,7 @@ if (document.querySelector(".gallery-backdrop")) return;
 **Static bundled data:** Use `import.meta.glob('/path/*.json', { eager: true })` at **module level** (not inside a function) so the result is computed once. This works identically in `npm run dev` and the production dist — no manual variable changes needed.
 ```ts
 // ✓ correct — computed once at module load
-const rawModules = import.meta.glob('/examples/*.json', { eager: true });
+const rawModules = import.meta.glob('/examples/**/*.json', { eager: true });
 const ENTRIES = Object.entries(rawModules).sort(...).map(...);
 
 // ✗ wrong — recomputes on every call even though source data never changes
