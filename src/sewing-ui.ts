@@ -3,7 +3,7 @@ import { SewingModel, canEndWithKnot, getCurrentHole, getEligibleChainHoles, get
 import { renderSewing, type PreviewEdge } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { screenToSvg, resolveTarget } from "./interaction";
-import { el, sectionTitle } from "./dom-utils";
+import { el } from "./dom-utils";
 
 export function buildSewingPanel(
   sidebar: HTMLElement,
@@ -15,7 +15,6 @@ export function buildSewingPanel(
   const panel = el("div", "sewing-panel hidden");
 
   // --- Thread section ---
-  panel.appendChild(sectionTitle("Thread"));
 
   // Start side radio group
   const radioGroup = el("div", "radio-group");

@@ -729,35 +729,11 @@ button.active {
   font-style: italic;
 }
 
-/* Help button (floating, top-right of canvas area) */
-.help-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid #bbb;
-  background: #fff;
-  color: #555;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  z-index: 10;
-  transition: background 0.12s, border-color 0.12s;
-}
-
-.help-btn:hover {
-  background: #4a90d9;
-  border-color: #4a90d9;
-  color: #fff;
+/* Help panel (bottom of right sidebar) */
+.help-panel {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
 }
 
 /* Help modal */

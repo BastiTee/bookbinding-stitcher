@@ -8,7 +8,7 @@ import {
 import { SewingModel } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { buildSewingPanel } from "./sewing-ui";
-import { el, sectionTitle } from "./dom-utils";
+import { el } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
 import { openGallery } from "./gallery-ui";
 import { openHelp } from "./help-ui";
@@ -92,7 +92,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   rightPanel.appendChild(designPanel);
 
   // --- Spine section ---
-  designPanel.appendChild(sectionTitle("Spine"));
   const spineError = el("div", "error-msg");
   const spineWidthInput = numberInput("Width (mm)");
   const spineHeightInput = numberInput("Height (mm)");
@@ -125,9 +124,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // Persistent Export / Import section (always visible)
   // ============================================================
   const persistentPanel = el("div", "persistent-panel");
-  rightPanel.appendChild(persistentPanel);
-
-  persistentPanel.appendChild(sectionTitle("Load / Save"));
+  leftPanel.appendChild(persistentPanel);
 
   let exportJson = "";
 
@@ -266,9 +263,9 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   });
   persistentPanel.appendChild(fileInput);
 
-  const importBtn = button("Import from file", () => fileInput.click());
+  const importBtn = button("Open from file", () => fileInput.click());
 
-  const galleryBtn = button("Import from gallery", () => {
+  const galleryBtn = button("Open gallery", () => {
     openGallery((json) => {
       currentFileHandle = null;
       currentFileName = null;
@@ -357,13 +354,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   btnSewing.addEventListener("click", switchToSewing);
   btnPlayback.addEventListener("click", switchToPlayback);
 
-  // Help button (top-right of canvas)
+  // Help panel (bottom of right sidebar)
+  const helpPanel = el("div", "help-panel");
   const helpBtn = document.createElement("button");
-  helpBtn.className = "help-btn";
-  helpBtn.textContent = "?";
-  helpBtn.setAttribute("aria-label", "Keyboard & mouse controls");
+  helpBtn.textContent = "Keyboard & Mouse controls";
   helpBtn.addEventListener("click", () => openHelp(currentMode));
-  svgPanel.appendChild(helpBtn);
+  helpPanel.appendChild(helpBtn);
+  rightPanel.appendChild(helpPanel);
 
   // ============================================================
   // Ghost layer management

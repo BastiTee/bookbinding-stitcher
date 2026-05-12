@@ -52,7 +52,7 @@ const SECTIONS: Section[] = [
 export function openHelp(currentMode: Mode): void {
   if (document.querySelector(".gallery-backdrop")) return;
 
-  const { modal } = createModal("Keyboard & Mouse Controls", "Close help", "help-modal");
+  const { modal } = createModal("Keyboard & Mouse controls", "Close help", "help-modal");
   const content = el("div", "help-content");
 
   for (const section of SECTIONS) {

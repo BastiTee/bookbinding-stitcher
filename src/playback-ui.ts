@@ -3,7 +3,7 @@ import type { SewingModel } from "./sewing-model";
 import type { SewingState, Thread, Edge } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { computeScaleSizes } from "./render";
-import { el, sectionTitle } from "./dom-utils";
+import { el } from "./dom-utils";
 
 export function buildPlaybackPanel(
   sidebar: HTMLElement,
@@ -14,7 +14,6 @@ export function buildPlaybackPanel(
   const panel = el("div", "playback-panel hidden");
   sidebar.appendChild(panel);
 
-  panel.appendChild(sectionTitle("Playback"));
 
   const stepLabel = el("div", "playback-step-label");
   panel.appendChild(stepLabel);
