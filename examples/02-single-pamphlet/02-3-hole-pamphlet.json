@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "3-Hole Pamphlet Stitch",
+    "author": "Basti Tee",
+    "description": "The easiest single-signature pamphlet stitch, usually used to quickly sew a few sheets of paper together.",
+    "tutorial": "https://youtu.be/v3XxmJn-ckc?t=181"
+  },
+  "spine": {
+    "width": 140,
+    "height": 20
+  },
+  "holes": [
+    {
+      "x": 20,
+      "y": 10
+    },
+    {
+      "x": 70,
+      "y": 10
+    },
+    {
+      "x": 120,
+      "y": 10
+    }
+  ],
+  "signatures": {
+    "orientation": "horizontal",
+    "positions": [
+      10
+    ]
+  },
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 70,
+          "y": 10
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "negative",
+        "hole": {
+          "x": 70,
+          "y": 10
+        }
+      },
+      "edges": [
+        {
+          "load": "positive",
+          "from": {
+            "x": 70,
+            "y": 10
+          },
+          "to": {
+            "x": 120,
+            "y": 10
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 120,
+            "y": 10
+          },
+          "to": {
+            "x": 20,
+            "y": 10
+          },
+          "index": 2
+        },
+        {
+          "load": "positive",
+          "from": {
+            "x": 20,
+            "y": 10
+          },
+          "to": {
+            "x": 70,
+            "y": 10
+          },
+          "index": 3
+        }
+      ],
+      "anchorLoops": []
+    }
+  ]
+}
