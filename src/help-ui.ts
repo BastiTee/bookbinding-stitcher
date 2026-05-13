@@ -15,27 +15,23 @@ interface Section {
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 const CTRL = isMac ? "⌘" : "Ctrl";
-const ALT = isMac ? "Option" : "Alt";
 
+// Keep these shortcut labels in sync with the actual handlers in sewing-ui.ts (onKeyDown, onClick).
 const SECTIONS: Section[] = [
   {
     mode: "design",
     title: "Spine Design",
     shortcuts: [
-      { key: "Click", description: "Add hole" },
-      { key: "Shift+Click", description: "Remove hole" },
-      { key: "Click ▶", description: "Toggle signature at column" },
+      { key: "Click", description: "Add / remove hole from spine" },
+      { key: "Click •", description: "Toggle signature location" },
     ],
   },
   {
     mode: "sewing",
     title: "Sewing",
     shortcuts: [
-      { key: "Click", description: "Set start point / draw edge" },
-      { key: "Shift+Click", description: "Place chain stitch at highlighted hole" },
-      { key: `${ALT}+Click`, description: "Add anchor loop at current endpoint" },
-      { key: `${CTRL}+Click`, description: "Place negative hidden link (ends inside; skips outside pass)" },
-      { key: `Shift+${CTRL}+Click`, description: "Place positive hidden link (continues outside pass at new hole)" },
+      { key: "Hover hole", description: "See available actions at that hole" },
+      { key: "Click hole", description: "Draw edge to that hole (fast path)" },
       { key: `${CTRL}+Z`, description: "Undo" },
       { key: `${CTRL}+Shift+Z`, description: "Redo" },
     ],
@@ -43,13 +39,7 @@ const SECTIONS: Section[] = [
   {
     mode: "playback",
     title: "Playback",
-    shortcuts: [
-      { key: "→", description: "Next step" },
-      { key: "←", description: "Previous step" },
-      { key: "Shift+→", description: "Jump to end" },
-      { key: "Shift+←", description: "Jump to start" },
-      { key: "↑ / ↓", description: "Toggle view: Front & Back / Spine Only" },
-    ],
+    shortcuts: [],
   },
 ];
 

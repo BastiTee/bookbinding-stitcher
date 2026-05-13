@@ -1,9 +1,7 @@
-export type Load = "positive" | "negative";
+import { type Hole, holeEq } from "./model";
 
-export interface Hole {
-  x: number;
-  y: number;
-}
+export type Load = "positive" | "negative";
+export type { Hole };
 
 export interface Edge {
   load: Load;
@@ -86,7 +84,6 @@ export function canEndWithKnot(
   if (!active.startHole || active.edges.length === 0) return false;
   const currentHole = getCurrentHole(active)!;
   const currentLoad = active.nextLoad;
-  function holeEq(a: Hole, b: Hole) { return a.x === b.x && a.y === b.y; }
 
   // Own start hole
   if (holeEq(currentHole, active.startHole) && currentLoad === active.startSide) return true;
@@ -159,6 +156,21 @@ export function getEligibleChainHoles(
   }
 
   return result;
+}
+
+export function canAddAnchorLoop(active: ActiveThread, threads: readonly Thread[]): boolean {
+  if (!active.startHole) return false;
+  const currentHole = getCurrentHole(active)!;
+  const side = active.nextLoad;
+  for (const al of active.anchorLoops) {
+    if (holeEq(al.hole, currentHole) && al.side === side) return false;
+  }
+  for (const thread of threads) {
+    for (const al of thread.anchorLoops) {
+      if (holeEq(al.hole, currentHole) && al.side === side) return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -401,6 +413,7 @@ export class SewingModel {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
     if (!active.startHole) throw new Error("Thread start point not set");
+    if (!canAddAnchorLoop(active, this.state.threads)) throw new Error("Anchor loop already exists at this hole and side");
 
     const currentHole: Hole = { ...getCurrentHole(active)! };
 
@@ -561,6 +574,85 @@ export class SewingModel {
     this.future = [];
     this.state = { threads: [], activeThread: null };
     this.notify();
+  }
+
+  /**
+   * Converts the sewing state to the JSON export format.
+   * Chain stitches are merged into their corresponding edges as `chainedVia`.
+   */
+  exportThreads(): object[] {
+    return this.state.threads.map(t => {
+      const lastEdge = t.edges.length > 0 ? t.edges[t.edges.length - 1] : null;
+      const lastLoad = lastEdge ? lastEdge.load : t.startSide;
+      const sortedCS = [...(t.chainStitches ?? [])].sort((a, b) => a.afterEdge - b.afterEdge);
+      let csIdx = 0;
+      const exportEdges = t.edges.map((edge, i) => {
+        if (csIdx < sortedCS.length && sortedCS[csIdx].afterEdge === i) {
+          const cs = sortedCS[csIdx++];
+          const prevTo = i > 0 ? t.edges[i - 1].to : t.startHole;
+          return { ...edge, from: prevTo, chainedVia: cs.hole };
+        }
+        return edge;
+      });
+      return {
+        threadStart: { side: t.startSide, hole: t.startHole },
+        threadEnd: {
+          type: t.endType ?? "loose",
+          side: lastLoad === "positive" ? "negative" : "positive",
+          hole: lastEdge ? lastEdge.to : t.startHole,
+        },
+        edges: exportEdges,
+        anchorLoops: (t.anchorLoops ?? []).map(al => ({ hole: al.hole, side: al.side, afterEdge: al.afterEdge })),
+        hiddenLinkStitches: (t.hiddenLinkStitches ?? []).map(hls => ({ from: hls.from, to: hls.to, side: hls.side, afterEdge: hls.afterEdge })),
+      };
+    });
+  }
+
+  /**
+   * Loads threads from the JSON import format, normalizing chainedVia edges back to chainStitches[].
+   */
+  importThreads(rawThreads: Array<{
+    threadStart: { side: unknown; hole: unknown };
+    threadEnd?: { type?: unknown };
+    edges: Array<Record<string, unknown>>;
+    anchorLoops?: unknown[];
+    hiddenLinkStitches?: unknown[];
+  }>) {
+    const chainStitches: Array<Record<string, unknown>> = [];
+    const threads: Thread[] = rawThreads.map((t) => {
+      const localCS: Array<Record<string, unknown>> = [];
+      const normalizedEdges = (t.edges ?? []).map((e, i) => {
+        if (e.chainedVia != null) {
+          localCS.push({ hole: e.chainedVia, side: e.load, afterEdge: i });
+          const { chainedVia, ...rest } = e;
+          return { ...rest, from: chainedVia };
+        }
+        return e;
+      });
+      const anchorLoops = (t.anchorLoops ?? []).map((al: any) => ({
+        hole: al.hole,
+        side: al.side,
+        afterEdge: al.afterEdge,
+      }));
+      const hiddenLinkStitches = (t.hiddenLinkStitches ?? []).map((hls: any) => ({
+        from: hls.from,
+        to: hls.to,
+        side: hls.side,
+        afterEdge: hls.afterEdge,
+      }));
+      chainStitches.push(...localCS);
+      return {
+        startSide: t.threadStart?.side,
+        startHole: t.threadStart?.hole,
+        edges: normalizedEdges,
+        completed: true,
+        endType: t.threadEnd?.type === "knot" ? "knot" : "loose",
+        anchorLoops,
+        chainStitches: localCS,
+        hiddenLinkStitches,
+      } as unknown as Thread;
+    });
+    this.loadThreads(threads);
   }
 
   loadThreads(threads: Thread[]) {

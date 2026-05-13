@@ -184,7 +184,7 @@ function renderSignatureButtons(svg: SVGSVGElement, state: Readonly<GridState>) 
   const { spine, signatures } = state;
   const activePositions = new Set(signatures?.positions ?? []);
   const orientation = signatures?.orientation;
-  const BTN_R = 0.3;
+  const BTN_R = 0.45;
 
 
   // Right-side buttons: indicate horizontal signature positions (Y values)

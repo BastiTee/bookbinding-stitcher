@@ -1,140 +1,428 @@
-import type { GridModel } from "./model";
-import { SewingModel, canEndWithKnot, getCurrentHole, getEligibleChainHoles, getEligibleAnchorLoopHoles, getEligibleHiddenLinkHoles, type Load, type Hole } from "./sewing-model";
+import { type GridModel, holeEq } from "./model";
+import {
+  SewingModel,
+  canEndWithKnot,
+  canAddAnchorLoop,
+  getCurrentHole,
+  getEligibleChainHoles,
+  getEligibleAnchorLoopHoles,
+  getEligibleHiddenLinkHoles,
+  type Load,
+  type Hole,
+} from "./sewing-model";
 import { renderSewing, type PreviewEdge } from "./sewing-render";
 import { computeScaleSizes } from "./render";
 import { screenToSvg, resolveTarget } from "./interaction";
-import { el } from "./dom-utils";
+import { el, button } from "./dom-utils";
+import { HoverMenu, type MenuItem } from "./hover-menu";
+
+interface PreviewState {
+  previewEdge?: PreviewEdge | null;
+  previewAnchorLoop?: Hole;
+  previewChainStitch?: { from: Hole; to: Hole; side: Load };
+  previewHiddenLink?: { from: Hole; to: Hole; side: Load };
+}
 
 export function buildSewingPanel(
   sidebar: HTMLElement,
   sewingModel: SewingModel,
   gridModel: GridModel,
   svg: SVGSVGElement,
+  svgPanel: HTMLElement,
   refresh: () => void,
 ): { panel: HTMLElement; activate: () => void; deactivate: () => void } {
   const panel = el("div", "sewing-panel hidden");
 
-  // --- Thread section ---
+  const statusLabel = el("div", "next-edge-label");
+  panel.appendChild(statusLabel);
 
-  // Start side radio group
-  const radioGroup = el("div", "radio-group");
-  const radioPositive = radioOption("start-side", "positive", "Start thread outside", false);
-  const radioNegative = radioOption("start-side", "negative", "Start thread inside", true);
-  radioGroup.appendChild(radioNegative.wrapper);
-  radioGroup.appendChild(radioPositive.wrapper);
-  panel.appendChild(radioGroup);
-
-  function getSelectedSide(): Load {
-    return radioPositive.input.checked ? "positive" : "negative";
-  }
-
-  const threadError = el("div", "error-msg");
-
-  const startBtn = button("Start Thread", () => {
-    threadError.textContent = "";
-    try {
-      sewingModel.beginThread(getSelectedSide());
-      updateThreadButtons();
-    } catch (e) {
-      threadError.textContent = (e as Error).message;
-    }
-  });
-
-  const endBtn = button("End Thread", () => {
-    threadError.textContent = "";
-    try {
-      sewingModel.endThread();
-      updateThreadButtons();
-    } catch (e) {
-      threadError.textContent = (e as Error).message;
-    }
-  });
-
-  const endKnotBtn = button("End Thread with Knot", () => {
-    threadError.textContent = "";
-    try {
-      sewingModel.endThreadWithKnot();
-      updateThreadButtons();
-    } catch (e) {
-      threadError.textContent = (e as Error).message;
-    }
-  });
-
-  const cancelBtn = button("Cancel Thread", () => {
-    threadError.textContent = "";
-    sewingModel.cancelThread();
-    clearPreview();
-    updateThreadButtons();
-  });
-
-  panel.appendChild(startBtn);
-  panel.appendChild(cancelBtn);
-  panel.appendChild(endBtn);
-  panel.appendChild(endKnotBtn);
-  panel.appendChild(threadError);
-
-  // --- Undo / Redo ---
   const undoRedoRow = el("div", "undo-redo-row");
-  const undoBtn = button("↩ Undo", () => {
-    sewingModel.undo();
-    updateThreadButtons();
-  });
-  const redoBtn = button("↪ Redo", () => {
-    sewingModel.redo();
-    updateThreadButtons();
-  });
+  const undoBtn = button("↩ Undo", () => { sewingModel.undo(); updatePanel(); });
+  const redoBtn = button("↪ Redo", () => { sewingModel.redo(); updatePanel(); });
   undoRedoRow.appendChild(undoBtn);
   undoRedoRow.appendChild(redoBtn);
   panel.appendChild(undoRedoRow);
 
-  const nextEdgeLabel = el("div", "next-edge-label");
-  panel.appendChild(nextEdgeLabel);
+  const cancelBtn = button("Cancel Thread", () => {
+    sewingModel.cancelThread();
+    clearPreviewState();
+    refresh();
+    updatePanel();
+  }, "cancel-thread-btn");
+  cancelBtn.disabled = true;
+  panel.appendChild(cancelBtn);
 
   sidebar.appendChild(panel);
 
-  // --- State for preview ---
-  let previewEdge: PreviewEdge | null = null;
+  // --- Hover menu ---
+  const menu = new HoverMenu(svgPanel);
+
+  let unsubscribeSewingModel: (() => void) | null = null;
+
+  // --- Preview state (shared between mousemove and menu item hover) ---
+  let preview: PreviewState = {};
   let chainEligibleHoles: Hole[] = [];
-  let anchorLoopEligiblePoints: Hole[] = [];
+  let anchorLoopEligibleHoles: Hole[] = [];
   let hiddenLinkEligibleHoles: Hole[] = [];
 
-  function clearPreview() {
-    previewEdge = null;
+  function renderWithPreview() {
+    const gridState = gridModel.getState();
+    const sizes = computeScaleSizes(gridState.spine);
+    renderSewing(
+      svg,
+      sewingModel.getState(),
+      sizes,
+      gridState.spine,
+      preview.previewEdge ?? null,
+      {
+        anchorLoopEligiblePoints: anchorLoopEligibleHoles,
+        previewAnchorLoop: preview.previewAnchorLoop,
+        previewChainStitch: preview.previewChainStitch,
+        previewHiddenLink: preview.previewHiddenLink,
+      },
+      chainEligibleHoles,
+      hiddenLinkEligibleHoles,
+    );
+  }
+
+  function clearPreviewState() {
+    if (hoverTimeout !== null) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+    hoveredHole = null;
+    menu.hide();
+    preview = {};
     chainEligibleHoles = [];
-    anchorLoopEligiblePoints = [];
+    anchorLoopEligibleHoles = [];
     hiddenLinkEligibleHoles = [];
   }
 
-  function updateThreadButtons() {
+  function updatePanel() {
     const state = sewingModel.getState();
     const active = state.activeThread;
-    const hasActive = active !== null;
-    const hasEdges = hasActive && active.edges.length > 0;
-    const hasStartPoint = hasActive && active.startHole !== null;
-
-    startBtn.classList.toggle("hidden", hasActive);
-    radioPositive.input.disabled = hasActive;
-    radioNegative.input.disabled = hasActive;
-    cancelBtn.disabled = !hasActive;
-    endBtn.disabled = !hasEdges;
-    endKnotBtn.disabled = !(hasEdges && active !== null && canEndWithKnot(active, state.threads));
 
     undoBtn.disabled = !sewingModel.canUndo();
     redoBtn.disabled = !sewingModel.canRedo();
+    cancelBtn.disabled = !active;
 
-    if (active) {
-      if (!hasStartPoint) {
-        nextEdgeLabel.textContent = `Click a hole to set thread start`;
-      } else {
-        const load = active.nextLoad === "positive" ? "spine (positive)" : "inside (negative)";
-        nextEdgeLabel.textContent = `Next edge: ${load}`;
-      }
+    if (!active) {
+      statusLabel.textContent = "";
+    } else if (!active.startHole) {
+      statusLabel.textContent = "Hover a hole to set start point";
     } else {
-      nextEdgeLabel.textContent = "";
+      const loadName = active.nextLoad === "positive" ? "outside (positive)" : "inside (negative)";
+      statusLabel.textContent = `Next: ${loadName}`;
     }
   }
 
-  // --- Keyboard shortcuts ---
+  // --- Hover state ---
+  let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+  let hoveredHole: Hole | null = null;
+
+  function onMouseMove(e: MouseEvent) {
+    const coord = screenToSvg(svg, e);
+    const gridState = gridModel.getState();
+    const target = resolveTarget(svg, coord, gridState);
+
+    if (target.kind !== "hole" || target.holeX === undefined || target.holeY === undefined) {
+      if (!menu.isHovering()) onHoleLeave();
+      return;
+    }
+
+    const hole: Hole = { x: target.holeX, y: target.holeY };
+    if (hoveredHole && holeEq(hole, hoveredHole)) return;
+
+    // Entering a new hole — cancel old timer, dismiss menu if not hovering it
+    if (hoverTimeout !== null) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+    if (!menu.isHovering()) menu.hide();
+    hoveredHole = hole;
+
+    // Immediate preview feedback
+    const state = sewingModel.getState();
+    const active = state.activeThread;
+    preview = {};
+    if (active?.startHole) {
+      chainEligibleHoles = getEligibleChainHoles(active, state.threads);
+      anchorLoopEligibleHoles = getEligibleAnchorLoopHoles(active, state.threads);
+      hiddenLinkEligibleHoles = active.nextLoad === "positive"
+        ? getEligibleHiddenLinkHoles(active, gridState.holes)
+        : [];
+      const from = getCurrentHole(active)!;
+      if (!holeEq(hole, from)) {
+        preview.previewEdge = { from, to: hole, load: active.nextLoad };
+      }
+    } else {
+      chainEligibleHoles = [];
+      anchorLoopEligibleHoles = [];
+      hiddenLinkEligibleHoles = [];
+    }
+    renderWithPreview();
+
+    // Schedule menu after delay
+    hoverTimeout = setTimeout(() => {
+      hoverTimeout = null;
+      const pos = HoverMenu.holeToContainerCoords(svg, svgPanel, hole);
+      const items = buildMenuItems(hole);
+      if (items.length > 0) menu.show(pos.x, pos.y, items);
+    }, 100);
+  }
+
+  function onHoleLeave() {
+    if (hoverTimeout !== null) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+    hoveredHole = null;
+    preview = {};
+    chainEligibleHoles = [];
+    anchorLoopEligibleHoles = [];
+    hiddenLinkEligibleHoles = [];
+    menu.scheduleDismiss(200);
+    renderWithPreview();
+  }
+
+  function onMouseLeave() {
+    onHoleLeave();
+  }
+
+  function onClick(e: MouseEvent) {
+    const coord = screenToSvg(svg, e);
+    const gridState = gridModel.getState();
+    const target = resolveTarget(svg, coord, gridState);
+    if (target.kind !== "hole" || target.holeX === undefined || target.holeY === undefined) return;
+    const hole: Hole = { x: target.holeX, y: target.holeY };
+
+    const state = sewingModel.getState();
+    const active = state.activeThread;
+    if (!active) return;
+
+    if (!active.startHole) {
+      sewingModel.setThreadStartPoint(hole);
+      menu.hide();
+      refresh();
+      updatePanel();
+      return;
+    }
+
+    const from = getCurrentHole(active)!;
+    if (holeEq(hole, from)) return;
+
+    sewingModel.addEdge(hole);
+    menu.hide();
+    refresh();
+    updatePanel();
+  }
+
+  function buildMenuItems(hole: Hole): MenuItem[] {
+    const state = sewingModel.getState();
+    const active = state.activeThread;
+    const items: MenuItem[] = [];
+
+    if (!active) {
+      items.push({
+        label: "Start from outside the spine",
+        icon: "●",
+        loadColor: "positive",
+        primary: true,
+        onClick: () => {
+          sewingModel.beginThread("positive");
+          sewingModel.setThreadStartPoint(hole);
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+      items.push({
+        label: "Start from inside the spine",
+        icon: "●",
+        loadColor: "negative",
+        onClick: () => {
+          sewingModel.beginThread("negative");
+          sewingModel.setThreadStartPoint(hole);
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+      // Re-open completed threads that start or end at this hole
+      for (let i = 0; i < state.threads.length; i++) {
+        const t = state.threads[i];
+        const lastEdge = t.edges[t.edges.length - 1];
+        if (holeEq(t.startHole, hole) || (lastEdge && holeEq(lastEdge.to, hole))) {
+          const idx = i;
+          items.push({
+            label: `Re-open thread ${i + 1}`,
+            icon: "↩",
+            onClick: () => {
+              sewingModel.uncompleteThread(idx);
+              clearPreviewState();
+              refresh();
+              updatePanel();
+            },
+          });
+        }
+      }
+      return items;
+    }
+
+    if (!active.startHole) {
+      items.push({
+        label: "Set as start point",
+        icon: "◆",
+        primary: true,
+        onClick: () => {
+          sewingModel.setThreadStartPoint(hole);
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+      return items;
+    }
+
+    const currentHole = getCurrentHole(active)!;
+    const isCurrentHole = holeEq(hole, currentHole);
+
+    if (isCurrentHole) {
+      if (canAddAnchorLoop(active, state.threads)) {
+        items.push({
+          label: active.nextLoad === "negative" ? "Add anchor loop (inside)" : "Add anchor loop (outside)",
+          icon: "⊂",
+          primary: true,
+          onHover: () => {
+            preview = { previewAnchorLoop: hole };
+            renderWithPreview();
+          },
+          onLeave: () => {
+            preview = {};
+            renderWithPreview();
+          },
+          onClick: () => {
+            sewingModel.addAnchorLoop();
+            clearPreviewState();
+            refresh();
+            updatePanel();
+          },
+        });
+      }
+      if (active.edges.length > 0) {
+        items.push({
+          label: "End thread — open end",
+          icon: "◇",
+          onClick: () => {
+            sewingModel.endThread();
+            clearPreviewState();
+            refresh();
+            updatePanel();
+          },
+        });
+        if (canEndWithKnot(active, state.threads)) {
+          items.push({
+            label: "End thread — with knot",
+            icon: "✕",
+            onClick: () => {
+              sewingModel.endThreadWithKnot();
+              clearPreviewState();
+              refresh();
+              updatePanel();
+            },
+          });
+        }
+      }
+      return items;
+    }
+
+    // Different hole: draw-edge and special stitches
+    const nextLoad = active.nextLoad;
+    const loadLabel = nextLoad === "positive" ? "outside" : "inside";
+
+    items.push({
+      label: `Draw edge — ${loadLabel}`,
+      icon: "→",
+      primary: true,
+      onHover: () => {
+        preview = { previewEdge: { from: currentHole, to: hole, load: nextLoad } };
+        renderWithPreview();
+      },
+      onLeave: () => {
+        preview = {};
+        renderWithPreview();
+      },
+      onClick: () => {
+        sewingModel.addEdge(hole);
+        clearPreviewState();
+        refresh();
+        updatePanel();
+      },
+    });
+
+    // Chain stitch
+    const chainElig = getEligibleChainHoles(active, state.threads);
+    const anchorLoopElig = getEligibleAnchorLoopHoles(active, state.threads);
+    const isChainEligible =
+      chainElig.some(h => holeEq(h, hole)) || anchorLoopElig.some(h => holeEq(h, hole));
+    if (isChainEligible) {
+      items.push({
+        label: "Chain stitch here",
+        icon: "⊃",
+        onHover: () => {
+          preview = { previewChainStitch: { from: currentHole, to: hole, side: nextLoad } };
+          renderWithPreview();
+        },
+        onLeave: () => {
+          preview = {};
+          renderWithPreview();
+        },
+        onClick: () => {
+          sewingModel.addChainStitch(hole);
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+    }
+
+    // Hidden link stitches (only when nextLoad === "positive")
+    if (nextLoad === "positive") {
+      items.push({
+        label: "Hidden link into spine",
+        icon: "⇢",
+        loadColor: "negative",
+        onHover: () => {
+          preview = { previewHiddenLink: { from: currentHole, to: hole, side: "negative" } };
+          renderWithPreview();
+        },
+        onLeave: () => {
+          preview = {};
+          renderWithPreview();
+        },
+        onClick: () => {
+          sewingModel.addHiddenLinkStitch(hole, "negative");
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+      items.push({
+        label: "Hidden link into signature",
+        icon: "⇢",
+        loadColor: "positive",
+        onHover: () => {
+          preview = { previewHiddenLink: { from: currentHole, to: hole, side: "positive" } };
+          renderWithPreview();
+        },
+        onLeave: () => {
+          preview = {};
+          renderWithPreview();
+        },
+        onClick: () => {
+          sewingModel.addHiddenLinkStitch(hole, "positive");
+          clearPreviewState();
+          refresh();
+          updatePanel();
+        },
+      });
+    }
+
+    return items;
+  }
+
+  // --- Keyboard shortcuts (undo/redo only) ---
   function onKeyDown(e: KeyboardEvent) {
     const ctrl = e.ctrlKey || e.metaKey;
     if (!ctrl) return;
@@ -142,144 +430,12 @@ export function buildSewingPanel(
       if (e.shiftKey) {
         e.preventDefault();
         sewingModel.redo();
-        updateThreadButtons();
+        updatePanel();
       } else {
         e.preventDefault();
         sewingModel.undo();
-        updateThreadButtons();
+        updatePanel();
       }
-    }
-  }
-
-  // --- SVG event handlers ---
-  function onMouseMove(e: MouseEvent) {
-    const state = sewingModel.getState();
-    const active = state.activeThread;
-    if (!active || !active.startHole) {
-      clearPreview();
-      return;
-    }
-
-    const coord = screenToSvg(svg, e);
-    const gridState = gridModel.getState();
-    const sizes = computeScaleSizes(gridState.spine);
-    const from = getCurrentHole(active)!;
-
-    chainEligibleHoles = getEligibleChainHoles(active, state.threads);
-    anchorLoopEligiblePoints = getEligibleAnchorLoopHoles(active, state.threads);
-    hiddenLinkEligibleHoles = getEligibleHiddenLinkHoles(active, gridState.holes);
-
-    const target = resolveTarget(svg, coord, gridState);
-    if (target.kind === "hole" && target.holeX !== undefined && target.holeY !== undefined) {
-      const to: Hole = { x: target.holeX, y: target.holeY };
-      if (to.x !== from.x || to.y !== from.y) {
-        previewEdge = { from, to, load: active.nextLoad };
-      } else {
-        previewEdge = null;
-      }
-    } else {
-      previewEdge = null;
-    }
-
-    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, previewEdge, { anchorLoopEligiblePoints }, chainEligibleHoles, hiddenLinkEligibleHoles);
-  }
-
-  function onMouseLeave() {
-    previewEdge = null;
-    chainEligibleHoles = [];
-    hiddenLinkEligibleHoles = [];
-    const gridState = gridModel.getState();
-    const sizes = computeScaleSizes(gridState.spine);
-    renderSewing(svg, sewingModel.getState(), sizes, gridState.spine, null, {}, [], []);
-  }
-
-  function onClick(e: MouseEvent) {
-    threadError.textContent = "";
-    const state = sewingModel.getState();
-    const active = state.activeThread;
-
-    // Alt/Option+Click: anchor loop (checked first — takes priority over Shift+Alt combos)
-    if (e.altKey) {
-      if (active?.startHole) {
-        try {
-          sewingModel.addAnchorLoop();
-          updateThreadButtons();
-          refresh();
-        } catch (err) {
-          threadError.textContent = (err as Error).message;
-        }
-      }
-      return;
-    }
-
-    const coord = screenToSvg(svg, e);
-    const gridState = gridModel.getState();
-    const target = resolveTarget(svg, coord, gridState);
-    if (target.kind !== "hole" || target.holeX === undefined || target.holeY === undefined) return;
-    const p: Hole = { x: target.holeX, y: target.holeY };
-
-    try {
-      // Shift+Ctrl/⌘+Click: type 2 hidden link stitch (nextLoad stays positive).
-      if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
-        if (active?.startHole) {
-          try {
-            sewingModel.addHiddenLinkStitch(p, "positive");
-            updateThreadButtons();
-            refresh();
-          } catch (err) {
-            threadError.textContent = (err as Error).message;
-          }
-        }
-        return;
-      }
-
-      // Ctrl/⌘+Click: type 1 hidden link stitch (nextLoad flips positive→negative).
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        if (active?.startHole) {
-          try {
-            sewingModel.addHiddenLinkStitch(p, "negative");
-            updateThreadButtons();
-            refresh();
-          } catch (err) {
-            threadError.textContent = (err as Error).message;
-          }
-        }
-        return;
-      }
-
-      // Shift+Click: chain stitch at an eligible hole.
-      if (e.shiftKey) {
-        if (!active?.startHole) return;
-        const from = getCurrentHole(active);
-        if (!from || (p.x === from.x && p.y === from.y)) return;
-        const eligible = getEligibleChainHoles(active, state.threads);
-        const eligibleAnchorLoops = getEligibleAnchorLoopHoles(active, state.threads);
-        const isEligible =
-          eligible.some(ep => ep.x === p.x && ep.y === p.y) ||
-          eligibleAnchorLoops.some(ep => ep.x === p.x && ep.y === p.y);
-        if (!isEligible) {
-          threadError.textContent = "This hole is not eligible for chain stitch";
-          return;
-        }
-        sewingModel.addChainStitch(p);
-        updateThreadButtons();
-        refresh();
-        return;
-      }
-
-      if (!active) return;
-
-      if (!active.startHole) {
-        sewingModel.setThreadStartPoint(p);
-      } else {
-        const from = getCurrentHole(active);
-        if (from && (p.x === from.x && p.y === from.y)) return;
-        sewingModel.addEdge(p);
-      }
-      updateThreadButtons();
-      refresh();
-    } catch (err) {
-      threadError.textContent = (err as Error).message;
     }
   }
 
@@ -289,7 +445,8 @@ export function buildSewingPanel(
     svg.addEventListener("click", onClick);
     svg.addEventListener("mouseleave", onMouseLeave);
     document.addEventListener("keydown", onKeyDown);
-    updateThreadButtons();
+    unsubscribeSewingModel = sewingModel.subscribe(updatePanel);
+    updatePanel();
   }
 
   function deactivate() {
@@ -298,32 +455,10 @@ export function buildSewingPanel(
     svg.removeEventListener("click", onClick);
     svg.removeEventListener("mouseleave", onMouseLeave);
     document.removeEventListener("keydown", onKeyDown);
-    clearPreview();
+    unsubscribeSewingModel?.();
+    unsubscribeSewingModel = null;
+    clearPreviewState();
   }
 
   return { panel, activate, deactivate };
-}
-
-// --- Helpers ---
-
-function button(text: string, onClick: () => void): HTMLButtonElement {
-  const btn = document.createElement("button");
-  btn.textContent = text;
-  btn.addEventListener("click", onClick);
-  return btn;
-}
-
-function radioOption(name: string, value: string, label: string, checked: boolean): { wrapper: HTMLDivElement; input: HTMLInputElement } {
-  const wrapper = document.createElement("div");
-  wrapper.className = "radio-option";
-  const input = document.createElement("input");
-  input.type = "radio";
-  input.name = name;
-  input.value = value;
-  input.checked = checked;
-  const lbl = document.createElement("label");
-  lbl.textContent = label;
-  wrapper.appendChild(input);
-  wrapper.appendChild(lbl);
-  return { wrapper, input };
 }

@@ -4,6 +4,14 @@ export function el(tag: string, className?: string): HTMLDivElement {
   return e;
 }
 
+export function button(text: string, onClick: () => void, cls?: string): HTMLButtonElement {
+  const btn = document.createElement("button");
+  btn.textContent = text;
+  if (cls) btn.className = cls;
+  btn.addEventListener("click", onClick);
+  return btn;
+}
+
 export function sectionTitle(text: string): HTMLElement {
   const h = document.createElement("h3");
   h.className = "section-title";

@@ -8,10 +8,11 @@ import {
 import { SewingModel } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { buildSewingPanel } from "./sewing-ui";
-import { el } from "./dom-utils";
+import { el, button } from "./dom-utils";
 import { buildPlaybackPanel } from "./playback-ui";
 import { openGallery } from "./gallery-ui";
 import { buildShortcutsPanel } from "./help-ui";
+import { saveAsFile, saveToHandle, openFilePicker } from "./file-io";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -79,7 +80,6 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const btnPlayback = document.createElement("button");
   btnPlayback.textContent = "Playback";
   btnPlayback.classList.add("mode-btn");
-  btnPlayback.disabled = true;
   modeSwitcher.appendChild(btnDesign);
   modeSwitcher.appendChild(btnSewing);
   modeSwitcher.appendChild(btnPlayback);
@@ -117,7 +117,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // ============================================================
   // Sewing panel
   // ============================================================
-  const sewingPanelObj = buildSewingPanel(rightPanel, sewingModel, model, svg, refresh);
+  const sewingPanelObj = buildSewingPanel(rightPanel, sewingModel, model, svg, svgPanel, refresh);
   const playbackPanelObj = buildPlaybackPanel(rightPanel, sewingModel, model, svg);
 
   const modeSwitcherHr = document.createElement("hr");
@@ -150,39 +150,18 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   const saveAsBtn = button("Save as...", async () => {
     const title = getMetadata().title?.trim() || "pattern";
-    const suggestedName = title + ".json";
-    const text = exportJson;
-
-    if (typeof (window as any).showSaveFilePicker === "function") {
-      try {
-        const handle: FileSystemFileHandle = await (window as any).showSaveFilePicker({
-          suggestedName,
-          types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
-        });
-        const writable = await handle.createWritable();
-        await writable.write(text);
-        await writable.close();
+    await saveAsFile(exportJson, title + ".json", {
+      onSaved: (fileName, handle) => {
         currentFileHandle = handle;
-        currentFileName = handle.name;
+        currentFileName = fileName;
         updateFileNameDisplay();
-        setSaveEnabled(true);
+        if (handle) setSaveEnabled(true);
         const orig = saveAsBtn.textContent;
         saveAsBtn.textContent = "Saved!";
         setTimeout(() => { saveAsBtn.textContent = orig; }, 1200);
-      } catch (e) {
-        if ((e as DOMException).name !== "AbortError") {
-          importError.textContent = (e as Error).message;
-        }
-      }
-    } else {
-      const blob = new Blob([text], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = suggestedName;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+      },
+      onError: (msg) => { importError.textContent = msg; },
+    });
   });
 
   saveBtn = button("Save", async () => {
@@ -190,17 +169,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       saveAsBtn.click();
       return;
     }
-    const text = exportJson;
-    try {
-      const writable = await currentFileHandle.createWritable();
-      await writable.write(text);
-      await writable.close();
-      const orig = saveBtn.textContent;
-      saveBtn.textContent = "Saved!";
-      setTimeout(() => { saveBtn.textContent = orig; }, 1200);
-    } catch (e) {
-      importError.textContent = (e as Error).message;
-    }
+    await saveToHandle(exportJson, currentFileHandle, {
+      onError: (msg) => { importError.textContent = msg; },
+    });
+    const orig = saveBtn.textContent;
+    saveBtn.textContent = "Saved!";
+    setTimeout(() => { saveBtn.textContent = orig; }, 1200);
   });
   saveBtn.classList.add("save-disabled");
 
@@ -213,44 +187,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       model.loadState(parsed);
       setMetadata(parsed.metadata ?? {});
       if (Array.isArray(parsed.threads) && parsed.threads.length > 0) {
-        sewingModel.loadThreads(parsed.threads.map((t: {
-          threadStart: { side: unknown; hole: unknown };
-          threadEnd?: { type?: unknown };
-          edges: Array<Record<string, unknown>>;
-          anchorLoops?: unknown[];
-          hiddenLinkStitches?: unknown[];
-        }) => {
-          const chainStitches: Array<Record<string, unknown>> = [];
-          const normalizedEdges = (t.edges ?? []).map((e, i) => {
-            if (e.chainedVia != null) {
-              chainStitches.push({ hole: e.chainedVia, side: e.load, afterEdge: i });
-              const { chainedVia, ...rest } = e;
-              return { ...rest, from: chainedVia };
-            }
-            return e;
-          });
-          const anchorLoops = (t.anchorLoops ?? []).map((al: any) => ({
-            hole: al.hole,
-            side: al.side,
-            afterEdge: al.afterEdge,
-          }));
-          const hiddenLinkStitches = (t.hiddenLinkStitches ?? []).map((hls: any) => ({
-            from: hls.from,
-            to: hls.to,
-            side: hls.side,
-            afterEdge: hls.afterEdge,
-          }));
-          return {
-            startSide: t.threadStart?.side,
-            startHole: t.threadStart?.hole,
-            edges: normalizedEdges,
-            completed: true,
-            endType: t.threadEnd?.type === "knot" ? "knot" : "loose",
-            anchorLoops,
-            chainStitches,
-            hiddenLinkStitches,
-          };
-        }));
+        sewingModel.importThreads(parsed.threads);
       }
     } catch (e) {
       importError.textContent = (e as Error).message;
@@ -261,21 +198,18 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   fileInput.type = "file";
   fileInput.accept = ".json";
   fileInput.style.display = "none";
-  fileInput.addEventListener("change", () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      applyImport(reader.result as string);
-      currentFileName = file.name;
+  openFilePicker(
+    fileInput,
+    (json, fileName) => {
+      applyImport(json);
+      currentFileName = fileName;
       currentFileHandle = null;
       setSaveEnabled(false);
       updateFileNameDisplay();
-    };
-    reader.onerror = () => { importError.textContent = "Failed to read file."; };
-    reader.readAsText(file);
-    fileInput.value = "";
-  });
+      switchToPlayback();
+    },
+    (msg) => { importError.textContent = msg; },
+  );
   persistentPanel.appendChild(fileInput);
 
   const importBtn = button("Open from file", () => fileInput.click());
@@ -350,6 +284,11 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   }
 
   function switchToPlayback() {
+    if (currentMode === "playback") {
+      playbackPanelObj.deactivate();
+      playbackPanelObj.activate();
+      return;
+    }
     currentMode = "playback";
     btnPlayback.classList.add("active");
     btnDesign.classList.remove("active");
@@ -455,6 +394,50 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     ghostLayer.appendChild(hLine);
   }
 
+  const SIG_PREVIEW_OVERHANG = 6; // must match SIG_OVERHANG in render.ts
+  const SIG_BTN_OFFSET = 3;       // must match BTN_OFFSET in render.ts
+
+  function showSigPreview(pos: number, axis: "right" | "bottom", spine: { width: number; height: number }) {
+    clearGhost();
+    if (!ghostLayer) return;
+
+    const line = document.createElementNS(SVG_NS, "line");
+    if (axis === "right") {
+      line.setAttribute("x1", String(-SIG_PREVIEW_OVERHANG));
+      line.setAttribute("x2", String(spine.width + SIG_PREVIEW_OVERHANG));
+      line.setAttribute("y1", String(pos));
+      line.setAttribute("y2", String(pos));
+    } else {
+      line.setAttribute("x1", String(pos));
+      line.setAttribute("x2", String(pos));
+      line.setAttribute("y1", String(-SIG_PREVIEW_OVERHANG));
+      line.setAttribute("y2", String(spine.height + SIG_PREVIEW_OVERHANG));
+    }
+    line.classList.add("sig-preview-line");
+    ghostLayer.appendChild(line);
+
+    const { fontSize } = computeScaleSizes(spine);
+    const size = fontSize * 0.8;
+    const label = axis === "right" ? `Y: ${pos}` : `X: ${pos}`;
+    const textEl = document.createElementNS(SVG_NS, "text");
+    textEl.setAttribute("font-size", String(size));
+    textEl.classList.add("cursor-tooltip");
+    textEl.textContent = label;
+
+    if (axis === "right") {
+      // Place label to the right of the locator dot
+      textEl.setAttribute("x", String(spine.width + SIG_BTN_OFFSET + size * 0.8 + 2));
+      textEl.setAttribute("y", String(pos + size * 0.35));
+      textEl.setAttribute("text-anchor", "start");
+    } else {
+      // Place label below the locator dot
+      textEl.setAttribute("x", String(pos));
+      textEl.setAttribute("y", String(spine.height + SIG_BTN_OFFSET + size * 1.4 + 2));
+      textEl.setAttribute("text-anchor", "middle");
+    }
+    ghostLayer.appendChild(textEl);
+  }
+
   // ============================================================
   // SVG interaction handlers (design mode only)
   // ============================================================
@@ -482,6 +465,15 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   svg.addEventListener("mousemove", (e) => {
     if (currentMode !== "design") return;
+    const hovered = e.target as SVGElement;
+    if (hovered.classList.contains("sig-button")) {
+      const pos = parseInt(hovered.getAttribute("data-sig-pos") ?? "", 10);
+      const axis = hovered.getAttribute("data-sig-axis") as "right" | "bottom";
+      if (!isNaN(pos) && axis) {
+        showSigPreview(pos, axis, model.getState().spine);
+        return;
+      }
+    }
     const coord = screenToSvg(svg, e);
     const state = model.getState();
     const target = resolveTarget(svg, coord, state);
@@ -515,14 +507,10 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     const target = resolveTarget(svg, coord, state);
 
     try {
-      if (e.shiftKey) {
-        if (target.kind === "hole") {
-          model.removeHole(target.holeX!, target.holeY!);
-        }
-      } else {
-        if (target.kind === "spine") {
-          model.addHole(target.snappedX, target.snappedY);
-        }
+      if (target.kind === "hole") {
+        model.removeHole(target.holeX!, target.holeY!);
+      } else if (target.kind === "spine") {
+        model.addHole(target.snappedX, target.snappedY);
       }
     } catch (err) {
       interactionError.textContent = (err as Error).message;
@@ -559,47 +547,14 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       switchToDesign();
     }
 
-    // Enable/disable playback button based on whether there are completed threads with edges
-    const hasPattern = sewingModel.getState().threads.some(t => t.edges.length > 0);
-    btnPlayback.disabled = !hasPattern;
-    if (!hasPattern && currentMode === "playback") {
-      switchToDesign();
-    }
-
     // Build export JSON — combined grid + threads
-    const sewingState = sewingModel.getState();
     const meta = getMetadata();
     const exportObj: Record<string, unknown> = {};
     if (Object.keys(meta).length > 0) exportObj.metadata = meta;
     exportObj.spine = state.spine;
     exportObj.holes = state.holes;
     if (state.signatures) exportObj.signatures = state.signatures;
-    exportObj.threads = sewingState.threads.map(t => {
-      const lastEdge = t.edges.length > 0 ? t.edges[t.edges.length - 1] : null;
-      const lastLoad = lastEdge ? lastEdge.load : t.startSide;
-      // Merge chain stitches into their corresponding edges as chainedVia.
-      const sortedCS = [...(t.chainStitches ?? [])].sort((a, b) => a.afterEdge - b.afterEdge);
-      let csIdx = 0;
-      const exportEdges = t.edges.map((edge, i) => {
-        if (csIdx < sortedCS.length && sortedCS[csIdx].afterEdge === i) {
-          const cs = sortedCS[csIdx++];
-          const prevTo = i > 0 ? t.edges[i - 1].to : t.startHole;
-          return { ...edge, from: prevTo, chainedVia: cs.hole };
-        }
-        return edge;
-      });
-      return {
-        threadStart: { side: t.startSide, hole: t.startHole },
-        threadEnd: {
-          type: t.endType ?? "loose",
-          side: lastLoad === "positive" ? "negative" : "positive",
-          hole: lastEdge ? lastEdge.to : t.startHole,
-        },
-        edges: exportEdges,
-        anchorLoops: (t.anchorLoops ?? []).map(al => ({ hole: al.hole, side: al.side, afterEdge: al.afterEdge })),
-        hiddenLinkStitches: (t.hiddenLinkStitches ?? []).map(hls => ({ from: hls.from, to: hls.to, side: hls.side, afterEdge: hls.afterEdge })),
-      };
-    });
+    exportObj.threads = sewingModel.exportThreads();
     exportJson = JSON.stringify(exportObj, null, 2);
 
     // SVG render (clears innerHTML, so ghost layer must be re-added)
@@ -617,7 +572,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   });
 
   // Signature changes only need a render refresh, not a sewing reset
-  model.subscribeSignatures(refresh);
+  model.subscribeNoReset(refresh);
 
   sewingModel.subscribe(refresh);
 
@@ -641,13 +596,6 @@ function numberInput(placeholder: string): {
   wrapper.appendChild(label);
   wrapper.appendChild(input);
   return { wrapper, input };
-}
-
-function button(text: string, onClick: () => void): HTMLButtonElement {
-  const btn = document.createElement("button");
-  btn.textContent = text;
-  btn.addEventListener("click", onClick);
-  return btn;
 }
 
 interface Metadata {
@@ -726,8 +674,6 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   tutorialInput.className = "metadata-input";
   metadataEdit.appendChild(tutorialInput);
 
-  metadataEdit.appendChild(tutorialInput);
-
   tutorialInput.addEventListener("input", onChange);
 
   panel.appendChild(metadataEdit);
@@ -759,6 +705,18 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
     metadataView.classList.toggle("hidden", isEditing);
     if (isEditing) titleInput.focus();
     else { updateView(); onChange(); }
+  });
+
+  metadataEdit.addEventListener("focusout", (e: FocusEvent) => {
+    if (!isEditing) return;
+    const next = e.relatedTarget as Node | null;
+    if (next && metadataEdit.contains(next)) return;
+    isEditing = false;
+    editBtn.textContent = "Edit metadata";
+    metadataEdit.classList.add("hidden");
+    metadataView.classList.remove("hidden");
+    updateView();
+    onChange();
   });
 
   updateView();

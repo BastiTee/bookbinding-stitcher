@@ -94,6 +94,7 @@ body {
   padding: 24px;
   background: #e8e8e8;
   position: relative;
+  user-select: none;
 }
 
 .svg-panel svg {
@@ -159,6 +160,12 @@ button {
 
 button:hover {
   background: #eee;
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
 }
 
 button.active {
@@ -418,7 +425,8 @@ button.active {
 }
 
 /* Chain stitch — eligible hole indicator */
-.chain-eligible-halo {
+.chain-eligible-halo,
+.anchor-loop-eligible-halo {
   fill: none;
   stroke: #e67e22;
   stroke-width: 0.6;
@@ -588,6 +596,7 @@ button.gallery-cta:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  user-select: none;
 }
 
 .playback-step-main {
@@ -851,6 +860,14 @@ button.gallery-cta:hover {
   pointer-events: none;
 }
 
+/* Preview line shown on sig-button hover — drawn above the spine */
+.sig-preview-line {
+  stroke: #aaa;
+  stroke-width: 0.5;
+  stroke-dasharray: 2 1.5;
+  pointer-events: none;
+}
+
 .sig-direction-label {
   font-size: 2px;
   font-style: italic;
@@ -874,4 +891,78 @@ button.gallery-cta:hover {
   opacity: 0.25;
   cursor: default;
   pointer-events: none;
+}
+
+/* Cancel thread button */
+.cancel-thread-btn {
+  width: 100%;
+  color: #c33;
+  border-color: #c33;
+  background: #fff8f8;
+}
+.cancel-thread-btn:hover {
+  background: #fee;
+}
+
+/* Hover menu card */
+.hover-menu {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  padding: 4px 0;
+  z-index: 100;
+  min-width: 210px;
+  pointer-events: auto;
+  font-size: 13px;
+  user-select: none;
+}
+
+.hover-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  color: #333;
+  line-height: 1.3;
+}
+
+.hover-menu-item:hover {
+  background: #f0f5ff;
+}
+
+.hover-menu-item--primary {
+  font-weight: 600;
+}
+
+.hover-menu-item--disabled {
+  color: #bbb;
+  pointer-events: none;
+}
+
+.hover-menu-icon {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  color: #888;
+}
+
+.hover-menu-icon--positive {
+  color: #2a9d8f;
+}
+
+.hover-menu-icon--negative {
+  color: #c44;
+}
+
+/* Preview opacity for hover-menu item previews */
+.anchor-loop--preview {
+  opacity: 0.4;
+}
+
+.hidden-link-stitch--preview {
+  opacity: 0.4;
 }

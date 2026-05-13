@@ -1,0 +1,128 @@
+{
+  "spine": {
+    "width": 60,
+    "height": 60
+  },
+  "holes": [
+    {
+      "x": 20,
+      "y": 20
+    },
+    {
+      "x": 20,
+      "y": 40
+    },
+    {
+      "x": 40,
+      "y": 20
+    },
+    {
+      "x": 40,
+      "y": 40
+    }
+  ],
+  "threads": [
+    {
+      "threadStart": {
+        "side": "negative",
+        "hole": {
+          "x": 20,
+          "y": 40
+        }
+      },
+      "threadEnd": {
+        "type": "loose",
+        "side": "positive",
+        "hole": {
+          "x": 20,
+          "y": 40
+        }
+      },
+      "edges": [
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 40
+          },
+          "to": {
+            "x": 40,
+            "y": 40
+          },
+          "index": 1
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 40
+          },
+          "to": {
+            "x": 40,
+            "y": 20
+          },
+          "index": 2
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 40,
+            "y": 20
+          },
+          "to": {
+            "x": 20,
+            "y": 20
+          },
+          "index": 3
+        },
+        {
+          "load": "negative",
+          "from": {
+            "x": 20,
+            "y": 20
+          },
+          "to": {
+            "x": 20,
+            "y": 40
+          },
+          "index": 4
+        }
+      ],
+      "anchorLoops": [
+        {
+          "hole": {
+            "x": 20,
+            "y": 40
+          },
+          "side": "positive",
+          "afterEdge": 0
+        },
+        {
+          "hole": {
+            "x": 40,
+            "y": 40
+          },
+          "side": "positive",
+          "afterEdge": 1
+        },
+        {
+          "hole": {
+            "x": 40,
+            "y": 20
+          },
+          "side": "positive",
+          "afterEdge": 2
+        },
+        {
+          "hole": {
+            "x": 20,
+            "y": 20
+          },
+          "side": "positive",
+          "afterEdge": 3
+        }
+      ],
+      "hiddenLinkStitches": []
+    }
+  ]
+}

@@ -8,6 +8,10 @@ export interface Hole {
   y: number; // mm position along spine height
 }
 
+export function holeEq(a: Hole, b: Hole): boolean {
+  return a.x === b.x && a.y === b.y;
+}
+
 export interface GridSignatures {
   orientation: "horizontal" | "vertical";
   positions: number[]; // sorted unique ints; Y values if horizontal, X if vertical
@@ -43,7 +47,7 @@ export class GridModel {
     };
   }
 
-  subscribeSignatures(fn: Listener): () => void {
+  subscribeNoReset(fn: Listener): () => void {
     this.sigListeners.push(fn);
     return () => {
       this.sigListeners = this.sigListeners.filter((l) => l !== fn);

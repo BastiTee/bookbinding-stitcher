@@ -3,7 +3,7 @@ import type { SewingModel } from "./sewing-model";
 import type { SewingState, Thread, Hole } from "./sewing-model";
 import { renderSewing } from "./sewing-render";
 import { computeScaleSizes } from "./render";
-import { el } from "./dom-utils";
+import { el, button } from "./dom-utils";
 
 interface PlaybackStep {
   label: string;
@@ -31,17 +31,22 @@ export function buildPlaybackPanel(
   stepLabel.appendChild(stepLabelCount);
   panel.appendChild(stepLabel);
 
-  const btnRow = el("div", "playback-btn-row");
-  const startBtn = btn("⏮ Start", () => setStep(0));
-  const prevBtn = btn("← Back", () => setStep(currentStepIdx - 1));
-  const nextBtn = btn("Next →", () => setStep(currentStepIdx + 1));
-  btnRow.appendChild(startBtn);
-  btnRow.appendChild(prevBtn);
-  btnRow.appendChild(nextBtn);
-  panel.appendChild(btnRow);
+  const rowStartEnd = el("div", "playback-btn-row");
+  const startBtn = button("⏮ Begin", () => setStep(0));
+  const endBtn = button("End ⏭", () => setStep(steps.length));
+  rowStartEnd.appendChild(startBtn);
+  rowStartEnd.appendChild(endBtn);
+  panel.appendChild(rowStartEnd);
+
+  const rowBackNext = el("div", "playback-btn-row");
+  const prevBtn = button("← Back", () => setStep(currentStepIdx - 1));
+  const nextBtn = button("Next →", () => setStep(currentStepIdx + 1));
+  rowBackNext.appendChild(prevBtn);
+  rowBackNext.appendChild(nextBtn);
+  panel.appendChild(rowBackNext);
 
   let spineOnly = false;
-  const viewBtn = btn("View: Front & Back", () => {
+  const viewBtn = button("View: Front & Back", () => {
     spineOnly = !spineOnly;
     viewBtn.textContent = spineOnly ? "View: Spine Only" : "View: Front & Back";
     viewBtn.classList.toggle("active", spineOnly);
@@ -71,6 +76,7 @@ export function buildPlaybackPanel(
     }
 
     startBtn.disabled = currentStepIdx <= 0;
+    endBtn.disabled = currentStepIdx >= max;
     prevBtn.disabled = currentStepIdx <= 0;
     nextBtn.disabled = currentStepIdx >= max;
 
@@ -100,7 +106,6 @@ export function buildPlaybackPanel(
     currentStepIdx = steps.length;
     panel.classList.remove("hidden");
     renderStep();
-    document.addEventListener("keydown", onKeyDown);
   }
 
   function deactivate() {
@@ -108,26 +113,6 @@ export function buildPlaybackPanel(
     spineOnly = false;
     viewBtn.textContent = "View: Front & Back";
     viewBtn.classList.remove("active");
-    document.removeEventListener("keydown", onKeyDown);
-  }
-
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-    switch (e.key) {
-      case "ArrowRight":
-        e.preventDefault();
-        e.shiftKey ? setStep(steps.length) : setStep(currentStepIdx + 1);
-        break;
-      case "ArrowLeft":
-        e.preventDefault();
-        e.shiftKey ? setStep(0) : setStep(currentStepIdx - 1);
-        break;
-      case "ArrowUp":
-      case "ArrowDown":
-        e.preventDefault();
-        viewBtn.click();
-        break;
-    }
   }
 
   function setSpineOnly(enabled: boolean) {
@@ -305,11 +290,4 @@ function sliceState(state: Readonly<SewingState>, step: PlaybackStep): SewingSta
   }
 
   return { threads, activeThread: null };
-}
-
-function btn(text: string, onClick: () => void): HTMLButtonElement {
-  const b = document.createElement("button");
-  b.textContent = text;
-  b.addEventListener("click", onClick);
-  return b;
 }

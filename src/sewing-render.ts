@@ -39,7 +39,7 @@ type EdgeEntry = {
   hiddenLinkOrigin?: boolean;
 };
 
-type ChainEntry = { from: Hole; to: Hole; end: Hole; load: Load };
+type ChainEntry = { from: Hole; to: Hole; end: Hole; load: Load; pending?: boolean };
 
 /** Computes chain stitch entries for a thread by walking the interleaved edge/chain sequence. */
 function getChainStitchEntries(
@@ -55,8 +55,9 @@ function getChainStitchEntries(
   while (edgeIdx < edges.length || csIdx < chainStitches.length) {
     const nextCS = csIdx < chainStitches.length ? chainStitches[csIdx] : null;
     if (nextCS && nextCS.afterEdge <= edgeIdx) {
-      const end = edgeIdx < edges.length ? { ...edges[edgeIdx].to } : { ...pos };
-      result.push({ from: { ...pos }, to: { ...nextCS.hole }, end, load: nextCS.side });
+      const hasReturnEdge = edgeIdx < edges.length;
+      const end = hasReturnEdge ? { ...edges[edgeIdx].to } : { ...pos };
+      result.push({ from: { ...pos }, to: { ...nextCS.hole }, end, load: nextCS.side, pending: !hasReturnEdge });
       pos = end;
       edgeIdx++; // consume the associated return edge
       csIdx++;
@@ -76,7 +77,14 @@ export function renderSewing(
   sizes: ScaleSizes,
   spine: Spine,
   previewEdge?: PreviewEdge | null,
-  options?: { spineOnly?: boolean; anchorLoopEligiblePoints?: Hole[]; startTailTargets?: Hole[] },
+  options?: {
+    spineOnly?: boolean;
+    anchorLoopEligiblePoints?: Hole[];
+    startTailTargets?: Hole[];
+    previewAnchorLoop?: Hole;
+    previewChainStitch?: { from: Hole; to: Hole; side: Load };
+    previewHiddenLink?: { from: Hole; to: Hole; side: Load };
+  },
   chainEligibleHoles?: Hole[],
   hiddenLinkEligibleHoles?: Hole[],
 ): void {
@@ -158,39 +166,18 @@ export function renderSewing(
 
   // --- Draw eligible chain hole halos ---
   if (!spineOnly && chainEligibleHoles && chainEligibleHoles.length > 0) {
-    for (const p of chainEligibleHoles) {
-      const halo = document.createElementNS(SVG_NS, "circle");
-      halo.setAttribute("cx", String(p.x));
-      halo.setAttribute("cy", String(p.y));
-      halo.setAttribute("r", String(sizes.dotRadius * 2.2));
-      halo.classList.add("chain-eligible-halo");
-      layer.appendChild(halo);
-    }
+    drawEligibleHalos(layer, chainEligibleHoles, sizes.dotRadius * 2.2, "chain-eligible-halo");
   }
 
   // --- Draw anchor-loop-eligible halos (same orange ring, layered on the horseshoe) ---
   const anchorLoopEligiblePoints = options?.anchorLoopEligiblePoints;
   if (!spineOnly && anchorLoopEligiblePoints && anchorLoopEligiblePoints.length > 0) {
-    for (const p of anchorLoopEligiblePoints) {
-      const halo = document.createElementNS(SVG_NS, "circle");
-      halo.setAttribute("cx", String(p.x));
-      halo.setAttribute("cy", String(p.y));
-      halo.setAttribute("r", String(sizes.dotRadius * 2.2));
-      halo.classList.add("chain-eligible-halo");
-      layer.appendChild(halo);
-    }
+    drawEligibleHalos(layer, anchorLoopEligiblePoints, sizes.dotRadius * 2.2, "anchor-loop-eligible-halo");
   }
 
   // --- Draw hidden-link-eligible halos (blue dashed ring) ---
   if (!spineOnly && hiddenLinkEligibleHoles && hiddenLinkEligibleHoles.length > 0) {
-    for (const p of hiddenLinkEligibleHoles) {
-      const halo = document.createElementNS(SVG_NS, "circle");
-      halo.setAttribute("cx", String(p.x));
-      halo.setAttribute("cy", String(p.y));
-      halo.setAttribute("r", String(sizes.dotRadius * 2.8));
-      halo.classList.add("hidden-link-eligible-halo");
-      layer.appendChild(halo);
-    }
+    drawEligibleHalos(layer, hiddenLinkEligibleHoles, sizes.dotRadius * 2.8, "hidden-link-eligible-halo");
   }
 
   // --- Count occurrences per canonical endpoint pair ---
@@ -212,10 +199,24 @@ export function renderSewing(
 
   // --- Draw chain stitches (custom hook-around-hole path) ---
   if (!spineOnly) {
-    for (const cs of allChainStitches) drawChainStitchPath(layer, cs.from, cs.to, cs.end, cs.load, sizes);
+    for (const cs of allChainStitches) drawChainStitchPath(layer, cs.from, cs.to, cs.end, cs.load, sizes, false, cs.pending);
   } else {
     for (const cs of allChainStitches) {
-      if (cs.load === "positive") drawChainStitchPath(layer, cs.from, cs.to, cs.end, cs.load, sizes);
+      if (cs.load === "positive") drawChainStitchPath(layer, cs.from, cs.to, cs.end, cs.load, sizes, false, cs.pending);
+    }
+  }
+
+  // --- Draw hover-menu previews (shown when hovering a menu item) ---
+  if (!spineOnly) {
+    if (options?.previewAnchorLoop) {
+      drawAnchorLoop(layer, options.previewAnchorLoop, active?.nextLoad ?? "positive", sizes, true);
+    }
+    if (options?.previewChainStitch) {
+      const { from, to, side } = options.previewChainStitch;
+      drawChainStitchPath(layer, from, to, from, side, sizes, true);
+    }
+    if (options?.previewHiddenLink) {
+      drawHiddenLinkStitch(layer, options.previewHiddenLink.from, options.previewHiddenLink.to, true);
     }
   }
 
@@ -276,6 +277,17 @@ export function renderSewing(
       circle.classList.add("thread-current-point");
       layer.appendChild(circle);
     }
+  }
+}
+
+function drawEligibleHalos(layer: SVGGElement, holes: Hole[], radius: number, cls: string) {
+  for (const p of holes) {
+    const halo = document.createElementNS(SVG_NS, "circle");
+    halo.setAttribute("cx", String(p.x));
+    halo.setAttribute("cy", String(p.y));
+    halo.setAttribute("r", String(radius));
+    halo.classList.add(cls);
+    layer.appendChild(halo);
   }
 }
 
@@ -419,32 +431,35 @@ function drawKnotMarker(layer: SVGGElement, point: Hole, sizes: ScaleSizes) {
   layer.appendChild(line2);
 }
 
-function drawAnchorLoop(layer: SVGGElement, point: Hole, side: Load, sizes: ScaleSizes) {
+function drawAnchorLoop(layer: SVGGElement, point: Hole, side: Load, sizes: ScaleSizes, preview = false) {
   const w = sizes.dotRadius * 1.4;
   const h = sizes.dotRadius * 3;
   const x = point.x;
   const y = point.y;
+  const dir = side === "negative" ? -1 : 1; // negative → up, positive → down
 
   const d =
     `M ${x - w} ${y} ` +
-    `L ${x - w} ${y - h} ` +
-    `A ${w} ${w} 0 0 1 ${x + w} ${y - h} ` +
+    `L ${x - w} ${y + dir * h} ` +
+    `A ${w} ${w} 0 0 ${side === "negative" ? 1 : 0} ${x + w} ${y + dir * h} ` +
     `L ${x + w} ${y}`;
 
   const path = document.createElementNS(SVG_NS, "path");
   path.setAttribute("d", d);
   path.setAttribute("fill", "none");
   path.classList.add("anchor-loop", side === "positive" ? "anchor-loop--positive" : "anchor-loop--negative");
+  if (preview) path.classList.add("anchor-loop--preview");
   layer.appendChild(path);
 }
 
-function drawHiddenLinkStitch(layer: SVGGElement, from: Hole, to: Hole): void {
+function drawHiddenLinkStitch(layer: SVGGElement, from: Hole, to: Hole, preview = false): void {
   const line = document.createElementNS(SVG_NS, "line");
   line.setAttribute("x1", String(from.x));
   line.setAttribute("y1", String(from.y));
   line.setAttribute("x2", String(to.x));
   line.setAttribute("y2", String(to.y));
   line.classList.add("hidden-link-stitch");
+  if (preview) line.classList.add("hidden-link-stitch--preview");
   layer.appendChild(line);
 }
 
@@ -453,7 +468,7 @@ function drawHiddenLinkStitch(layer: SVGGElement, from: Hole, to: Hole): void {
  * around the far side of the chain hole (`via + d*loopR`), forming a closed loop with no straight
  * handles. G1 continuity at the round cap; cusp (anti-parallel tangents) at the pointed tip.
  */
-function drawChainStitchPath(layer: SVGGElement, from: Hole, via: Hole, end: Hole, load: Load, sizes: ScaleSizes) {
+function drawChainStitchPath(layer: SVGGElement, from: Hole, via: Hole, end: Hole, load: Load, sizes: ScaleSizes, preview = false, pending = false) {
   const dx = via.x - from.x;
   const dy = via.y - from.y;
   const len = Math.sqrt(dx * dx + dy * dy);
@@ -472,18 +487,24 @@ function drawChainStitchPath(layer: SVGGElement, from: Hole, via: Hole, end: Hol
 
   // Upper arc: from → far (tangents depart/arrive perpendicular → cusp at tip, smooth cap)
   // Lower arc: far → end (G1 smooth cap; perpendicular arrival closes the cusp at end)
-  const pathD =
-    `M ${from.x} ${from.y} ` +
-    `C ${from.x + perp.x * sideW} ${from.y + perp.y * sideW} ` +
-      `${farX + perp.x * sideW} ${farY + perp.y * sideW} ` +
-      `${farX} ${farY} ` +
-    `C ${farX - perp.x * sideW} ${farY - perp.y * sideW} ` +
-      `${end.x - perp.x * sideW} ${end.y - perp.y * sideW} ` +
-      `${end.x} ${end.y}`;
+  const pathD = pending
+    ? `M ${from.x} ${from.y} ` +
+      `C ${from.x + perp.x * sideW} ${from.y + perp.y * sideW} ` +
+        `${farX + perp.x * sideW} ${farY + perp.y * sideW} ` +
+        `${farX} ${farY}`
+    : `M ${from.x} ${from.y} ` +
+      `C ${from.x + perp.x * sideW} ${from.y + perp.y * sideW} ` +
+        `${farX + perp.x * sideW} ${farY + perp.y * sideW} ` +
+        `${farX} ${farY} ` +
+      `C ${farX - perp.x * sideW} ${farY - perp.y * sideW} ` +
+        `${end.x - perp.x * sideW} ${end.y - perp.y * sideW} ` +
+        `${end.x} ${end.y}`;
 
   const path = document.createElementNS(SVG_NS, "path");
   path.setAttribute("d", pathD);
   path.setAttribute("fill", "none");
   path.classList.add("thread-edge", loadClass, "thread-edge--chain");
+  if (preview) path.classList.add("thread-edge--preview");
+  if (pending) path.classList.add("thread-edge--preview");
   layer.appendChild(path);
 }
