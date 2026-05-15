@@ -13,6 +13,7 @@ import { buildPlaybackPanel } from "./playback-ui";
 import { openGallery } from "./gallery-ui";
 import { buildShortcutsPanel } from "./help-ui";
 import { saveAsFile, saveToHandle, openFilePicker } from "./file-io";
+import { encodePatternUrl, readPatternFromHash } from "./share";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -227,11 +228,26 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   saveBtnRow.appendChild(saveBtn);
   saveBtnRow.appendChild(saveAsBtn);
-  galleryBtn.classList.add("gallery-cta");
+
+  const shareBtn = button("Copy as Link", () => {
+    const url = encodePatternUrl(exportJson);
+    navigator.clipboard.writeText(url).then(() => {
+      shareBtn.textContent = "Copied!";
+      setTimeout(() => { shareBtn.textContent = "Copy as Link"; }, 2000);
+    }).catch(() => {
+      prompt("Copy this link:", url);
+    });
+  });
   importBtnRow.appendChild(importBtn);
-  importBtnRow.appendChild(galleryBtn);
+  importBtnRow.appendChild(shareBtn);
+
+  galleryBtn.classList.add("gallery-cta");
+  const galleryBtnRow = el("div", "export-btn-row");
+  galleryBtnRow.appendChild(galleryBtn);
+
   persistentPanel.appendChild(saveBtnRow);
   persistentPanel.appendChild(importBtnRow);
+  persistentPanel.appendChild(galleryBtnRow);
 
   const fileNameDisplay = el("div", "current-file-name");
   persistentPanel.appendChild(fileNameDisplay);
@@ -575,6 +591,12 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   model.subscribeNoReset(refresh);
 
   sewingModel.subscribe(refresh);
+
+  const hashPattern = readPatternFromHash();
+  if (hashPattern) {
+    applyImport(hashPattern);
+    history.replaceState(null, "", import.meta.env.BASE_URL);
+  }
 
   refresh();
 }
