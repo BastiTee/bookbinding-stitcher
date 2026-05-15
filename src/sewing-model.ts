@@ -134,6 +134,7 @@ export function getEligibleChainHoles(
   }
 
   for (const thread of threads) {
+    if (thread.startSide === load) add(thread.startHole);
     for (const edge of thread.edges) {
       if (edge.load === load) {
         add(edge.from);
@@ -146,6 +147,7 @@ export function getEligibleChainHoles(
   }
 
   // Also scan active thread's own edges and chain stitches
+  if (active.startSide === load) add(active.startHole);
   for (const edge of active.edges) {
     if (edge.load === load) {
       add(edge.from);
