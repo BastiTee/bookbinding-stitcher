@@ -39,7 +39,7 @@ export function buildPlaybackPanel(
   panel.appendChild(rowStartEnd);
 
   const rowBackNext = el("div", "playback-btn-row");
-  const prevBtn = button("← Back", () => setStep(currentStepIdx - 1));
+  const prevBtn = button("← Previous", () => setStep(currentStepIdx - 1));
   const nextBtn = button("Next →", () => setStep(currentStepIdx + 1));
   rowBackNext.appendChild(prevBtn);
   rowBackNext.appendChild(nextBtn);

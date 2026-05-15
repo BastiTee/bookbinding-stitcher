@@ -187,6 +187,10 @@ export function renderSewing(
     pairCount.set(k, (pairCount.get(k) ?? 0) + 1);
   }
 
+  // Labels are collected in a separate group appended last so they render above all threads.
+  const labelsLayer = document.createElementNS(SVG_NS, "g") as SVGGElement;
+  labelsLayer.classList.add("sewing-labels");
+
   // --- Draw edges with curve offsets (spine-only forces straight lines) ---
   const pairSeen = new Map<string, number>();
   for (const e of allEdges) {
@@ -194,7 +198,7 @@ export function renderSewing(
     const total = pairCount.get(k)!;
     const slotIndex = pairSeen.get(k) ?? 0;
     pairSeen.set(k, (pairSeen.get(k) ?? 0) + 1);
-    drawEdgeLine(layer, e.from, e.to, e.load, e.preview, slotIndex, total, e.index, sizes, e.hiddenLinkOrigin);
+    drawEdgeLine(layer, labelsLayer, e.from, e.to, e.load, e.preview, slotIndex, total, e.index, sizes, e.hiddenLinkOrigin);
   }
 
   // --- Draw chain stitches (custom hook-around-hole path) ---
@@ -221,7 +225,11 @@ export function renderSewing(
   }
 
   // Skip all markers in spine-only view
-  if (spineOnly) return;
+  if (spineOnly) {
+    layer.appendChild(labelsLayer);
+    return;
+  }
+
   for (let ti = 0; ti < sewingState.threads.length; ti++) {
     const thread = sewingState.threads[ti];
     const firstTo = thread.edges[0]?.to ?? options?.startTailTargets?.[ti];
@@ -278,6 +286,9 @@ export function renderSewing(
       layer.appendChild(circle);
     }
   }
+
+  // Labels appended last so they render above all threads and markers.
+  layer.appendChild(labelsLayer);
 }
 
 function drawEligibleHalos(layer: SVGGElement, holes: Hole[], radius: number, cls: string) {
@@ -291,24 +302,25 @@ function drawEligibleHalos(layer: SVGGElement, holes: Hole[], radius: number, cl
   }
 }
 
-function drawEdgeLabel(layer: SVGGElement, midX: number, midY: number, index: number) {
+function drawEdgeLabel(labelsLayer: SVGGElement, midX: number, midY: number, index: number) {
   const circle = document.createElementNS(SVG_NS, "circle");
   circle.setAttribute("cx", String(midX));
   circle.setAttribute("cy", String(midY));
   circle.setAttribute("r", "2.24");
   circle.classList.add("thread-edge-label-bg");
-  layer.appendChild(circle);
+  labelsLayer.appendChild(circle);
 
   const text = document.createElementNS(SVG_NS, "text");
   text.setAttribute("x", String(midX));
   text.setAttribute("y", String(midY));
   text.classList.add("thread-edge-label");
   text.textContent = String(index);
-  layer.appendChild(text);
+  labelsLayer.appendChild(text);
 }
 
 function drawEdgeLine(
   layer: SVGGElement,
+  labelsLayer: SVGGElement,
   from: Hole,
   to: Hole,
   load: Load,
@@ -336,7 +348,7 @@ function drawEdgeLine(
     if (preview) line.classList.add("thread-edge--preview");
     layer.appendChild(line);
     if (index !== undefined && !preview) {
-      drawEdgeLabel(layer, (from.x + to.x) / 2, (from.y + to.y) / 2, index);
+      drawEdgeLabel(labelsLayer, (from.x + to.x) / 2, (from.y + to.y) / 2, index);
     }
     return;
   }
@@ -364,7 +376,7 @@ function drawEdgeLine(
   layer.appendChild(path);
   if (index !== undefined && !preview) {
     // Visual midpoint of quadratic bezier at t=0.5 = midpoint of chord + half the control-point offset
-    drawEdgeLabel(layer, (from.x + to.x) / 2 + perpX * offsetAmount / 2, (from.y + to.y) / 2 + perpY * offsetAmount / 2, index);
+    drawEdgeLabel(labelsLayer, (from.x + to.x) / 2 + perpX * offsetAmount / 2, (from.y + to.y) / 2 + perpY * offsetAmount / 2, index);
   }
 }
 
