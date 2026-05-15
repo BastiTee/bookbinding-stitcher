@@ -160,7 +160,7 @@ export function renderSewing(
       ...(active?.hiddenLinkStitches ?? []),
     ];
     for (const hls of allHiddenLinks) {
-      drawHiddenLinkStitch(layer, hls.from, hls.to);
+      if (!hls.pending) drawHiddenLinkStitch(layer, hls.from, hls.to);
     }
   }
 

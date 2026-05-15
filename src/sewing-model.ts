@@ -27,6 +27,7 @@ export interface HiddenLinkStitch {
   to: Hole;             // target hole (user-selected)
   side: Load;           // output load after the link: "negative" = type 1 (ends inside), "positive" = type 2 (continues outside)
   afterEdge: number;    // edges.length at creation; used for playback ordering
+  pending?: boolean;    // playback only: origin edge is visible but dashed link not yet shown
 }
 
 export interface Thread {

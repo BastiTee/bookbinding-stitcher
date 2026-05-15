@@ -273,7 +273,11 @@ function sliceState(state: Readonly<SewingState>, step: PlaybackStep): SewingSta
         endType: step.showActiveEnd ? thread.endType : undefined,
         anchorLoops: (thread.anchorLoops ?? []).filter(loop => (loop.afterEdge ?? 0) <= step.alMax),
         chainStitches: (thread.chainStitches ?? []).filter(cs => cs.afterEdge <= step.csMax),
-        hiddenLinkStitches: (thread.hiddenLinkStitches ?? []).filter(hls => hls.afterEdge <= step.hlsMax),
+        hiddenLinkStitches: (thread.hiddenLinkStitches ?? []).flatMap(hls => {
+          if (hls.afterEdge <= step.hlsMax) return [hls];
+          if (hls.afterEdge <= step.edgeCount) return [{ ...hls, pending: true }];
+          return [];
+        }),
       });
     } else {
       threads.push({
