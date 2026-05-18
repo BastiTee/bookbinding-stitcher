@@ -4,7 +4,7 @@
 
 A browser tool to create, learn, and share non-adhesive book bindings such as long stitch or Japanese bindings. Explore the gallery to get inspired for your next book project.
 
-Feel free to leave comments, ideas, feedback via the issue tracker.
+Feel free to leave comments, ideas, feedback via the issue tracker. Alternatively, you can reach out via [this Reddit thread](https://www.reddit.com/r/bookbinding/comments/1te348d/bookbinding_stitcher_a_tool_to_create_learn_and/).
 
 ## License
 
