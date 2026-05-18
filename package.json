@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite build --base=/ && vite preview",
     "test": "vitest run",
-    "commit": "git add . && git commit -m \"Update code\" |true && git push -u origin HEAD"
+    "commit": "git add . && git commit -m \"Update code\" |true && git push -u origin HEAD",
+    "openspec": "openspec"
   },
   "devDependencies": {
     "@types/lz-string": "^1.5.0",
@@ -17,6 +18,7 @@
     "vitest": "^4.1.6"
   },
   "dependencies": {
+    "@fission-ai/openspec": "^1.3.1",
     "driver.js": "^1.3.1",
     "lz-string": "^1.5.0"
   }

@@ -52,6 +52,10 @@ Vite + TypeScript (vanilla, no framework). Deployed to GitHub Pages via `.github
 - `src/playback-ui.ts` — `buildPlaybackPanel(...)` — returns `{ activate, deactivate }`
 - `src/gallery-ui.ts` — `openGallery(onSelect)` — modal gallery of bundled examples; uses `import.meta.glob('/examples/**/*.json', { eager: true })` at module level (computed once, works identically in dev and dist). Examples are organized into sections by subdirectory name (leading `\d+-` stripped and title-cased). Files in `examples-experimental/` are **not** bundled into the gallery.
 - `src/help-ui.ts` — `openHelp(currentMode)` — keyboard/mouse controls modal; highlights the active mode section
+- `src/share.ts` — `encodePatternUrl(json)` / `readPatternFromHash()` — URL-based sharing; compresses JSON via `lz-string` into a `#p=…` hash fragment. Hash is read once at load (before `ui.ts` clears it after loading a shared pattern).
+- `src/tour.ts` — `startTour(deps)` — first-run Driver.js onboarding tour. Skipped if `localStorage` key `bookbinding-tour-v1` is set or if a hash is present on page load (shared URL). Loads the first bundled example before starting the tour.
+- `src/hover-menu.ts` — `HoverMenu` class — floating context-menu card positioned near a hole; auto-repositions to avoid viewport overflow; dismissed after a 200 ms delay on mouse-leave.
+- `src/file-io.ts` — `saveAsFile`, `saveToHandle`, `openFilePicker` — file I/O helpers; uses the File System Access API (`showSaveFilePicker`) with a `<a download>` blob-URL fallback for browsers that don't support it.
 
 **Critical rendering constraint:** `renderGrid` wipes `svg.innerHTML`, so the ghost layer and sewing layer must be re-appended after every grid render. The `refresh()` function in `ui.ts` always calls `ensureGhostLayer()` and `renderSewing()` after `renderGrid()`.
 
