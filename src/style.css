@@ -966,3 +966,55 @@ button.gallery-cta:hover {
 .hidden-link-stitch--preview {
   opacity: 0.4;
 }
+
+/* Welcome banner (first-run tour invite) */
+.welcome-banner {
+  background: #e8f4fd;
+  border-bottom: 2px solid #4a90d9;
+  padding: 18px 16px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.welcome-banner strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.welcome-banner-actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.welcome-banner-start {
+  padding: 5px 12px;
+  background: #4a90d9;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.welcome-banner-start:hover {
+  background: #357abd;
+}
+
+.welcome-banner-skip {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.welcome-banner-skip:hover {
+  color: #333;
+}

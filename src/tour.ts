@@ -1,5 +1,6 @@
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { el } from "./dom-utils";
 
 export interface TourDeps {
   loadPattern: (json: string) => void;
@@ -143,5 +144,45 @@ export function startTour(deps: TourDeps): void {
     ],
   });
 
-  driverObj.drive();
+  showWelcomeBanner(() => driverObj.drive());
+}
+
+function showWelcomeBanner(onStart: () => void): void {
+  const leftPanel = document.querySelector(".left-panel");
+  if (!leftPanel) {
+    onStart();
+    return;
+  }
+
+  const banner = el("div", "welcome-banner");
+
+  const heading = el("strong");
+  heading.textContent = "Welcome to Bookbinding Stitcher";
+  banner.appendChild(heading);
+
+  const blurb = el("span");
+  blurb.textContent = "Take a quick tour to discover the key features.";
+  banner.appendChild(blurb);
+
+  const actions = el("div", "welcome-banner-actions");
+
+  const startBtn = el("button", "welcome-banner-start");
+  startBtn.textContent = "Start Tour";
+  startBtn.addEventListener("click", () => {
+    banner.remove();
+    onStart();
+  });
+
+  const skipBtn = el("button", "welcome-banner-skip");
+  skipBtn.textContent = "Skip";
+  skipBtn.addEventListener("click", () => {
+    banner.remove();
+    localStorage.setItem("bookbinding-tour-v1", "1");
+  });
+
+  actions.appendChild(startBtn);
+  actions.appendChild(skipBtn);
+  banner.appendChild(actions);
+
+  leftPanel.prepend(banner);
 }
