@@ -210,70 +210,42 @@ export function buildSewingPanel(
     updatePanel();
   }
 
+  function menuItem(
+    label: string,
+    opts: { icon?: string; loadColor?: "positive" | "negative"; primary?: boolean; onHover?: () => void; onLeave?: () => void },
+    action: () => void,
+  ): MenuItem {
+    return { ...opts, label, onClick: () => { action(); clearPreviewState(); refresh(); updatePanel(); } };
+  }
+
   function buildMenuItems(hole: Hole): MenuItem[] {
     const state = sewingModel.getState();
     const active = state.activeThread;
     const items: MenuItem[] = [];
 
     if (!active) {
-      items.push({
-        label: "Start from outside the spine",
-        icon: "●",
-        loadColor: "positive",
-        primary: true,
-        onClick: () => {
-          sewingModel.beginThread("positive");
-          sewingModel.setThreadStartPoint(hole);
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
-      items.push({
-        label: "Start from inside the spine",
-        icon: "●",
-        loadColor: "negative",
-        onClick: () => {
-          sewingModel.beginThread("negative");
-          sewingModel.setThreadStartPoint(hole);
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
+      items.push(menuItem("Start from outside the spine", { icon: "●", loadColor: "positive", primary: true }, () => {
+        sewingModel.beginThread("positive");
+        sewingModel.setThreadStartPoint(hole);
+      }));
+      items.push(menuItem("Start from inside the spine", { icon: "●", loadColor: "negative" }, () => {
+        sewingModel.beginThread("negative");
+        sewingModel.setThreadStartPoint(hole);
+      }));
       // Re-open completed threads that start or end at this hole
       for (let i = 0; i < state.threads.length; i++) {
         const t = state.threads[i];
         const lastEdge = t.edges[t.edges.length - 1];
         if (holeEq(t.startHole, hole) || (lastEdge && holeEq(lastEdge.to, hole))) {
           const idx = i;
-          items.push({
-            label: `Re-open thread ${i + 1}`,
-            icon: "↩",
-            onClick: () => {
-              sewingModel.uncompleteThread(idx);
-              clearPreviewState();
-              refresh();
-              updatePanel();
-            },
-          });
+          items.push(menuItem(`Re-open thread ${i + 1}`, { icon: "↩" }, () => sewingModel.uncompleteThread(idx)));
         }
       }
       return items;
     }
 
     if (!active.startHole) {
-      items.push({
-        label: "Set as start point",
-        icon: "◆",
-        primary: true,
-        onClick: () => {
-          sewingModel.setThreadStartPoint(hole);
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
+      items.push(menuItem("Set as start point", { icon: "◆", primary: true }, () => sewingModel.setThreadStartPoint(hole)));
       return items;
     }
 
@@ -282,48 +254,21 @@ export function buildSewingPanel(
 
     if (isCurrentHole) {
       if (canAddAnchorLoop(active, state.threads)) {
-        items.push({
-          label: active.nextLoad === "negative" ? "Add anchor loop (inside)" : "Add anchor loop (outside)",
-          icon: "⊂",
-          primary: true,
-          onHover: () => {
-            preview = { previewAnchorLoop: hole };
-            renderWithPreview();
+        items.push(menuItem(
+          active.nextLoad === "negative" ? "Add anchor loop (inside)" : "Add anchor loop (outside)",
+          {
+            icon: "⊂",
+            primary: true,
+            onHover: () => { preview = { previewAnchorLoop: hole }; renderWithPreview(); },
+            onLeave: () => { preview = {}; renderWithPreview(); },
           },
-          onLeave: () => {
-            preview = {};
-            renderWithPreview();
-          },
-          onClick: () => {
-            sewingModel.addAnchorLoop();
-            clearPreviewState();
-            refresh();
-            updatePanel();
-          },
-        });
+          () => sewingModel.addAnchorLoop(),
+        ));
       }
       if (active.edges.length > 0) {
-        items.push({
-          label: "End thread — open end",
-          icon: "◇",
-          onClick: () => {
-            sewingModel.endThread();
-            clearPreviewState();
-            refresh();
-            updatePanel();
-          },
-        });
+        items.push(menuItem("End thread — open end", { icon: "◇" }, () => sewingModel.endThread()));
         if (canEndWithKnot(active, state.threads)) {
-          items.push({
-            label: "End thread — with knot",
-            icon: "✕",
-            onClick: () => {
-              sewingModel.endThreadWithKnot();
-              clearPreviewState();
-              refresh();
-              updatePanel();
-            },
-          });
+          items.push(menuItem("End thread — with knot", { icon: "✕" }, () => sewingModel.endThreadWithKnot()));
         }
       }
       return items;
@@ -333,25 +278,16 @@ export function buildSewingPanel(
     const nextLoad = active.nextLoad;
     const loadLabel = nextLoad === "positive" ? "outside" : "inside";
 
-    items.push({
-      label: `Draw edge — ${loadLabel}`,
-      icon: "→",
-      primary: true,
-      onHover: () => {
-        preview = { previewEdge: { from: currentHole, to: hole, load: nextLoad } };
-        renderWithPreview();
+    items.push(menuItem(
+      `Draw edge — ${loadLabel}`,
+      {
+        icon: "→",
+        primary: true,
+        onHover: () => { preview = { previewEdge: { from: currentHole, to: hole, load: nextLoad } }; renderWithPreview(); },
+        onLeave: () => { preview = {}; renderWithPreview(); },
       },
-      onLeave: () => {
-        preview = {};
-        renderWithPreview();
-      },
-      onClick: () => {
-        sewingModel.addEdge(hole);
-        clearPreviewState();
-        refresh();
-        updatePanel();
-      },
-    });
+      () => sewingModel.addEdge(hole),
+    ));
 
     // Chain stitch
     const chainElig = getEligibleChainHoles(active, state.threads);
@@ -359,66 +295,39 @@ export function buildSewingPanel(
     const isChainEligible =
       chainElig.some(h => holeEq(h, hole)) || anchorLoopElig.some(h => holeEq(h, hole));
     if (isChainEligible) {
-      items.push({
-        label: "Chain stitch here",
-        icon: "⊃",
-        onHover: () => {
-          preview = { previewChainStitch: { from: currentHole, to: hole, side: nextLoad } };
-          renderWithPreview();
+      items.push(menuItem(
+        "Chain stitch here",
+        {
+          icon: "⊃",
+          onHover: () => { preview = { previewChainStitch: { from: currentHole, to: hole, side: nextLoad } }; renderWithPreview(); },
+          onLeave: () => { preview = {}; renderWithPreview(); },
         },
-        onLeave: () => {
-          preview = {};
-          renderWithPreview();
-        },
-        onClick: () => {
-          sewingModel.addChainStitch(hole);
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
+        () => sewingModel.addChainStitch(hole),
+      ));
     }
 
     // Hidden link stitches (only when nextLoad === "positive")
     if (nextLoad === "positive") {
-      items.push({
-        label: "Hidden link into spine",
-        icon: "⇢",
-        loadColor: "negative",
-        onHover: () => {
-          preview = { previewHiddenLink: { from: currentHole, to: hole, side: "negative" } };
-          renderWithPreview();
+      items.push(menuItem(
+        "Hidden link into spine",
+        {
+          icon: "⇢",
+          loadColor: "negative",
+          onHover: () => { preview = { previewHiddenLink: { from: currentHole, to: hole, side: "negative" } }; renderWithPreview(); },
+          onLeave: () => { preview = {}; renderWithPreview(); },
         },
-        onLeave: () => {
-          preview = {};
-          renderWithPreview();
+        () => sewingModel.addHiddenLinkStitch(hole, "negative"),
+      ));
+      items.push(menuItem(
+        "Hidden link into signature",
+        {
+          icon: "⇢",
+          loadColor: "positive",
+          onHover: () => { preview = { previewHiddenLink: { from: currentHole, to: hole, side: "positive" } }; renderWithPreview(); },
+          onLeave: () => { preview = {}; renderWithPreview(); },
         },
-        onClick: () => {
-          sewingModel.addHiddenLinkStitch(hole, "negative");
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
-      items.push({
-        label: "Hidden link into signature",
-        icon: "⇢",
-        loadColor: "positive",
-        onHover: () => {
-          preview = { previewHiddenLink: { from: currentHole, to: hole, side: "positive" } };
-          renderWithPreview();
-        },
-        onLeave: () => {
-          preview = {};
-          renderWithPreview();
-        },
-        onClick: () => {
-          sewingModel.addHiddenLinkStitch(hole, "positive");
-          clearPreviewState();
-          refresh();
-          updatePanel();
-        },
-      });
+        () => sewingModel.addHiddenLinkStitch(hole, "positive"),
+      ));
     }
 
     return items;

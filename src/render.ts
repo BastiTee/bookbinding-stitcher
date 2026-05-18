@@ -71,24 +71,8 @@ export function renderGrid(
   svg.appendChild(rect);
 
   // Layer 2: Grid lines (10mm intervals)
-  for (let x = GRID_STEP; x < spine.width; x += GRID_STEP) {
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", String(x));
-    line.setAttribute("y1", "0");
-    line.setAttribute("x2", String(x));
-    line.setAttribute("y2", String(spine.height));
-    line.classList.add("grid-line-major");
-    svg.appendChild(line);
-  }
-  for (let y = GRID_STEP; y < spine.height; y += GRID_STEP) {
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", "0");
-    line.setAttribute("y1", String(y));
-    line.setAttribute("x2", String(spine.width));
-    line.setAttribute("y2", String(y));
-    line.classList.add("grid-line-major");
-    svg.appendChild(line);
-  }
+  for (let x = GRID_STEP; x < spine.width; x += GRID_STEP) appendGridLine(svg, spine, "x", x);
+  for (let y = GRID_STEP; y < spine.height; y += GRID_STEP) appendGridLine(svg, spine, "y", y);
 
   const { dotRadius } = computeScaleSizes(spine);
 
@@ -112,6 +96,19 @@ export function renderGrid(
 
   // Layer 5: Signature margin buttons
   renderSignatureButtons(svg, state);
+}
+
+function appendGridLine(svg: SVGSVGElement, spine: Readonly<Spine>, axis: "x" | "y", pos: number) {
+  const line = document.createElementNS(SVG_NS, "line");
+  if (axis === "x") {
+    line.setAttribute("x1", String(pos)); line.setAttribute("y1", "0");
+    line.setAttribute("x2", String(pos)); line.setAttribute("y2", String(spine.height));
+  } else {
+    line.setAttribute("x1", "0"); line.setAttribute("y1", String(pos));
+    line.setAttribute("x2", String(spine.width)); line.setAttribute("y2", String(pos));
+  }
+  line.classList.add("grid-line-major");
+  svg.appendChild(line);
 }
 
 function renderRulers(svg: SVGSVGElement, spine: Readonly<Spine>) {
@@ -180,46 +177,42 @@ function renderRulers(svg: SVGSVGElement, spine: Readonly<Spine>) {
   svg.appendChild(layer);
 }
 
+const SIG_BTN_R = 0.45;
+
+function appendSigButtons(
+  svg: SVGSVGElement,
+  spine: Readonly<Spine>,
+  axis: "right" | "bottom",
+  activePositions: Set<number>,
+  orientation: string | undefined,
+) {
+  const max = axis === "right" ? spine.height : spine.width;
+  const myOrientation = axis === "right" ? "horizontal" : "vertical";
+  const otherOrientation = axis === "right" ? "vertical" : "horizontal";
+  for (let pos = 0; pos <= max; pos++) {
+    const c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("cx", String(axis === "right" ? spine.width + BTN_OFFSET : pos));
+    c.setAttribute("cy", String(axis === "right" ? pos : spine.height + BTN_OFFSET));
+    c.setAttribute("r", String(SIG_BTN_R));
+    c.setAttribute("data-sig-axis", axis);
+    c.setAttribute("data-sig-pos", String(pos));
+    c.classList.add("sig-button");
+    if (orientation === myOrientation && activePositions.has(pos)) {
+      c.classList.add("sig-button--active");
+    } else if (orientation === otherOrientation) {
+      c.classList.add("sig-button--locked");
+    }
+    svg.appendChild(c);
+  }
+}
+
 function renderSignatureButtons(svg: SVGSVGElement, state: Readonly<GridState>) {
   const { spine, signatures } = state;
   const activePositions = new Set(signatures?.positions ?? []);
   const orientation = signatures?.orientation;
-  const BTN_R = 0.45;
 
-
-  // Right-side buttons: indicate horizontal signature positions (Y values)
-  for (let y = 0; y <= spine.height; y++) {
-    const c = document.createElementNS(SVG_NS, "circle");
-    c.setAttribute("cx", String(spine.width + BTN_OFFSET));
-    c.setAttribute("cy", String(y));
-    c.setAttribute("r", String(BTN_R));
-    c.setAttribute("data-sig-axis", "right");
-    c.setAttribute("data-sig-pos", String(y));
-    c.classList.add("sig-button");
-    if (orientation === "horizontal" && activePositions.has(y)) {
-      c.classList.add("sig-button--active");
-    } else if (orientation === "vertical") {
-      c.classList.add("sig-button--locked");
-    }
-    svg.appendChild(c);
-  }
-
-  // Bottom buttons: indicate vertical signature positions (X values)
-  for (let x = 0; x <= spine.width; x++) {
-    const c = document.createElementNS(SVG_NS, "circle");
-    c.setAttribute("cx", String(x));
-    c.setAttribute("cy", String(spine.height + BTN_OFFSET));
-    c.setAttribute("r", String(BTN_R));
-    c.setAttribute("data-sig-axis", "bottom");
-    c.setAttribute("data-sig-pos", String(x));
-    c.classList.add("sig-button");
-    if (orientation === "vertical" && activePositions.has(x)) {
-      c.classList.add("sig-button--active");
-    } else if (orientation === "horizontal") {
-      c.classList.add("sig-button--locked");
-    }
-    svg.appendChild(c);
-  }
+  appendSigButtons(svg, spine, "right", activePositions, orientation);
+  appendSigButtons(svg, spine, "bottom", activePositions, orientation);
 
   if (activePositions.size > 0) {
     const t = document.createElementNS(SVG_NS, "text");

@@ -53,12 +53,10 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // App header
   // ============================================================
   const appHeader = el("div", "app-header");
-  const appIcon = document.createElement("img");
+  const appIcon = el("img", "app-header-icon") as HTMLImageElement;
   appIcon.src = import.meta.env.BASE_URL + "favicon.png";
   appIcon.alt = "Stitcher";
-  appIcon.className = "app-header-icon";
-  const appTitle = document.createElement("span");
-  appTitle.className = "app-header-title";
+  const appTitle = el("span", "app-header-title");
   appTitle.textContent = "Bookbinding Stitcher";
   appHeader.appendChild(appIcon);
   appHeader.appendChild(appTitle);
@@ -73,17 +71,14 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // Mode switcher
   // ============================================================
   const modeSwitcher = el("div", "mode-switcher");
-  const btnDesign = document.createElement("button");
+  const btnDesign = el("button", "mode-btn active") as unknown as HTMLButtonElement;
   btnDesign.textContent = "Spine Design";
-  btnDesign.classList.add("mode-btn", "active");
   btnDesign.id = "btn-mode-design";
-  const btnSewing = document.createElement("button");
+  const btnSewing = el("button", "mode-btn") as unknown as HTMLButtonElement;
   btnSewing.textContent = "Sewing";
-  btnSewing.classList.add("mode-btn");
   btnSewing.id = "btn-mode-sewing";
-  const btnPlayback = document.createElement("button");
+  const btnPlayback = el("button", "mode-btn") as unknown as HTMLButtonElement;
   btnPlayback.textContent = "Playback";
-  btnPlayback.classList.add("mode-btn");
   btnPlayback.id = "btn-mode-playback";
   modeSwitcher.appendChild(btnDesign);
   modeSwitcher.appendChild(btnSewing);
@@ -125,8 +120,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const sewingPanelObj = buildSewingPanel(rightPanel, sewingModel, model, svg, svgPanel, refresh);
   const playbackPanelObj = buildPlaybackPanel(rightPanel, sewingModel, model, svg);
 
-  const modeSwitcherHr = document.createElement("hr");
-  modeSwitcherHr.className = "mode-switcher-hr";
+  const modeSwitcherHr = el("hr", "mode-switcher-hr") as HTMLHRElement;
   rightPanel.appendChild(modeSwitcherHr);
   const shortcutsContainer = el("div", "shortcuts-container");
   shortcutsContainer.appendChild(buildShortcutsPanel("design"));
@@ -161,9 +155,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
         currentFileName = fileName;
         updateFileNameDisplay();
         if (handle) setSaveEnabled(true);
-        const orig = saveAsBtn.textContent;
-        saveAsBtn.textContent = "Saved!";
-        setTimeout(() => { saveAsBtn.textContent = orig; }, 1200);
+        flashSaved(saveAsBtn);
       },
       onError: (msg) => { importError.textContent = msg; },
     });
@@ -177,9 +169,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     await saveToHandle(exportJson, currentFileHandle, {
       onError: (msg) => { importError.textContent = msg; },
     });
-    const orig = saveBtn.textContent;
-    saveBtn.textContent = "Saved!";
-    setTimeout(() => { saveBtn.textContent = orig; }, 1200);
+    flashSaved(saveBtn);
   });
   saveBtn.classList.add("save-disabled");
 
@@ -199,7 +189,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     }
   }
 
-  const fileInput = document.createElement("input");
+  const fileInput = el("input") as HTMLInputElement;
   fileInput.type = "file";
   fileInput.accept = ".json";
   fileInput.style.display = "none";
@@ -211,7 +201,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       currentFileHandle = null;
       setSaveEnabled(false);
       updateFileNameDisplay();
-      switchToPlayback();
+      switchMode("playback");
     },
     (msg) => { importError.textContent = msg; },
   );
@@ -226,7 +216,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
       setSaveEnabled(false);
       updateFileNameDisplay();
       applyImport(json);
-      switchToPlayback();
+      switchMode("playback");
     });
   });
 
@@ -261,14 +251,13 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   persistentPanel.appendChild(importError);
 
   const sidebarFooter = el("div", "sidebar-footer");
-  const footerLink = document.createElement("a");
+  const footerLink = el("a", "sidebar-footer-link") as unknown as HTMLAnchorElement;
   footerLink.href = "https://github.com/BastiTee/bookbinding-stitcher";
   footerLink.target = "_blank";
   footerLink.rel = "noopener noreferrer";
-  footerLink.className = "sidebar-footer-link";
-  const line1 = document.createElement("span");
+  const line1 = el("span");
   line1.textContent = "Made with waxed linen thread";
-  const line2 = document.createElement("span");
+  const line2 = el("span");
   line2.textContent = "by Basti Tee";
   footerLink.appendChild(line1);
   footerLink.appendChild(document.createElement("br"));
@@ -283,67 +272,43 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   // ============================================================
   // Mode switching logic
   // ============================================================
-  function switchToDesign() {
-    currentMode = "design";
-    btnDesign.classList.add("active");
-    btnSewing.classList.remove("active");
-    btnPlayback.classList.remove("active");
-    designPanel.classList.remove("hidden");
-    sewingPanelObj.deactivate();
-    playbackPanelObj.deactivate();
-    shortcutsContainer.replaceChildren(buildShortcutsPanel("design"));
-    refresh();
-  }
-
-  function switchToSewing() {
-    currentMode = "sewing";
-    btnSewing.classList.add("active");
-    btnDesign.classList.remove("active");
-    btnPlayback.classList.remove("active");
-    designPanel.classList.add("hidden");
-    sewingPanelObj.activate();
-    playbackPanelObj.deactivate();
-    shortcutsContainer.replaceChildren(buildShortcutsPanel("sewing"));
-  }
-
-  function switchToPlayback() {
-    if (currentMode === "playback") {
+  function switchMode(next: Mode) {
+    if (next === "playback" && currentMode === "playback") {
+      // Re-activate playback to restart it (e.g. after loading a new pattern)
       playbackPanelObj.deactivate();
       playbackPanelObj.activate();
       return;
     }
-    currentMode = "playback";
-    btnPlayback.classList.add("active");
-    btnDesign.classList.remove("active");
-    btnSewing.classList.remove("active");
-    designPanel.classList.add("hidden");
+    if (currentMode === next) return;
+    currentMode = next;
+    btnDesign.classList.toggle("active", next === "design");
+    btnSewing.classList.toggle("active", next === "sewing");
+    btnPlayback.classList.toggle("active", next === "playback");
+    designPanel.classList.toggle("hidden", next !== "design");
     sewingPanelObj.deactivate();
-    playbackPanelObj.activate();
-    shortcutsContainer.replaceChildren(buildShortcutsPanel("playback"));
+    playbackPanelObj.deactivate();
+    if (next === "sewing") sewingPanelObj.activate();
+    else if (next === "playback") playbackPanelObj.activate();
+    shortcutsContainer.replaceChildren(buildShortcutsPanel(next));
+    if (next === "design") refresh();
   }
 
-  btnDesign.addEventListener("click", switchToDesign);
-  btnSewing.addEventListener("click", switchToSewing);
-  btnPlayback.addEventListener("click", switchToPlayback);
+  btnDesign.addEventListener("click", () => switchMode("design"));
+  btnSewing.addEventListener("click", () => switchMode("sewing"));
+  btnPlayback.addEventListener("click", () => switchMode("playback"));
 
   // Bottom action group (pinned to bottom of right sidebar)
   const bottomPanel = el("div", "bottom-panel");
-  const resetThreadsBtn = document.createElement("button");
-  resetThreadsBtn.textContent = "Reset Threads";
-  resetThreadsBtn.className = "reset-btn";
-  resetThreadsBtn.addEventListener("click", () => {
+  const resetThreadsBtn = button("Reset Threads", () => {
     if (!confirm("Reset threads? This will clear all threads but keep the spine design and metadata.")) return;
     sewingModel.reset();
-  });
+  }, "reset-btn");
   bottomPanel.appendChild(resetThreadsBtn);
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "Reset Everything";
-  resetBtn.className = "reset-btn";
-  resetBtn.addEventListener("click", () => {
+  const resetBtn = button("Reset Everything", () => {
     if (!confirm("Reset everything? This will clear all holes, threads, and metadata.")) return;
     setMetadata({});
     model.loadState({ spine: { width: 150, height: 40 }, holes: [] });
-  });
+  }, "reset-btn");
   bottomPanel.appendChild(resetBtn);
   rightPanel.appendChild(bottomPanel);
 
@@ -567,7 +532,7 @@ export function buildUI(container: HTMLElement, model: GridModel) {
     const hasHoles = state.holes.length > 0;
     btnSewing.disabled = !hasHoles;
     if (!hasHoles && currentMode === "sewing") {
-      switchToDesign();
+      switchMode("design");
     }
 
     // Build export JSON — combined grid + threads
@@ -607,22 +572,27 @@ export function buildUI(container: HTMLElement, model: GridModel) {
 
   refresh();
 
-  startTour({ loadPattern: applyImport, switchToDesign, switchToSewing, switchToPlayback });
+  startTour({ loadPattern: applyImport, switchToDesign: () => switchMode("design"), switchToSewing: () => switchMode("sewing"), switchToPlayback: () => switchMode("playback") });
 }
 
 // --- Helpers ---
+
+function flashSaved(btn: HTMLButtonElement) {
+  const orig = btn.textContent;
+  btn.textContent = "Saved!";
+  setTimeout(() => { btn.textContent = orig; }, 1200);
+}
 
 function numberInput(placeholder: string): {
   wrapper: HTMLDivElement;
   input: HTMLInputElement;
 } {
-  const wrapper = document.createElement("div");
-  wrapper.className = "input-group";
-  const input = document.createElement("input");
+  const wrapper = el("div", "input-group") as HTMLDivElement;
+  const input = el("input") as HTMLInputElement;
   input.type = "number";
   input.placeholder = placeholder;
   input.step = "1";
-  const label = document.createElement("label");
+  const label = el("label");
   label.textContent = placeholder;
   wrapper.appendChild(label);
   wrapper.appendChild(input);
@@ -644,13 +614,10 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
 
   // View mode container (shown by default)
   const metadataView = el("div", "metadata-view");
-  const viewTitle = document.createElement("p");
-  viewTitle.className = "meta-view-title";
-  const viewAuthor = document.createElement("p");
-  viewAuthor.className = "meta-view-author";
-  const viewDesc = document.createElement("p");
-  viewDesc.className = "meta-view-desc";
-  const viewTutorialBtn = document.createElement("button");
+  const viewTitle = el("p", "meta-view-title");
+  const viewAuthor = el("p", "meta-view-author");
+  const viewDesc = el("p", "meta-view-desc");
+  const viewTutorialBtn = el("button") as unknown as HTMLButtonElement;
   viewTutorialBtn.textContent = "Open tutorial";
   viewTutorialBtn.style.display = "none";
   viewTutorialBtn.addEventListener("click", () => {
@@ -666,30 +633,26 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   // Edit mode container (hidden by default)
   const metadataEdit = el("div", "metadata-edit hidden");
 
-  const titleInput = document.createElement("input");
+  const titleInput = el("input", "metadata-input") as HTMLInputElement;
   titleInput.type = "text";
   titleInput.maxLength = 50;
   titleInput.placeholder = "Title";
-  titleInput.className = "metadata-input";
   titleInput.addEventListener("input", onChange);
   metadataEdit.appendChild(titleInput);
 
-  const authorInput = document.createElement("input");
+  const authorInput = el("input", "metadata-input") as HTMLInputElement;
   authorInput.type = "text";
   authorInput.maxLength = 50;
   authorInput.placeholder = "Author";
-  authorInput.className = "metadata-input";
   authorInput.addEventListener("input", onChange);
   metadataEdit.appendChild(authorInput);
 
-  const descTextarea = document.createElement("textarea");
+  const descTextarea = el("textarea", "metadata-textarea") as unknown as HTMLTextAreaElement;
   descTextarea.maxLength = 1000;
   descTextarea.placeholder = "Description…";
-  descTextarea.className = "metadata-textarea";
   metadataEdit.appendChild(descTextarea);
 
-  const charCount = document.createElement("span");
-  charCount.className = "char-count";
+  const charCount = el("span", "char-count");
   charCount.textContent = "0 / 1000";
   metadataEdit.appendChild(charCount);
 
@@ -698,11 +661,10 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
     onChange();
   });
 
-  const tutorialInput = document.createElement("input");
+  const tutorialInput = el("input", "metadata-input") as HTMLInputElement;
   tutorialInput.type = "text";
   tutorialInput.maxLength = 500;
   tutorialInput.placeholder = "Tutorial URL";
-  tutorialInput.className = "metadata-input";
   metadataEdit.appendChild(tutorialInput);
 
   tutorialInput.addEventListener("input", onChange);
@@ -710,7 +672,7 @@ function buildMetadataPanel(sidebar: HTMLElement, onChange: () => void): {
   panel.appendChild(metadataEdit);
   sidebar.appendChild(panel);
 
-  const editBtn = document.createElement("button");
+  const editBtn = el("button") as unknown as HTMLButtonElement;
   editBtn.textContent = "Edit metadata";
   sidebar.appendChild(editBtn);
 

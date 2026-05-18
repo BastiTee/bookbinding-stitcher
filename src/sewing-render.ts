@@ -318,6 +318,64 @@ function drawEdgeLabel(labelsLayer: SVGGElement, midX: number, midY: number, ind
   labelsLayer.appendChild(text);
 }
 
+function drawStraightEdge(
+  layer: SVGGElement,
+  labelsLayer: SVGGElement,
+  from: Hole,
+  to: Hole,
+  loadClass: string,
+  preview: boolean,
+  hiddenLinkOrigin: boolean | undefined,
+  index: number | undefined,
+) {
+  const line = document.createElementNS(SVG_NS, "line");
+  line.setAttribute("x1", String(from.x)); line.setAttribute("y1", String(from.y));
+  line.setAttribute("x2", String(to.x)); line.setAttribute("y2", String(to.y));
+  line.classList.add("thread-edge", loadClass);
+  if (hiddenLinkOrigin) line.classList.add("thread-edge--hidden-link-origin");
+  if (preview) line.classList.add("thread-edge--preview");
+  layer.appendChild(line);
+  if (index !== undefined && !preview) {
+    drawEdgeLabel(labelsLayer, (from.x + to.x) / 2, (from.y + to.y) / 2, index);
+  }
+}
+
+function drawCurvedEdge(
+  layer: SVGGElement,
+  labelsLayer: SVGGElement,
+  from: Hole,
+  to: Hole,
+  loadClass: string,
+  preview: boolean,
+  hiddenLinkOrigin: boolean | undefined,
+  index: number | undefined,
+  offsetAmount: number,
+) {
+  let dx = to.x - from.x;
+  let dy = to.y - from.y;
+  // Canonicalize direction so both A→B and B→A use the same perpendicular orientation
+  const isReversed = from.x > to.x || (from.x === to.x && from.y > to.y);
+  if (isReversed) { dx = -dx; dy = -dy; }
+  const len = Math.sqrt(dx * dx + dy * dy);
+  // Perpendicular unit vector (rotate 90°)
+  const perpX = len > 0 ? -dy / len : 0;
+  const perpY = len > 0 ? dx / len : 0;
+  const cx = (from.x + to.x) / 2 + perpX * offsetAmount;
+  const cy = (from.y + to.y) / 2 + perpY * offsetAmount;
+
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`);
+  path.setAttribute("fill", "none");
+  path.classList.add("thread-edge", loadClass);
+  if (hiddenLinkOrigin) path.classList.add("thread-edge--hidden-link-origin");
+  if (preview) path.classList.add("thread-edge--preview");
+  layer.appendChild(path);
+  if (index !== undefined && !preview) {
+    // Visual midpoint of quadratic bezier at t=0.5
+    drawEdgeLabel(labelsLayer, (from.x + to.x) / 2 + perpX * offsetAmount / 2, (from.y + to.y) / 2 + perpY * offsetAmount / 2, index);
+  }
+}
+
 function drawEdgeLine(
   layer: SVGGElement,
   labelsLayer: SVGGElement,
@@ -332,51 +390,11 @@ function drawEdgeLine(
   hiddenLinkOrigin?: boolean,
 ) {
   const loadClass = load === "positive" ? "thread-edge--positive" : "thread-edge--negative";
-
-  // Perpendicular offset for this slot: centre the spread around 0
   const offsetAmount = (slotIndex - (slotTotal - 1) / 2) * CURVE_OFFSET_MM;
-
   if (offsetAmount === 0 || slotTotal === 1) {
-    // Straight line
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("x1", String(from.x));
-    line.setAttribute("y1", String(from.y));
-    line.setAttribute("x2", String(to.x));
-    line.setAttribute("y2", String(to.y));
-    line.classList.add("thread-edge", loadClass);
-    if (hiddenLinkOrigin) line.classList.add("thread-edge--hidden-link-origin");
-    if (preview) line.classList.add("thread-edge--preview");
-    layer.appendChild(line);
-    if (index !== undefined && !preview) {
-      drawEdgeLabel(labelsLayer, (from.x + to.x) / 2, (from.y + to.y) / 2, index);
-    }
-    return;
-  }
-
-  // Quadratic bezier with control point offset perpendicular to the edge
-  let dx = to.x - from.x;
-  let dy = to.y - from.y;
-  // Canonicalize direction so both A→B and B→A use the same perpendicular orientation
-  const isReversed = from.x > to.x || (from.x === to.x && from.y > to.y);
-  if (isReversed) { dx = -dx; dy = -dy; }
-  const len = Math.sqrt(dx * dx + dy * dy);
-  // Perpendicular unit vector (rotate 90°)
-  const perpX = len > 0 ? -dy / len : 0;
-  const perpY = len > 0 ? dx / len : 0;
-
-  const cx = (from.x + to.x) / 2 + perpX * offsetAmount;
-  const cy = (from.y + to.y) / 2 + perpY * offsetAmount;
-
-  const path = document.createElementNS(SVG_NS, "path");
-  path.setAttribute("d", `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`);
-  path.setAttribute("fill", "none");
-  path.classList.add("thread-edge", loadClass);
-  if (hiddenLinkOrigin) path.classList.add("thread-edge--hidden-link-origin");
-  if (preview) path.classList.add("thread-edge--preview");
-  layer.appendChild(path);
-  if (index !== undefined && !preview) {
-    // Visual midpoint of quadratic bezier at t=0.5 = midpoint of chord + half the control-point offset
-    drawEdgeLabel(labelsLayer, (from.x + to.x) / 2 + perpX * offsetAmount / 2, (from.y + to.y) / 2 + perpY * offsetAmount / 2, index);
+    drawStraightEdge(layer, labelsLayer, from, to, loadClass, preview, hiddenLinkOrigin, index);
+  } else {
+    drawCurvedEdge(layer, labelsLayer, from, to, loadClass, preview, hiddenLinkOrigin, index, offsetAmount);
   }
 }
 

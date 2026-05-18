@@ -260,12 +260,12 @@ export class SewingModel {
     return JSON.parse(JSON.stringify(this.state));
   }
 
-  private saveHistory() {
+  private withHistory(fn: (s: SewingState) => SewingState): void {
     this.history.push(this.snapshot());
-    if (this.history.length > this.MAX_HISTORY) {
-      this.history.shift();
-    }
+    if (this.history.length > this.MAX_HISTORY) this.history.shift();
     this.future = [];
+    this.state = fn(this.state);
+    this.notify();
   }
 
   undo() {
@@ -283,9 +283,8 @@ export class SewingModel {
   }
 
   beginThread(startSide: Load) {
-    this.saveHistory();
-    this.state = {
-      ...this.state,
+    this.withHistory(s => ({
+      ...s,
       activeThread: {
         startSide,
         startHole: null,
@@ -295,20 +294,14 @@ export class SewingModel {
         chainStitches: [],
         hiddenLinkStitches: [],
       },
-    };
-    this.notify();
+    }));
   }
 
   setThreadStartPoint(h: Hole) {
     const active = this.state.activeThread;
     if (!active) throw new Error("No active thread");
     if (active.edges.length > 0) throw new Error("Thread already has edges; cannot change start point");
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: { ...active, startHole: { ...h } },
-    };
-    this.notify();
+    this.withHistory(s => ({ ...s, activeThread: { ...s.activeThread!, startHole: { ...h } } }));
   }
 
   addEdge(to: Hole) {
@@ -317,26 +310,18 @@ export class SewingModel {
     if (!active.startHole) throw new Error("Thread start point not set yet");
 
     const from: Hole = { ...getCurrentHole(active)! };
-
     const newEdge: Edge = {
       load: active.nextLoad,
       from,
       to: { ...to },
       index: active.edges.length + 1,
     };
-
     const nextLoad: Load = toggleLoad(active.nextLoad);
 
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: {
-        ...active,
-        edges: [...active.edges, newEdge],
-        nextLoad,
-      },
-    };
-    this.notify();
+    this.withHistory(s => ({
+      ...s,
+      activeThread: { ...s.activeThread!, edges: [...s.activeThread!.edges, newEdge], nextLoad },
+    }));
   }
 
   endThread() {
@@ -354,13 +339,7 @@ export class SewingModel {
       chainStitches: active.chainStitches,
       hiddenLinkStitches: active.hiddenLinkStitches,
     };
-
-    this.saveHistory();
-    this.state = {
-      threads: [...this.state.threads, completed],
-      activeThread: null,
-    };
-    this.notify();
+    this.withHistory(s => ({ threads: [...s.threads, completed], activeThread: null }));
   }
 
   endThreadWithKnot() {
@@ -381,9 +360,7 @@ export class SewingModel {
       chainStitches: active.chainStitches,
       hiddenLinkStitches: active.hiddenLinkStitches,
     };
-    this.saveHistory();
-    this.state = { threads: [...this.state.threads, completed], activeThread: null };
-    this.notify();
+    this.withHistory(s => ({ threads: [...s.threads, completed], activeThread: null }));
   }
 
   removeLastEdge() {
@@ -401,15 +378,11 @@ export class SewingModel {
       throw new Error("Last action was a hidden link stitch; remove it first (Shift+Click current point)");
     }
 
-    const newEdges = active.edges.slice(0, -1);
     const nextLoad: Load = toggleLoad(active.nextLoad);
-
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: { ...active, edges: newEdges, nextLoad },
-    };
-    this.notify();
+    this.withHistory(s => ({
+      ...s,
+      activeThread: { ...s.activeThread!, edges: s.activeThread!.edges.slice(0, -1), nextLoad },
+    }));
   }
 
   addAnchorLoop() {
@@ -418,24 +391,17 @@ export class SewingModel {
     if (!active.startHole) throw new Error("Thread start point not set");
     if (!canAddAnchorLoop(active, this.state.threads)) throw new Error("Anchor loop already exists at this hole and side");
 
-    const currentHole: Hole = { ...getCurrentHole(active)! };
-
-    // The loop is made on the side you dip into (= nextLoad).
-    // After dipping and returning, nextLoad flips back so the next edge continues on the same side.
     const loop: AnchorLoop = {
-      hole: currentHole,
+      hole: { ...getCurrentHole(active)! },
       side: active.nextLoad,
       afterEdge: active.edges.length,
     };
-
     const nextLoad: Load = toggleLoad(active.nextLoad);
 
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: { ...active, anchorLoops: [...active.anchorLoops, loop], nextLoad },
-    };
-    this.notify();
+    this.withHistory(s => ({
+      ...s,
+      activeThread: { ...s.activeThread!, anchorLoops: [...s.activeThread!.anchorLoops, loop], nextLoad },
+    }));
   }
 
   addChainStitch(to: Hole) {
@@ -447,17 +413,11 @@ export class SewingModel {
       side: active.nextLoad,
       afterEdge: active.edges.length,
     };
-
     // nextLoad intentionally NOT toggled — chain stitch stays on the same side
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: {
-        ...active,
-        chainStitches: [...active.chainStitches, cs],
-      },
-    };
-    this.notify();
+    this.withHistory(s => ({
+      ...s,
+      activeThread: { ...s.activeThread!, chainStitches: [...s.activeThread!.chainStitches, cs] },
+    }));
   }
 
   removeLastChainStitch() {
@@ -467,12 +427,10 @@ export class SewingModel {
     if (css.length === 0 || css[css.length - 1].afterEdge !== active.edges.length) {
       throw new Error("Last action was not a chain stitch");
     }
-    this.saveHistory();
-    this.state = {
-      ...this.state,
-      activeThread: { ...active, chainStitches: css.slice(0, -1) },
-    };
-    this.notify();
+    this.withHistory(s => ({
+      ...s,
+      activeThread: { ...s.activeThread!, chainStitches: s.activeThread!.chainStitches.slice(0, -1) },
+    }));
   }
 
   addHiddenLinkStitch(to: Hole, kind: Load) {
@@ -495,21 +453,18 @@ export class SewingModel {
       side: kind,
       afterEdge: active.edges.length,
     };
-
     // Type 1 (kind="negative"): flips nextLoad positive→negative
     // Type 2 (kind="positive"): nextLoad stays positive (no toggle)
     const nextLoad: Load = kind === "negative" ? toggleLoad(active.nextLoad) : active.nextLoad;
 
-    this.saveHistory();
-    this.state = {
-      ...this.state,
+    this.withHistory(s => ({
+      ...s,
       activeThread: {
-        ...active,
-        hiddenLinkStitches: [...active.hiddenLinkStitches, hls],
+        ...s.activeThread!,
+        hiddenLinkStitches: [...s.activeThread!.hiddenLinkStitches, hls],
         nextLoad,
       },
-    };
-    this.notify();
+    }));
   }
 
   removeLastHiddenLinkStitch() {
@@ -523,16 +478,14 @@ export class SewingModel {
     // Type 1 (side="negative"): undo the positive→negative toggle (goes back to positive)
     // Type 2 (side="positive"): nextLoad was unchanged, so undo is also a no-op
     const nextLoad: Load = lastHLS.side === "negative" ? toggleLoad(active.nextLoad) : active.nextLoad;
-    this.saveHistory();
-    this.state = {
-      ...this.state,
+    this.withHistory(s => ({
+      ...s,
       activeThread: {
-        ...active,
-        hiddenLinkStitches: hlss.slice(0, -1),
+        ...s.activeThread!,
+        hiddenLinkStitches: s.activeThread!.hiddenLinkStitches.slice(0, -1),
         nextLoad,
       },
-    };
-    this.notify();
+    }));
   }
 
   uncompleteThread(threadIndex: number) {
@@ -558,18 +511,14 @@ export class SewingModel {
       hiddenLinkStitches: thread.hiddenLinkStitches ?? [],
     };
 
-    this.saveHistory();
-    this.state = {
-      threads: threads.filter((_, i) => i !== threadIndex),
+    this.withHistory(s => ({
+      threads: s.threads.filter((_, i) => i !== threadIndex),
       activeThread: active,
-    };
-    this.notify();
+    }));
   }
 
   cancelThread() {
-    this.saveHistory();
-    this.state = { ...this.state, activeThread: null };
-    this.notify();
+    this.withHistory(s => ({ ...s, activeThread: null }));
   }
 
   reset() {
