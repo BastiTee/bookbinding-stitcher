@@ -39,6 +39,8 @@ export function buildSewingPanel(
   const undoRedoRow = el("div", "undo-redo-row");
   const undoBtn = button("↩ Undo", () => { sewingModel.undo(); updatePanel(); });
   const redoBtn = button("↪ Redo", () => { sewingModel.redo(); updatePanel(); });
+  undoBtn.id = "btn-undo";
+  redoBtn.id = "btn-redo";
   undoRedoRow.appendChild(undoBtn);
   undoRedoRow.appendChild(redoBtn);
   panel.appendChild(undoRedoRow);

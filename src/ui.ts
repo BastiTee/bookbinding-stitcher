@@ -14,6 +14,7 @@ import { openGallery } from "./gallery-ui";
 import { buildShortcutsPanel } from "./help-ui";
 import { saveAsFile, saveToHandle, openFilePicker } from "./file-io";
 import { encodePatternUrl, readPatternFromHash } from "./share";
+import { startTour } from "./tour";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -75,12 +76,15 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const btnDesign = document.createElement("button");
   btnDesign.textContent = "Spine Design";
   btnDesign.classList.add("mode-btn", "active");
+  btnDesign.id = "btn-mode-design";
   const btnSewing = document.createElement("button");
   btnSewing.textContent = "Sewing";
   btnSewing.classList.add("mode-btn");
+  btnSewing.id = "btn-mode-sewing";
   const btnPlayback = document.createElement("button");
   btnPlayback.textContent = "Playback";
   btnPlayback.classList.add("mode-btn");
+  btnPlayback.id = "btn-mode-playback";
   modeSwitcher.appendChild(btnDesign);
   modeSwitcher.appendChild(btnSewing);
   modeSwitcher.appendChild(btnPlayback);
@@ -245,8 +249,11 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   const galleryBtnRow = el("div", "export-btn-row");
   galleryBtnRow.appendChild(galleryBtn);
 
-  persistentPanel.appendChild(saveBtnRow);
-  persistentPanel.appendChild(importBtnRow);
+  const exportSection = el("div", "");
+  exportSection.id = "export-section";
+  exportSection.appendChild(saveBtnRow);
+  exportSection.appendChild(importBtnRow);
+  persistentPanel.appendChild(exportSection);
   persistentPanel.appendChild(galleryBtnRow);
 
   const fileNameDisplay = el("div", "current-file-name");
@@ -599,6 +606,8 @@ export function buildUI(container: HTMLElement, model: GridModel) {
   }
 
   refresh();
+
+  startTour({ loadPattern: applyImport, switchToDesign, switchToSewing, switchToPlayback });
 }
 
 // --- Helpers ---
