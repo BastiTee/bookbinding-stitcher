@@ -13,12 +13,12 @@
   },
   "devDependencies": {
     "typescript": "7.0.2",
-    "vite": "8.1.4",
-    "vitest": "4.1.11"
+    "vite": "8.3.0",
+    "vitest": "5.0.1"
   },
   "dependencies": {
-    "@fission-ai/openspec": "1.6.0",
-    "driver.js": "1.6.0",
+    "@fission-ai/openspec": "1.13.1",
+    "driver.js": "1.8.0",
     "lz-string": "1.5.0"
   }
 }
