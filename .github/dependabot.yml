@@ -2,6 +2,8 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
+    assignees:
+      - "BastiTee"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -13,6 +15,8 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    assignees:
+      - "BastiTee"
     schedule:
       interval: "weekly"
       day: "monday"
